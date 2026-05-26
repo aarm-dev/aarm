@@ -9,7 +9,7 @@
 
 ---
 
-AARM defines what a runtime security system **must** do before an AI agent executes any action. Not a framework. Not a guideline. A verifiable specification with conformance levels and a community-reviewed builder registry.
+Autonomous Action Runtime Management (AARM) is an open system specification for securing AI-driven actions at runtime. It defines what a runtime security system must do — not how to build it. An AARM system intercepts actions before execution, evaluates them against policy and contextual intent, enforces authorization decisions (allow, deny, modify, defer, or step-up), and records tamper-evident receipts binding action, context, and outcome for forensic reconstruction.
 
 ```
 Agent proposes action
