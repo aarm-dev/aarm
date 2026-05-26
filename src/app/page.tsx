@@ -113,7 +113,7 @@ export default function HomePage() {
                 {[
                   { key: "Version", val: "1.0" },
                   { key: "Date", val: "March 2026" },
-                  { key: "Authors", val: "Herman Errico, Akul Loomba, et al." },
+                  { key: "Author", val: "Herman Errico" },
                   { key: "DOI", val: "arXiv:2602.09433" },
                   { key: "Requirements", val: "R1 – R9 (Core R1–R6 · Extended R7–R9)" },
                 ].map(({ key, val }) => (
