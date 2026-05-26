@@ -1,4 +1,3 @@
-import React from "react";
 import Link from "next/link";
 import { BUILDERS } from "@/data/builders";
 
@@ -82,83 +81,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Specification document */}
-      <section className="border-b border-neutral-100 py-20">
-        <div className="mx-auto max-w-3xl px-6">
-          <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden">
-            {/* Doc header bar */}
-            <div
-              className="flex items-center justify-between px-7 py-3 border-b border-neutral-100"
-              style={{ backgroundColor: "rgba(26,110,181,0.04)" }}
-            >
-              <span className="font-mono text-[11px] uppercase tracking-widest text-neutral-400">
-                Cloud Security Alliance · Technical Working Group
-              </span>
-              <span className="rounded-full border border-green-200 bg-green-50 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-green-700">
-                Published
-              </span>
-            </div>
-
-            {/* Doc body */}
-            <div className="px-7 py-8">
-              <p className="mb-1 font-mono text-xs uppercase tracking-widest text-neutral-400">
-                System Category Specification
-              </p>
-              <h2 className="mb-6 text-2xl font-extrabold tracking-tight text-neutral-900 sm:text-3xl">
-                Autonomous Action Runtime Management (AARM)
-              </h2>
-
-              {/* Metadata table */}
-              <div className="mb-8 grid grid-cols-[auto_1fr] gap-x-8 gap-y-2.5 font-mono text-sm">
-                {[
-                  { key: "Version", val: "1.0" },
-                  { key: "Date", val: "March 2026" },
-                  { key: "Author", val: "Herman Errico" },
-                  { key: "DOI", val: "arXiv:2602.09433" },
-                  { key: "Requirements", val: "R1 – R9 (Core R1–R6 · Extended R7–R9)" },
-                ].map(({ key, val }) => (
-                  <React.Fragment key={key}>
-                    <span className="text-neutral-400 whitespace-nowrap">{key}</span>
-                    <span className="text-neutral-700">{val}</span>
-                  </React.Fragment>
-                ))}
-              </div>
-
-              {/* Horizontal rule */}
-              <div className="mb-8 h-px bg-neutral-100" />
-
-              {/* Abstract */}
-              <p className="mb-8 text-sm leading-relaxed text-neutral-500">
-                AARM defines the minimal security behaviors a system must implement before
-                an AI agent executes any action — intercept, accumulate context, evaluate
-                against policy with intent alignment, decide (ALLOW · DENY · MODIFY ·
-                STEP_UP · DEFER), and record a tamper-evident, identity-bound receipt.
-              </p>
-
-              {/* Actions */}
-              <div className="flex flex-wrap gap-3">
-                <a
-                  href="https://arxiv.org/abs/2602.09433"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-xl px-6 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-85"
-                  style={{ background: "linear-gradient(135deg, #F5923A 0%, #D45420 100%)" }}
-                >
-                  Read Specification →
-                </a>
-                <a
-                  href="https://github.com/aarm-dev/docs"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-xl border border-neutral-200 bg-white px-6 py-2.5 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50"
-                >
-                  View on GitHub ↗
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Conformance levels */}
       <section className="border-b border-neutral-100 bg-neutral-50/60 py-20">
