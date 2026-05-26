@@ -10,17 +10,23 @@ type Member = {
   name: string;
   title: string;
   company: string;
+  companyDomain: string;
   role: string;
   bio?: string;
   photo?: string;
   linkedin?: string;
 };
 
+function logoUrl(domain: string) {
+  return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+}
+
 const leadership: Member[] = [
   {
     name: "Herman Errico",
     title: "Author of AARM · PM",
     company: "Vanta",
+    companyDomain: "vanta.com",
     role: "Author",
     photo: "/team/herman-errico.png",
     linkedin: "https://www.linkedin.com/in/hermanerrico/",
@@ -29,6 +35,7 @@ const leadership: Member[] = [
     name: "Akul Loomba",
     title: "Co-chair, AARM Working Group · PM",
     company: "Microsoft",
+    companyDomain: "microsoft.com",
     role: "Co-Chair",
     linkedin: "https://www.linkedin.com/in/akulloomba/",
   },
@@ -36,6 +43,7 @@ const leadership: Member[] = [
     name: "Diana Kelley",
     title: "Co-chair, AARM Working Group · CISO",
     company: "Noma",
+    companyDomain: "noma.security",
     role: "Co-Chair",
     linkedin: "https://www.linkedin.com/in/dianakelleysecuritycurve/",
   },
@@ -43,6 +51,7 @@ const leadership: Member[] = [
     name: "Chris Hughes",
     title: "Co-chair, AARM Working Group · VP Security Strategy",
     company: "Zenity",
+    companyDomain: "zenity.io",
     role: "Co-Chair",
     linkedin: "https://www.linkedin.com/in/chris-hughes-cissp/",
   },
@@ -53,6 +62,7 @@ const members: Member[] = [
     name: "Phil Venables",
     title: "Partner",
     company: "Ballistic Ventures",
+    companyDomain: "ballisticventures.com",
     role: "Contributor",
     photo: "/team/phil-venables.jpg",
     linkedin: "https://www.linkedin.com/in/philvenables/",
@@ -61,6 +71,7 @@ const members: Member[] = [
     name: "Ken Huang",
     title: "AI Researcher & Author",
     company: "Distributedapps.AI",
+    companyDomain: "distributedapps.ai",
     role: "Contributor",
     photo: "/team/ken-huang.jpg",
     linkedin: "https://www.linkedin.com/in/kenhuang8/",
@@ -69,6 +80,7 @@ const members: Member[] = [
     name: "Anthony Scarfe",
     title: "Deputy CISO",
     company: "Elastic",
+    companyDomain: "elastic.co",
     role: "Contributor",
     photo: "/team/anthony-scarfe.jpg",
     linkedin: "https://www.linkedin.com/in/anthonyscarfe/",
@@ -77,6 +89,7 @@ const members: Member[] = [
     name: "Camille Stewart Gloster",
     title: "Co-founder",
     company: "Foundation Layer Institute",
+    companyDomain: "foundationlayer.org",
     role: "Contributor",
     photo: "/team/camille-stewart.jpg",
     linkedin: "https://www.linkedin.com/in/camillestewartesq/",
@@ -85,6 +98,7 @@ const members: Member[] = [
     name: "Hema Kak Kalsi",
     title: "Engineering Leader",
     company: "Independent",
+    companyDomain: "linkedin.com",
     role: "Contributor",
     photo: "/team/hema-kak-kalsi.jpg",
     linkedin: "https://www.linkedin.com/in/hemakalsi/",
@@ -93,6 +107,7 @@ const members: Member[] = [
     name: "Alex Foley",
     title: "Cybersecurity Group Manager",
     company: "Truist",
+    companyDomain: "truist.com",
     role: "Contributor",
     photo: "/team/alex-foley.jpg",
     linkedin: "https://www.linkedin.com/in/alexanderfoley/",
@@ -101,6 +116,7 @@ const members: Member[] = [
     name: "Kavya Pearlman",
     title: "Founder & Researcher",
     company: "XRSI",
+    companyDomain: "xrsi.org",
     role: "Contributor",
     photo: "/team/kavya-pearlman.png",
     linkedin: "https://www.linkedin.com/in/kavya-pearlman/",
@@ -109,6 +125,7 @@ const members: Member[] = [
     name: "Krti Tallam",
     title: "Sr Member of Technical Staff",
     company: "KamiwazaAI",
+    companyDomain: "kamiwaza.ai",
     role: "Contributor",
     photo: "/team/krti-tallam.png",
     linkedin: "https://www.linkedin.com/in/krti-tallam/",
@@ -117,6 +134,7 @@ const members: Member[] = [
     name: "Matthew Rosenquist",
     title: "Founder & CISO Advisor",
     company: "Cybersecurity Insights",
+    companyDomain: "cybersecurity-insights.com",
     role: "Contributor",
     photo: "/team/matthew-rosenquist.jpg",
     linkedin: "https://www.linkedin.com/in/matthewrosenquist/",
@@ -125,6 +143,7 @@ const members: Member[] = [
     name: "Prasenjit Sinha",
     title: "iOS Engineer",
     company: "Gusto",
+    companyDomain: "gusto.com",
     role: "Contributor",
     photo: "/team/prasenjit-sinha.jpg",
     linkedin: "https://www.linkedin.com/in/prasenjit-sinha-b6395759/",
@@ -133,6 +152,7 @@ const members: Member[] = [
     name: "Saikiran Rallabandi",
     title: "IEEE Senior Member",
     company: "IEEE",
+    companyDomain: "ieee.org",
     role: "Contributor",
     photo: "/team/saikiran-rallabandi.jpg",
     linkedin: "https://www.linkedin.com/in/saikiranrallabandi/",
@@ -141,6 +161,7 @@ const members: Member[] = [
     name: "Shanita Sojan",
     title: "Cyber Team Lead",
     company: "Darktrace",
+    companyDomain: "darktrace.com",
     role: "Contributor",
     photo: "/team/shanita-sojan.jpg",
     linkedin: "https://www.linkedin.com/in/shanita-sojan/",
@@ -278,21 +299,22 @@ export default function WorkingGroupPage() {
                 className="flex gap-4 rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
               >
                 <Avatar person={person} size="lg" />
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold text-neutral-900">{person.name}</span>
                     <span
                       className="rounded-full px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide"
-                      style={{
-                        backgroundColor: "rgba(26,110,181,0.08)",
-                        color: "#1A6EB5",
-                      }}
+                      style={{ backgroundColor: "rgba(26,110,181,0.08)", color: "#1A6EB5" }}
                     >
                       {person.role}
                     </span>
                   </div>
                   <div className="mt-0.5 text-xs text-neutral-500">
-                    {person.title} · {person.company}
+                    {person.title}
+                  </div>
+                  <div className="mt-2 flex items-center gap-1.5">
+                    <img src={logoUrl(person.companyDomain)} alt={person.company} width={14} height={14} className="rounded-sm" />
+                    <span className="text-xs font-medium text-neutral-600">{person.company}</span>
                   </div>
                 </div>
               </a>
@@ -319,8 +341,9 @@ export default function WorkingGroupPage() {
                 <Avatar person={person} size="sm" />
                 <div className="min-w-0">
                   <div className="text-sm font-medium text-neutral-900">{person.name}</div>
-                  <div className="truncate text-xs text-neutral-500">
-                    {person.title} · {person.company}
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <img src={logoUrl(person.companyDomain)} alt={person.company} width={12} height={12} className="rounded-sm shrink-0" />
+                    <div className="truncate text-xs text-neutral-500">{person.title} · {person.company}</div>
                   </div>
                 </div>
               </a>
