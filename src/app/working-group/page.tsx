@@ -18,32 +18,28 @@ type Member = {
 const leadership: Member[] = [
   {
     name: "Herman Errico",
-    title: "Senior Product Manager",
+    title: "Author of AARM · PM",
     company: "Vanta",
     role: "Author",
-    bio: "Co-founder and primary author of the AARM specification. Leads the working group and specification development at the Cloud Security Alliance.",
     photo: "/team/herman-errico.png",
   },
   {
     name: "Akul Loomba",
-    title: "Product Manager",
-    company: "Independent",
-    role: "Co-Author",
-    bio: "Co-author of the AARM specification and core contributor to the conformance framework and builder registry.",
+    title: "Co-chair, AARM Working Group · PM",
+    company: "Microsoft",
+    role: "Co-Chair",
   },
   {
     name: "Diana Kelley",
-    title: "Cybersecurity Strategist & Author",
-    company: "Independent",
-    role: "Contributor",
-    bio: "Cybersecurity executive, author, and advisor with deep expertise in enterprise security architecture and emerging technology risk.",
+    title: "Co-chair, AARM Working Group · CISO",
+    company: "Noma",
+    role: "Co-Chair",
   },
   {
     name: "Chris Hughes",
-    title: "CISO Advisor & Author",
-    company: "Independent",
-    role: "Contributor",
-    bio: "Cybersecurity author, podcast host, and CISO advisor focused on software supply chain security and AI risk.",
+    title: "Co-chair, AARM Working Group · VP Security Strategy",
+    company: "Zenity",
+    role: "Co-Chair",
   },
 ];
 
