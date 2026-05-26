@@ -13,6 +13,7 @@ type Member = {
   role: string;
   bio?: string;
   photo?: string;
+  linkedin?: string;
 };
 
 const leadership: Member[] = [
@@ -22,24 +23,28 @@ const leadership: Member[] = [
     company: "Vanta",
     role: "Author",
     photo: "/team/herman-errico.png",
+    linkedin: "https://www.linkedin.com/in/hermanerrico/",
   },
   {
     name: "Akul Loomba",
     title: "Co-chair, AARM Working Group · PM",
     company: "Microsoft",
     role: "Co-Chair",
+    linkedin: "https://www.linkedin.com/in/akulloomba/",
   },
   {
     name: "Diana Kelley",
     title: "Co-chair, AARM Working Group · CISO",
     company: "Noma",
     role: "Co-Chair",
+    linkedin: "https://www.linkedin.com/in/dianakelleysecuritycurve/",
   },
   {
     name: "Chris Hughes",
     title: "Co-chair, AARM Working Group · VP Security Strategy",
     company: "Zenity",
     role: "Co-Chair",
+    linkedin: "https://www.linkedin.com/in/chris-hughes-cissp/",
   },
 ];
 
@@ -50,6 +55,7 @@ const members: Member[] = [
     company: "Ballistic Ventures",
     role: "Contributor",
     photo: "/team/phil-venables.jpg",
+    linkedin: "https://www.linkedin.com/in/philvenables/",
   },
   {
     name: "Ken Huang",
@@ -57,6 +63,7 @@ const members: Member[] = [
     company: "Distributedapps.AI",
     role: "Contributor",
     photo: "/team/ken-huang.jpg",
+    linkedin: "https://www.linkedin.com/in/kenhuang8/",
   },
   {
     name: "Anthony Scarfe",
@@ -64,6 +71,7 @@ const members: Member[] = [
     company: "Elastic",
     role: "Contributor",
     photo: "/team/anthony-scarfe.jpg",
+    linkedin: "https://www.linkedin.com/in/anthonyscarfe/",
   },
   {
     name: "Camille Stewart Gloster",
@@ -71,6 +79,7 @@ const members: Member[] = [
     company: "Foundation Layer Institute",
     role: "Contributor",
     photo: "/team/camille-stewart.jpg",
+    linkedin: "https://www.linkedin.com/in/camillestewartesq/",
   },
   {
     name: "Hema Kak Kalsi",
@@ -78,6 +87,7 @@ const members: Member[] = [
     company: "Independent",
     role: "Contributor",
     photo: "/team/hema-kak-kalsi.jpg",
+    linkedin: "https://www.linkedin.com/in/hemakalsi/",
   },
   {
     name: "Alex Foley",
@@ -85,6 +95,7 @@ const members: Member[] = [
     company: "Truist",
     role: "Contributor",
     photo: "/team/alex-foley.jpg",
+    linkedin: "https://www.linkedin.com/in/alexanderfoley/",
   },
   {
     name: "Kavya Pearlman",
@@ -92,6 +103,7 @@ const members: Member[] = [
     company: "XRSI",
     role: "Contributor",
     photo: "/team/kavya-pearlman.png",
+    linkedin: "https://www.linkedin.com/in/kavya-pearlman/",
   },
   {
     name: "Krti Tallam",
@@ -99,6 +111,7 @@ const members: Member[] = [
     company: "KamiwazaAI",
     role: "Contributor",
     photo: "/team/krti-tallam.png",
+    linkedin: "https://www.linkedin.com/in/krti-tallam/",
   },
   {
     name: "Matthew Rosenquist",
@@ -106,6 +119,7 @@ const members: Member[] = [
     company: "Cybersecurity Insights",
     role: "Contributor",
     photo: "/team/matthew-rosenquist.jpg",
+    linkedin: "https://www.linkedin.com/in/matthewrosenquist/",
   },
   {
     name: "Prasenjit Sinha",
@@ -113,6 +127,7 @@ const members: Member[] = [
     company: "Gusto",
     role: "Contributor",
     photo: "/team/prasenjit-sinha.jpg",
+    linkedin: "https://www.linkedin.com/in/prasenjit-sinha-b6395759/",
   },
   {
     name: "Saikiran Rallabandi",
@@ -120,6 +135,7 @@ const members: Member[] = [
     company: "IEEE",
     role: "Contributor",
     photo: "/team/saikiran-rallabandi.jpg",
+    linkedin: "https://www.linkedin.com/in/saikiranrallabandi/",
   },
   {
     name: "Shanita Sojan",
@@ -127,6 +143,7 @@ const members: Member[] = [
     company: "Darktrace",
     role: "Contributor",
     photo: "/team/shanita-sojan.jpg",
+    linkedin: "https://www.linkedin.com/in/shanita-sojan/",
   },
 ];
 
@@ -253,9 +270,12 @@ export default function WorkingGroupPage() {
           </div>
           <div className="grid gap-5 sm:grid-cols-2">
             {leadership.map((person) => (
-              <div
+              <a
                 key={person.name}
-                className="flex gap-4 rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm"
+                href={person.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex gap-4 rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
               >
                 <Avatar person={person} size="lg" />
                 <div className="min-w-0">
@@ -274,11 +294,8 @@ export default function WorkingGroupPage() {
                   <div className="mt-0.5 text-xs text-neutral-500">
                     {person.title} · {person.company}
                   </div>
-                  {person.bio && (
-                    <p className="mt-2 text-sm leading-relaxed text-neutral-500">{person.bio}</p>
-                  )}
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </div>
@@ -292,9 +309,12 @@ export default function WorkingGroupPage() {
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {members.map((person) => (
-              <div
+              <a
                 key={person.name}
-                className="flex items-center gap-3 rounded-xl border border-neutral-100 bg-white p-4"
+                href={person.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 rounded-xl border border-neutral-100 bg-white p-4 transition-shadow hover:shadow-sm"
               >
                 <Avatar person={person} size="sm" />
                 <div className="min-w-0">
@@ -303,7 +323,7 @@ export default function WorkingGroupPage() {
                     {person.title} · {person.company}
                   </div>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </div>
