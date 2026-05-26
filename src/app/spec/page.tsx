@@ -229,7 +229,7 @@ export default function SpecPage() {
               </p>
               <p className="mb-3">
                 Feedback and contributions are welcome via the{" "}
-                <a href="https://github.com/aarm-dev/docs" target="_blank" rel="noopener noreferrer" className="underline decoration-neutral-300 hover:decoration-neutral-600" style={{ color: "#1A6EB5" }}>
+                <a href="https://github.com/aarm-dev/aarm" target="_blank" rel="noopener noreferrer" className="underline decoration-neutral-300 hover:decoration-neutral-600" style={{ color: "#1A6EB5" }}>
                   GitHub repository
                 </a>. Errata will be tracked as issues.
               </p>

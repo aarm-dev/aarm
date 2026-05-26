@@ -365,12 +365,12 @@ export default function WorkingGroupPage() {
                 Apply via CSA →
               </a>
               <a
-                href="https://github.com/aarm-dev/docs"
+                href="https://github.com/aarm-dev/aarm"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-xl border border-white/30 bg-white/10 px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/20"
               >
-                View spec on GitHub
+                View on GitHub
               </a>
             </div>
           </div>

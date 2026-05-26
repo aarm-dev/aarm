@@ -61,7 +61,7 @@ export default function BuildersPage() {
               </td>
               <td className="px-4 py-3 text-xs">
                 <a
-                  href="https://github.com/aarm-dev/docs/edit/main/builders.mdx"
+                  href="https://github.com/aarm-dev/aarm"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-medium transition-opacity hover:opacity-70"

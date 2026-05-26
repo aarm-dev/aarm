@@ -209,15 +209,13 @@ export default function AboutPage() {
 
           {/* Links */}
           <div className="flex flex-wrap gap-3 border-t border-neutral-100 pt-8">
-            <a
-              href="https://github.com/aarm-dev/docs"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/spec"
               className="rounded-lg px-5 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-85"
               style={{ background: "linear-gradient(135deg, #F5923A 0%, #D45420 100%)" }}
             >
               Read the specification →
-            </a>
+            </Link>
             <Link
               href="/conformance"
               className="rounded-lg border border-neutral-200 bg-white px-5 py-2.5 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50"

@@ -208,29 +208,19 @@ export default function ConformancePage() {
 
       {/* Links */}
       <div className="flex flex-wrap gap-3 border-t border-border/40 pt-8">
-        <a
-          href="https://github.com/aarm-dev/docs/blob/main/conformance/testing.mdx"
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href="/spec"
           className="rounded-md px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-80"
           style={{ background: "linear-gradient(135deg, #F5923A 0%, #D45420 100%)" }}
         >
-          Testing protocol →
-        </a>
+          Full specification →
+        </Link>
         <Link
           href="/builders"
           className="rounded-md border border-border px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
         >
           Conformant builders
         </Link>
-        <a
-          href="https://github.com/aarm-dev/docs"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-md border border-border px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
-        >
-          Full specification
-        </a>
       </div>
     </div>
   );

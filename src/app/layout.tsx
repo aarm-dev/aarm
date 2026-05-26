@@ -45,7 +45,7 @@ export default function RootLayout({
                 </p>
                 <div className="flex items-center gap-3">
                   <a
-                    href="https://github.com/aarm-dev/docs"
+                    href="https://github.com/aarm-dev/aarm"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition-colors hover:border-neutral-300 hover:text-neutral-800"
@@ -80,11 +80,11 @@ export default function RootLayout({
                   {[
                     { href: "/about", label: "About AARM" },
                     { href: "/conformance", label: "Requirements" },
-                    { href: "https://github.com/aarm-dev/docs/blob/main/conformance/testing.mdx", label: "Testing protocol", external: true },
+                    { href: "/conformance", label: "Testing protocol" },
                     { href: "https://arxiv.org/abs/2602.09433", label: "arXiv paper", external: true },
-                    { href: "https://github.com/aarm-dev/docs", label: "Full specification", external: true },
+                    { href: "/spec", label: "Full specification" },
                   ].map((link) => (
-                    <li key={link.href}>
+                    <li key={link.label}>
                       {link.external ? (
                         <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-500 transition-colors hover:text-neutral-800">
                           {link.label}
@@ -124,7 +124,7 @@ export default function RootLayout({
                   {[
                     { href: "/working-group", label: "Working group" },
                     { href: "https://cloudsecurityalliance.org/research/working-groups/autonomous-action-runtime-management-aarm", label: "Join the TWG", external: true },
-                    { href: "https://github.com/aarm-dev/docs", label: "Contribute on GitHub", external: true },
+                    { href: "https://github.com/aarm-dev/aarm", label: "Contribute on GitHub", external: true },
                   ].map((link) => (
                     <li key={link.href}>
                       {link.external ? (

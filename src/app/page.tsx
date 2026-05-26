@@ -34,26 +34,24 @@ export default function HomePage() {
           </div>
 
           <h1 className="mx-auto mb-6 max-w-4xl text-5xl font-extrabold leading-[1.08] tracking-tight text-neutral-900 sm:text-6xl lg:text-7xl">
-            The runtime security standard for{" "}
-            <span style={{ color: "#1A6EB5" }}>autonomous AI agents.</span>
+            The system category for{" "}
+            <span style={{ color: "#1A6EB5" }}>agentic runtime security.</span>
           </h1>
 
           <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-neutral-500">
-            AARM defines what a security system must do before an AI agent
-            executes an action — intercept, evaluate against policy, decide,
-            and produce a tamper-evident record.
+            AARM defines the security controls an AI agent runtime must implement
+            before any action is executed — intercept, evaluate against policy,
+            decide, and produce a tamper-evident record.
           </p>
 
           <div className="mb-8 flex flex-wrap items-center justify-center gap-3">
-            <a
-              href="https://github.com/aarm-dev/docs"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/spec"
               className="rounded-xl px-7 py-3.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-85"
               style={{ background: "linear-gradient(135deg, #F5923A 0%, #D45420 100%)" }}
             >
               Read the Specification
-            </a>
+            </Link>
             <Link
               href="/builders"
               className="rounded-xl border border-neutral-200 bg-white px-7 py-3.5 text-sm font-semibold text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50"
