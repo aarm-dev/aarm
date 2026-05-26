@@ -224,7 +224,7 @@ export default function WorkingGroupPage() {
           <div className="grid gap-6 sm:grid-cols-3">
             {[
               {
-                title: "Open specification",
+                title: "System category specification",
                 desc: "AARM is a vendor-neutral, community-driven standard — no single company controls the roadmap.",
               },
               {

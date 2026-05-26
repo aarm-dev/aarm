@@ -215,7 +215,7 @@ export default function HomePage() {
               Join the AARM Working Group
             </h2>
             <p className="mx-auto mb-8 max-w-lg text-blue-100">
-              An open standard built by security practitioners, researchers,
+              A system category specification built by security practitioners, researchers,
               and builders. Come shape the future of AI agent security.
             </p>
             <a

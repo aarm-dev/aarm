@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "About — AARM",
   description:
-    "What AARM is, why it exists, and how it works. The open standard for AI agent runtime security.",
+    "What AARM is, why it exists, and how it works. The system category specification for AI agent runtime security.",
 };
 
 export default function AboutPage() {
@@ -24,7 +24,7 @@ export default function AboutPage() {
             What is AARM?
           </h1>
           <p className="text-xl leading-relaxed text-neutral-500">
-            Autonomous Action Runtime Management (AARM) is an open specification
+            Autonomous Action Runtime Management (AARM) is a system category specification
             that defines what a security system must do before an AI agent executes
             any action — in any environment, at any scale.
           </p>

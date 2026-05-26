@@ -149,7 +149,7 @@ export default function RootLayout({
               </div>
               <div className="flex items-center gap-1">
                 <span className="rounded-full bg-green-50 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-green-700 border border-green-100">
-                  Open Standard
+                  System Category Spec
                 </span>
                 <span className="rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide border"
                   style={{ backgroundColor: "rgba(26,110,181,0.06)", color: "#1A6EB5", borderColor: "rgba(26,110,181,0.2)" }}>

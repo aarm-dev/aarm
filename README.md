@@ -137,4 +137,4 @@ Specification changes, new builder submissions, and conformance feedback are all
 
 ---
 
-<sub>AARM is an open standard. Specification text is licensed under CC BY 4.0. Website source is MIT.</sub>
+<sub>AARM is a system category specification. Specification text is licensed under CC BY 4.0. Website source is MIT.</sub>
