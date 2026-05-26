@@ -37,6 +37,7 @@ const leadership: Member[] = [
     company: "Microsoft",
     companyDomain: "microsoft.com",
     role: "Co-Chair",
+    photo: "/team/akul-loomba.jpg",
     linkedin: "https://www.linkedin.com/in/akulloomba/",
   },
   {
@@ -45,6 +46,7 @@ const leadership: Member[] = [
     company: "Noma",
     companyDomain: "noma.security",
     role: "Co-Chair",
+    photo: "/team/diana-kelley.jpg",
     linkedin: "https://www.linkedin.com/in/dianakelleysecuritycurve/",
   },
   {
