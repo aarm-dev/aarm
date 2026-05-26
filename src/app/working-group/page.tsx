@@ -53,7 +53,7 @@ const leadership: Member[] = [
     company: "Zenity",
     companyDomain: "zenity.io",
     role: "Co-Chair",
-    linkedin: "https://www.linkedin.com/in/chris-hughes-cissp/",
+    linkedin: "https://www.linkedin.com/in/resilientcyber/",
   },
 ];
 
