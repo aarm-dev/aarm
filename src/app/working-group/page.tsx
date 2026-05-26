@@ -55,6 +55,7 @@ const leadership: Member[] = [
     company: "Zenity",
     companyDomain: "zenity.io",
     role: "Co-Chair",
+    photo: "/team/chris-hughes.jpg",
     linkedin: "https://www.linkedin.com/in/resilientcyber/",
   },
 ];
