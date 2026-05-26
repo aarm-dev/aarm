@@ -29,31 +29,19 @@ export function SiteNav() {
         </Link>
 
         <nav className="flex items-center gap-1">
-          {links.map((link) =>
-            link.external ? (
-              <a
-                key={link.href}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-md px-3 py-1.5 text-sm text-neutral-500 transition-colors hover:text-neutral-900"
-              >
-                {link.label}
-              </a>
-            ) : (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
-                  pathname === link.href
-                    ? "text-neutral-900 font-medium"
-                    : "text-neutral-500 hover:text-neutral-900"
-                }`}
-              >
-                {link.label}
-              </Link>
-            )
-          )}
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
+                pathname === link.href
+                  ? "text-neutral-900 font-medium"
+                  : "text-neutral-500 hover:text-neutral-900"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
           <a
             href="https://cloudsecurityalliance.org/research/working-groups/autonomous-action-runtime-management-aarm"
             target="_blank"
