@@ -213,7 +213,7 @@ export default function ConformancePage() {
           target="_blank"
           rel="noopener noreferrer"
           className="rounded-md px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-80"
-          style={{ backgroundColor: "#1A6EB5" }}
+          style={{ background: "linear-gradient(135deg, #F5923A 0%, #D45420 100%)" }}
         >
           Testing protocol →
         </a>

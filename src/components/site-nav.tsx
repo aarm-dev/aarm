@@ -5,9 +5,10 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const links = [
+  { href: "/about", label: "About" },
   { href: "/conformance", label: "Conformance" },
   { href: "/builders", label: "Builders" },
-  { href: "https://github.com/aarm-dev/docs", label: "Spec", external: true },
+  { href: "/working-group", label: "Working Group" },
 ];
 
 export function SiteNav() {
@@ -58,7 +59,7 @@ export function SiteNav() {
             target="_blank"
             rel="noopener noreferrer"
             className="ml-2 rounded-lg px-4 py-1.5 text-sm font-semibold text-white transition-opacity hover:opacity-85"
-            style={{ backgroundColor: "#1A6EB5" }}
+            style={{ background: "linear-gradient(135deg, #F5923A 0%, #D45420 100%)" }}
           >
             Join TWG
           </a>

@@ -50,7 +50,7 @@ export default function HomePage() {
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-xl px-7 py-3.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-85"
-              style={{ backgroundColor: "#1A6EB5" }}
+              style={{ background: "linear-gradient(135deg, #F5923A 0%, #D45420 100%)" }}
             >
               Read the Specification
             </a>
@@ -67,7 +67,7 @@ export default function HomePage() {
             {[
               `${BUILDERS.length}+ Builders`,
               `${conformantCount} Conformant Products`,
-              "14 TWG Members",
+              "16 TWG Members",
               "CSA Verified",
             ].map((item) => (
               <span key={item} className="flex items-center gap-1.5">
