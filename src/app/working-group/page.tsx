@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Working Group — AARM",
@@ -7,13 +6,23 @@ export const metadata: Metadata = {
     "The AARM Technical Working Group. Security practitioners, researchers, and builders shaping the future of AI agent security.",
 };
 
-const leadership = [
+type Member = {
+  name: string;
+  title: string;
+  company: string;
+  role: string;
+  bio?: string;
+  photo?: string;
+};
+
+const leadership: Member[] = [
   {
     name: "Herman Errico",
     title: "Senior Product Manager",
     company: "Vanta",
     role: "Author",
     bio: "Co-founder and primary author of the AARM specification. Leads the working group and specification development at the Cloud Security Alliance.",
+    photo: "/team/herman-errico.png",
   },
   {
     name: "Akul Loomba",
@@ -38,85 +47,90 @@ const leadership = [
   },
 ];
 
-const members = [
+const members: Member[] = [
   {
     name: "Phil Venables",
     title: "Partner",
     company: "Ballistic Ventures",
+    role: "Contributor",
+    photo: "/team/phil-venables.jpg",
   },
   {
     name: "Ken Huang",
     title: "AI Researcher & Author",
     company: "Distributedapps.AI",
+    role: "Contributor",
+    photo: "/team/ken-huang.jpg",
   },
   {
     name: "Anthony Scarfe",
     title: "Deputy CISO",
     company: "Elastic",
+    role: "Contributor",
+    photo: "/team/anthony-scarfe.jpg",
   },
   {
     name: "Camille Stewart Gloster",
     title: "Co-founder",
     company: "Foundation Layer Institute",
+    role: "Contributor",
+    photo: "/team/camille-stewart.jpg",
   },
   {
     name: "Hema Kak Kalsi",
     title: "Engineering Leader",
     company: "Independent",
+    role: "Contributor",
+    photo: "/team/hema-kak-kalsi.jpg",
   },
   {
     name: "Alex Foley",
     title: "Cybersecurity Group Manager",
     company: "Truist",
+    role: "Contributor",
+    photo: "/team/alex-foley.jpg",
   },
   {
     name: "Kavya Pearlman",
     title: "Founder & Researcher",
     company: "XRSI",
+    role: "Contributor",
+    photo: "/team/kavya-pearlman.png",
   },
   {
     name: "Krti Tallam",
     title: "Sr Member of Technical Staff",
     company: "KamiwazaAI",
+    role: "Contributor",
+    photo: "/team/krti-tallam.png",
   },
   {
     name: "Matthew Rosenquist",
     title: "Founder & CISO Advisor",
     company: "Cybersecurity Insights",
+    role: "Contributor",
+    photo: "/team/matthew-rosenquist.jpg",
   },
   {
     name: "Prasenjit Sinha",
     title: "iOS Engineer",
     company: "Gusto",
+    role: "Contributor",
+    photo: "/team/prasenjit-sinha.jpg",
   },
   {
     name: "Saikiran Rallabandi",
     title: "IEEE Senior Member",
     company: "IEEE",
+    role: "Contributor",
+    photo: "/team/saikiran-rallabandi.jpg",
   },
   {
     name: "Shanita Sojan",
     title: "Cyber Team Lead",
     company: "Darktrace",
-  },
-];
-
-const contributions = [
-  {
-    area: "Specification",
-    desc: "Draft, review, and refine AARM requirements. Propose additions and flag ambiguities.",
-  },
-  {
-    area: "Conformance",
-    desc: "Define and validate the testing protocol. Review evidence packages from builders.",
-  },
-  {
-    area: "Community",
-    desc: "Engage builders, publish research, and grow the AARM ecosystem.",
-  },
-  {
-    area: "Threat Modeling",
-    desc: "Identify new attack classes and validate coverage of the AARM threat model.",
+    role: "Contributor",
+    photo: "/team/shanita-sojan.jpg",
   },
 ];
 
@@ -137,9 +151,53 @@ function avatarColor(name: string) {
     { bg: "#F0F9FF", text: "#0369A1" },
     { bg: "#FFF1F2", text: "#BE123C" },
   ];
-  const i = name.charCodeAt(0) % colors.length;
-  return colors[i];
+  return colors[name.charCodeAt(0) % colors.length];
 }
+
+function Avatar({ person, size }: { person: Member; size: "lg" | "sm" }) {
+  const dim = size === "lg" ? "h-14 w-14" : "h-10 w-10";
+  const textSize = size === "lg" ? "text-sm" : "text-xs";
+  const rounded = size === "lg" ? "rounded-2xl" : "rounded-xl";
+
+  if (person.photo) {
+    return (
+      <img
+        src={person.photo}
+        alt={person.name}
+        className={`${dim} ${rounded} shrink-0 object-cover`}
+      />
+    );
+  }
+
+  const color = avatarColor(person.name);
+  return (
+    <div
+      className={`${dim} ${rounded} ${textSize} flex shrink-0 items-center justify-center font-bold`}
+      style={{ backgroundColor: color.bg, color: color.text }}
+    >
+      {initials(person.name)}
+    </div>
+  );
+}
+
+const contributions = [
+  {
+    area: "Specification",
+    desc: "Draft, review, and refine AARM requirements. Propose additions and flag ambiguities.",
+  },
+  {
+    area: "Conformance",
+    desc: "Define and validate the testing protocol. Review evidence packages from builders.",
+  },
+  {
+    area: "Community",
+    desc: "Engage builders, publish research, and grow the AARM ecosystem.",
+  },
+  {
+    area: "Threat Modeling",
+    desc: "Identify new attack classes and validate coverage of the AARM threat model.",
+  },
+];
 
 export default function WorkingGroupPage() {
   return (
@@ -198,40 +256,34 @@ export default function WorkingGroupPage() {
             <span className="font-mono text-xs uppercase tracking-widest text-neutral-400">Leadership</span>
           </div>
           <div className="grid gap-5 sm:grid-cols-2">
-            {leadership.map((person) => {
-              const color = avatarColor(person.name);
-              return (
-                <div
-                  key={person.name}
-                  className="flex gap-4 rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm"
-                >
-                  <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-sm font-bold"
-                    style={{ backgroundColor: color.bg, color: color.text }}
-                  >
-                    {initials(person.name)}
+            {leadership.map((person) => (
+              <div
+                key={person.name}
+                className="flex gap-4 rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm"
+              >
+                <Avatar person={person} size="lg" />
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold text-neutral-900">{person.name}</span>
+                    <span
+                      className="rounded-full px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide"
+                      style={{
+                        backgroundColor: "rgba(26,110,181,0.08)",
+                        color: "#1A6EB5",
+                      }}
+                    >
+                      {person.role}
+                    </span>
                   </div>
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold text-neutral-900">{person.name}</span>
-                      <span
-                        className="rounded-full px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide"
-                        style={{
-                          backgroundColor: "rgba(26,110,181,0.08)",
-                          color: "#1A6EB5",
-                        }}
-                      >
-                        {person.role}
-                      </span>
-                    </div>
-                    <div className="mt-0.5 text-xs text-neutral-500">
-                      {person.title} · {person.company}
-                    </div>
+                  <div className="mt-0.5 text-xs text-neutral-500">
+                    {person.title} · {person.company}
+                  </div>
+                  {person.bio && (
                     <p className="mt-2 text-sm leading-relaxed text-neutral-500">{person.bio}</p>
-                  </div>
+                  )}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -243,28 +295,20 @@ export default function WorkingGroupPage() {
             <span className="font-mono text-xs uppercase tracking-widest text-neutral-400">Contributors</span>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {members.map((person) => {
-              const color = avatarColor(person.name);
-              return (
-                <div
-                  key={person.name}
-                  className="flex items-center gap-3 rounded-xl border border-neutral-100 bg-white p-4"
-                >
-                  <div
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xs font-bold"
-                    style={{ backgroundColor: color.bg, color: color.text }}
-                  >
-                    {initials(person.name)}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-sm font-medium text-neutral-900">{person.name}</div>
-                    <div className="truncate text-xs text-neutral-500">
-                      {person.title} · {person.company}
-                    </div>
+            {members.map((person) => (
+              <div
+                key={person.name}
+                className="flex items-center gap-3 rounded-xl border border-neutral-100 bg-white p-4"
+              >
+                <Avatar person={person} size="sm" />
+                <div className="min-w-0">
+                  <div className="text-sm font-medium text-neutral-900">{person.name}</div>
+                  <div className="truncate text-xs text-neutral-500">
+                    {person.title} · {person.company}
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
       </section>
