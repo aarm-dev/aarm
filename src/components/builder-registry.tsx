@@ -11,11 +11,13 @@ function faviconUrl(url: string) {
 type Filter = "all" | "Conformant" | "Aligned";
 
 function ConformantCard({ b }: { b: Builder }) {
+  const href = b.slug ? `/builders/${b.slug}` : b.url;
+  const isInternal = !!b.slug;
+  const Tag = isInternal ? "a" : "a";
   return (
-    <a
-      href={b.url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Tag
+      href={href}
+      {...(!isInternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       className="group flex flex-col rounded-2xl border bg-white p-6 transition-all hover:-translate-y-0.5 hover:shadow-md"
       style={{ borderColor: "#D1FAE5" }}
     >
@@ -32,9 +34,9 @@ function ConformantCard({ b }: { b: Builder }) {
       </div>
       <p className="flex-1 text-sm leading-relaxed text-neutral-500">{b.desc}</p>
       <div className="mt-4 text-xs font-medium text-neutral-400 transition-colors group-hover:text-neutral-600">
-        Visit {b.url.replace(/https?:\/\/(www\.)?/, "").split("/")[0]} →
+        {b.slug ? "View conformance record →" : `Visit ${b.url.replace(/https?:\/\/(www\.)?/, "").split("/")[0]} →`}
       </div>
-    </a>
+    </Tag>
   );
 }
 
