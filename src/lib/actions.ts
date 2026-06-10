@@ -4,12 +4,12 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import { db, isDbConfigured } from "@/db";
-import { builders, claims } from "@/db/schema";
+import { builders, claims, users } from "@/db/schema";
 import type {
   Category, Surface, Stage, ProductType, Audience, Deployment,
   InterceptionArchitecture, PolicyModel, AuthDecision,
 } from "@/db/taxonomy";
-import { notifyNewListing, notifyClaim } from "@/lib/notify";
+import { notifyNewListing, notifyClaim, notifyListingDecision, notifyClaimDecision } from "@/lib/notify";
 
 function slugify(name: string) {
   return name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -183,6 +183,16 @@ export async function setListingStatus(builderId: string, status: "approved" | "
   const database = await requireDb();
   await requireAdmin();
   await database.update(builders).set({ status }).where(eq(builders.id, builderId));
+
+  // Notify the submitter of the decision.
+  const [b] = await database.select().from(builders).where(eq(builders.id, builderId)).limit(1);
+  if (b?.createdBy) {
+    const [u] = await database.select({ email: users.email }).from(users).where(eq(users.id, b.createdBy)).limit(1);
+    if (u?.email) {
+      await notifyListingDecision({ to: u.email, name: b.name, slug: b.slug, approved: status === "approved" });
+    }
+  }
+
   revalidatePath("/builders");
   revalidatePath("/admin");
 }
@@ -196,8 +206,21 @@ export async function reviewClaim(claimId: string, decision: "approved" | "rejec
     .update(claims)
     .set({ status: decision, reviewedBy: admin.id, reviewedAt: new Date() })
     .where(eq(claims.id, claimId));
+  const [b] = await database
+    .select({ name: builders.name, slug: builders.slug })
+    .from(builders)
+    .where(eq(builders.id, c.builderId))
+    .limit(1);
   if (decision === "approved") {
     await database.update(builders).set({ claimedBy: c.userId }).where(eq(builders.id, c.builderId));
+  }
+  if (c.userEmail && b) {
+    await notifyClaimDecision({
+      to: c.userEmail,
+      builderName: b.name,
+      builderSlug: b.slug,
+      approved: decision === "approved",
+    });
   }
   revalidatePath("/admin");
 }

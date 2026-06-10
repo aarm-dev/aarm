@@ -103,6 +103,61 @@ export async function notifyClaim(c: {
   }
 }
 
+async function sendEmail(to: string[], subject: string, html: string): Promise<void> {
+  const key = process.env.RESEND_API_KEY;
+  if (!key || to.length === 0) {
+    console.info("[notify] skipped (not configured)");
+    return;
+  }
+  const from = process.env.NOTIFY_FROM || "AARM <onboarding@resend.dev>";
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from, to, subject, html }),
+    });
+    if (!res.ok) console.error("[notify] resend error", res.status, await res.text());
+  } catch (e) {
+    console.error("[notify] send failed", e);
+  }
+}
+
+const SITE = () => process.env.NEXT_PUBLIC_SITE_URL || "https://aarm.dev";
+
+/** Email the submitter when their listing is approved or rejected. */
+export async function notifyListingDecision(p: { to: string; name: string; slug: string; approved: boolean }) {
+  if (!p.to) return;
+  const html = p.approved
+    ? `<h2>Your AARM listing is live</h2>
+       <p><strong>${esc(p.name)}</strong> has been approved and now appears in the AARM builder registry.</p>
+       <p><a href="${SITE()}/builders/${esc(p.slug)}">View your listing →</a></p>
+       <p>Sign in and choose <em>“Manage this listing”</em> to keep your details up to date.</p>`
+    : `<h2>Update on your AARM submission</h2>
+       <p>Thanks for submitting <strong>${esc(p.name)}</strong> to the AARM registry. After review, it wasn’t approved for listing at this time.</p>
+       <p>Reply to this email if you’d like feedback or want to resubmit.</p>`;
+  await sendEmail(
+    [p.to],
+    p.approved ? `Your AARM listing is live: ${p.name}` : `Update on your AARM submission: ${p.name}`,
+    html
+  );
+}
+
+/** Email the requester when their manage request is approved or rejected. */
+export async function notifyClaimDecision(p: { to: string; builderName: string; builderSlug: string; approved: boolean }) {
+  if (!p.to) return;
+  const html = p.approved
+    ? `<h2>You can now manage ${esc(p.builderName)}</h2>
+       <p>Your request to manage <strong>${esc(p.builderName)}</strong> on AARM was approved.</p>
+       <p><a href="${SITE()}/builders/${esc(p.builderSlug)}/edit">Manage your listing →</a></p>`
+    : `<h2>Update on your AARM request</h2>
+       <p>Your request to manage <strong>${esc(p.builderName)}</strong> wasn’t approved. If you believe this is a mistake, reply to this email and we’ll take another look.</p>`;
+  await sendEmail(
+    [p.to],
+    p.approved ? `You can now manage ${p.builderName} on AARM` : `Update on your AARM request: ${p.builderName}`,
+    html
+  );
+}
+
 function esc(s: string) {
   return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
 }
