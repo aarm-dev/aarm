@@ -69,4 +69,5 @@ export const BUILDERS: Builder[] = [
   { name: "Reva AI", desc: "Intent & Behavior-based Access Control (IBAC) for every agentic action, at runtime.", conformance: "Aligned", url: "https://www.reva.ai" },
   { name: "Metano AI", desc: "Discover, monitor, govern, and defend autonomous agents everywhere they operate - across SaaS, endpoints, and shadow environments.", conformance: "Aligned", url: "https://metano.ai" },
   { name: "SURADAR", desc: "Cryptographic per-action authorization for AI agents — tamper-evident receipts, identity binding, and memory provenance.", conformance: "Aligned", url: "https://glyphzerolabs.com" },
+  { name: "Rubrik", desc: "Cyber resilience platform securing enterprise data, identity, and AI agents against threats and ensuring recovery.", conformance: "Aligned", url: "https://www.rubrik.com/products/rubrik-agent-cloud" },
 ];
