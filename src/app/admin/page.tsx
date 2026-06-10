@@ -28,7 +28,17 @@ export default async function AdminPage() {
   }
 
   const pendingListings = await db.select().from(builders).where(eq(builders.status, "pending"));
-  const pendingClaims = await db.select().from(claims).where(eq(claims.status, "pending"));
+  const pendingClaims = await db
+    .select({
+      id: claims.id,
+      userEmail: claims.userEmail,
+      method: claims.method,
+      builderName: builders.name,
+      builderSlug: builders.slug,
+    })
+    .from(claims)
+    .innerJoin(builders, eq(claims.builderId, builders.id))
+    .where(eq(claims.status, "pending"));
   const approved = await db
     .select({ id: builders.id, name: builders.name, featured: builders.featured, priority: builders.priority, conformanceLevel: builders.conformanceLevel })
     .from(builders)
@@ -85,8 +95,14 @@ export default async function AdminPage() {
             {pendingClaims.map((c) => (
               <div key={c.id} className="rounded-xl border border-neutral-100 p-5">
                 <p className="text-sm text-neutral-700">
-                  <span className="font-semibold">{c.userEmail}</span>{" "}
-                  <span className="text-neutral-400">wants to claim a listing ({c.method})</span>
+                  <span className="font-semibold">{c.userEmail || "(no email on account)"}</span>{" "}
+                  <span className="text-neutral-400">wants to claim</span>{" "}
+                  <Link href={`/builders/${c.builderSlug}`} className="font-semibold" style={{ color: "#1A6EB5" }}>
+                    {c.builderName}
+                  </Link>
+                </p>
+                <p className="mt-0.5 font-mono text-[11px] uppercase tracking-wide text-neutral-400">
+                  {c.method === "domain_match" ? "domain match" : "manual review"}
                 </p>
                 <div className="mt-4 flex gap-2">
                   <form action={async () => { "use server"; await reviewClaim(c.id, "approved"); }}>
