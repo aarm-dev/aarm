@@ -58,7 +58,6 @@ const ALL_REQS = [
 
 function completeness(b: BuilderRow) {
   const checks: [string, boolean][] = [
-    ["Logo", !!b.logoUrl],
     ["Surfaces", (b.surfaces?.length ?? 0) > 0],
     ["Stage", !!b.stage],
     ["Type", (b.types?.length ?? 0) > 0],

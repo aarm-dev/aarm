@@ -19,7 +19,6 @@ export function EditForm({ builder }: { builder: BuilderRow }) {
   const [error, setError] = useState<string | null>(null);
 
   const [description, setDescription] = useState(builder.description ?? "");
-  const [logoUrl, setLogoUrl] = useState(builder.logoUrl ?? "");
   const [surfaces, setSurfaces] = useState<Surface[]>(builder.surfaces ?? []);
   const [stage, setStage] = useState<Stage | "">((builder.stage as Stage) ?? "");
   const [types, setTypes] = useState<ProductType[]>(builder.types ?? []);
@@ -38,10 +37,6 @@ export function EditForm({ builder }: { builder: BuilderRow }) {
       <div>
         <label className={labelCls}>Description</label>
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className={input} />
-      </div>
-      <div>
-        <label className={labelCls}>Logo URL</label>
-        <input value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} className={input} placeholder="https://…" />
       </div>
       <MultiChips label="Coverage surface" options={SURFACES} selected={surfaces} onChange={setSurfaces} />
       <SingleSelect label="Stage" options={STAGES} value={stage} onChange={setStage} />
@@ -96,7 +91,7 @@ export function EditForm({ builder }: { builder: BuilderRow }) {
             setSaved(false);
             try {
               await updateOwnedBuilder(builder.id, {
-                description, logoUrl,
+                description,
                 surfaces, stage: stage || undefined, types, audiences, deployments,
                 interception, policyModel: policyModel || undefined, decisions,
                 pocName: pocName.trim(), pocEmail: pocEmail.trim(),
