@@ -30,7 +30,7 @@ function shortCategory(c?: string | null) {
   return map[c] ?? c;
 }
 
-type SortKey = "name" | "conformance" | "category";
+type SortKey = "default" | "name" | "conformance" | "category";
 type SortDir = "asc" | "desc";
 
 function ConfBadge({ b }: { b: BuilderRow }) {
@@ -48,8 +48,8 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
   const [category, setCategory] = useState("");
   const [surface, setSurface] = useState("");
   const [policy, setPolicy] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("conformance");
-  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [sortKey, setSortKey] = useState<SortKey>("default");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -70,6 +70,9 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
       if (policy && b.policyModel !== policy) return false;
       return true;
     });
+    if (sortKey === "default") {
+      return [...filtered].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+    }
     const dir = sortDir === "asc" ? 1 : -1;
     return [...filtered].sort((a, b) => {
       let cmp = 0;
@@ -104,7 +107,7 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
         <span className="ml-auto font-mono text-xs text-neutral-400">{rows.length} of {builders.length}</span>
         {filtersActive && (
           <button
-            onClick={() => { setSearch(""); setConf("all"); setCategory(""); setSurface(""); setPolicy(""); }}
+            onClick={() => { setSearch(""); setConf("all"); setCategory(""); setSurface(""); setPolicy(""); setSortKey("default"); }}
             className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-500 hover:bg-neutral-50"
           >
             Clear
