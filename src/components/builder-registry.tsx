@@ -117,14 +117,16 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
 
       {/* Data grid */}
       <div className="overflow-x-auto rounded-xl border border-neutral-200">
-        <table className="w-full min-w-[760px] text-sm">
+        <table className="w-full min-w-[1040px] text-sm">
           <thead className="sticky top-0 bg-neutral-50">
             <tr className="border-b border-neutral-200">
               <Th label="Company" sortable onSort={() => toggleSort("name")} active={sortKey === "name"} dir={sortDir} />
-              <Th label="Status" sortable onSort={() => toggleSort("conformance")} active={sortKey === "conformance"} dir={sortDir} />
+              <Th label="Conformance" sortable onSort={() => toggleSort("conformance")} active={sortKey === "conformance"} dir={sortDir} />
               <Th label="Category" sortable onSort={() => toggleSort("category")} active={sortKey === "category"} dir={sortDir} />
               <Th label="Policy" />
-              <Th label="Surfaces" />
+              <Th label="Coverage" />
+              <Th label="Type" />
+              <Th label="Target" />
             </tr>
           </thead>
           <tbody>
@@ -149,20 +151,26 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
                 <td className="px-4 py-3"><ConfBadge b={b} /></td>
                 <td className="px-4 py-3 text-neutral-600">{shortCategory(b.category) || <span className="text-neutral-300">—</span>}</td>
                 <td className="px-4 py-3 text-neutral-600">{b.policyModel || <span className="text-neutral-300">—</span>}</td>
-                <td className="px-4 py-3">
-                  <div className="flex flex-wrap gap-1">
-                    {(b.surfaces ?? []).length === 0 && <span className="text-neutral-300">—</span>}
-                    {(b.surfaces ?? []).map((s) => (
-                      <span key={s} className="rounded border border-neutral-200 px-1.5 py-0.5 text-[11px] text-neutral-500">{s}</span>
-                    ))}
-                  </div>
-                </td>
+                <td className="px-4 py-3"><CellChips items={b.surfaces} /></td>
+                <td className="px-4 py-3"><CellChips items={b.types} /></td>
+                <td className="px-4 py-3"><CellChips items={b.audiences} /></td>
               </tr>
             ))}
           </tbody>
         </table>
         {rows.length === 0 && <div className="py-16 text-center font-mono text-sm text-neutral-400">no results</div>}
       </div>
+    </div>
+  );
+}
+
+function CellChips({ items }: { items?: string[] | null }) {
+  if (!items || items.length === 0) return <span className="text-neutral-300">—</span>;
+  return (
+    <div className="flex flex-wrap gap-1">
+      {items.map((s) => (
+        <span key={s} className="whitespace-nowrap rounded border border-neutral-200 px-1.5 py-0.5 text-[11px] text-neutral-500">{s}</span>
+      ))}
     </div>
   );
 }
