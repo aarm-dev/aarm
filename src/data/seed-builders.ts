@@ -207,7 +207,8 @@ const RAW: Seed[] = [
   { slug: "suradar", name: "SURADAR", website: "https://glyphzerolabs.com", description: "Cryptographic per-action authorization for AI agents — tamper-evident receipts, identity binding, and memory provenance.", category: "Audit, receipts & assurance", conformanceLevel: "aligned", status: "approved" },
 ];
 
-export const SEED_BUILDERS: NewBuilderRow[] = RAW.map((b) => ({
+export const SEED_BUILDERS: NewBuilderRow[] = RAW.map((b, i) => ({
   ...b,
   domain: domainOf(b.website),
+  sortOrder: i, // preserve original registry order (Noma first)
 }));

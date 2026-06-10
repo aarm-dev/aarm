@@ -1,7 +1,7 @@
 import { db, isDbConfigured } from "@/db";
 import { builders, type BuilderRow } from "@/db/schema";
 import { SEED_BUILDERS } from "@/data/seed-builders";
-import { eq, and } from "drizzle-orm";
+import { eq, and, asc } from "drizzle-orm";
 
 // Static fallback: hydrate seed rows into full BuilderRow shape so pages render
 // identically whether or not Neon is wired up yet.
@@ -46,8 +46,13 @@ function seedAsRows(): BuilderRow[] {
 
 export async function getApprovedBuilders(): Promise<BuilderRow[]> {
   if (isDbConfigured && db) {
-    return db.select().from(builders).where(eq(builders.status, "approved"));
+    return db
+      .select()
+      .from(builders)
+      .where(eq(builders.status, "approved"))
+      .orderBy(asc(builders.sortOrder), asc(builders.createdAt));
   }
+  // Fallback preserves seed array order (already original).
   return seedAsRows().filter((b) => b.status === "approved");
 }
 

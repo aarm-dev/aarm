@@ -18,9 +18,13 @@ async function main() {
 
   console.log(`Seeding ${SEED_BUILDERS.length} builders…`);
   for (const b of SEED_BUILDERS) {
-    // Insert-only: never overwrite rows that already exist (protects company
-    // edits + claims). Safe to run on every deploy.
-    await db.insert(builders).values(b).onConflictDoNothing({ target: builders.slug });
+    // Insert new rows; for existing rows only refresh sortOrder (positioning,
+    // not company-editable) so the original order is preserved without
+    // clobbering any company edits or claims.
+    await db
+      .insert(builders)
+      .values(b)
+      .onConflictDoUpdate({ target: builders.slug, set: { sortOrder: b.sortOrder } });
   }
   console.log("Done.");
   process.exit(0);
