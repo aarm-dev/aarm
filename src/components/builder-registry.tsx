@@ -36,6 +36,19 @@ const TONES: Record<string, string> = {
   default: "bg-neutral-100 text-neutral-600",
 };
 
+const POLICY_TONES: Record<string, string> = {
+  Deterministic: "bg-emerald-50 text-emerald-700",
+  "Non-deterministic": "bg-rose-50 text-rose-700",
+  Hybrid: "bg-orange-50 text-orange-700",
+};
+function PolicyPill({ value }: { value: string }) {
+  return (
+    <span className={`whitespace-nowrap rounded-md px-1.5 py-0.5 text-[11px] font-medium ${POLICY_TONES[value] ?? "bg-neutral-100 text-neutral-600"}`}>
+      {value}
+    </span>
+  );
+}
+
 function Chips({ items, tone = "default" }: { items?: string[] | null; tone?: keyof typeof TONES }) {
   if (!items || items.length === 0) return <span className="text-neutral-300">—</span>;
   return (
@@ -229,7 +242,7 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
                 <td className="px-4 py-3"><Chips items={b.surfaces} tone="coverage" /></td>
                 <td className="px-4 py-3"><Chips items={b.deployments} tone="deployment" /></td>
                 <td className="px-4 py-3"><Chips items={b.interception} tone="interception" /></td>
-                <td className="px-4 py-3 text-neutral-600">{b.policyModel || <span className="text-neutral-300">—</span>}</td>
+                <td className="px-4 py-3">{b.policyModel ? <PolicyPill value={b.policyModel} /> : <span className="text-neutral-300">—</span>}</td>
               </tr>
             ))}
           </tbody>
@@ -288,7 +301,7 @@ function CompareModal({ builders, onClose }: { builders: BuilderRow[]; onClose: 
     { label: "Coverage", render: (b) => list(b.surfaces, "coverage") },
     { label: "Deployment", render: (b) => list(b.deployments, "deployment") },
     { label: "Interception", render: (b) => list(b.interception, "interception") },
-    { label: "Policy", render: (b) => b.policyModel || dash },
+    { label: "Policy", render: (b) => (b.policyModel ? <PolicyPill value={b.policyModel} /> : dash) },
   ];
 
   return (
