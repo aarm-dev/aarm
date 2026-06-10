@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { BuilderRow } from "@/db/schema";
 import {
@@ -157,7 +157,7 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
         {open && (
           <div className="mt-2.5 flex flex-wrap gap-2 rounded-2xl border border-neutral-200/70 bg-neutral-50/60 p-3">
             {facets.map((f) => (
-              <Facet key={f.key} label={f.label} value={f.value} onChange={f.set} options={f.options} />
+              <FilterMenu key={f.key} label={f.label} value={f.value} onChange={f.set} options={f.options} />
             ))}
           </div>
         )}
@@ -228,7 +228,7 @@ function SortTh({ label, onClick, active, dir }: { label: string; onClick: () =>
   );
 }
 
-function Facet({
+function FilterMenu({
   label, value, onChange, options,
 }: {
   label: string;
@@ -236,19 +236,64 @@ function Facet({
   onChange: (v: string) => void;
   options: [string, string][];
 }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
   const active = value !== "";
+  const current = options.find((o) => o[0] === value)?.[1];
+
+  useEffect(() => {
+    if (!open) return;
+    function onDoc(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className={`h-9 rounded-lg border px-2.5 text-sm shadow-sm outline-none transition-colors ${
-        active ? "border-blue-300 bg-blue-50 font-medium text-blue-800" : "border-neutral-200 bg-white text-neutral-500 hover:border-neutral-300"
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm shadow-sm transition-colors ${
+          active
+            ? "border-blue-300 bg-blue-50 font-medium text-blue-800"
+            : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
+        }`}
+      >
+        {active ? `${label}: ${current}` : label}
+        <svg className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""} ${active ? "text-blue-500" : "text-neutral-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute left-0 z-30 mt-1.5 min-w-[200px] rounded-xl border border-neutral-200 bg-white p-1 shadow-lg">
+          <MenuRow selected={!value} onClick={() => { onChange(""); setOpen(false); }}>Any {label.toLowerCase()}</MenuRow>
+          <div className="my-1 h-px bg-neutral-100" />
+          {options.map(([v, l]) => (
+            <MenuRow key={v} selected={value === v} onClick={() => { onChange(v); setOpen(false); }}>{l}</MenuRow>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MenuRow({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-sm transition-colors hover:bg-neutral-100 ${
+        selected ? "font-medium text-neutral-900" : "text-neutral-600"
       }`}
     >
-      <option value="">{label}</option>
-      {options.map(([v, l]) => (
-        <option key={v} value={v}>{l}</option>
-      ))}
-    </select>
+      <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center" style={{ color: "#1A6EB5" }}>
+        {selected && (
+          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        )}
+      </span>
+      {children}
+    </button>
   );
 }
