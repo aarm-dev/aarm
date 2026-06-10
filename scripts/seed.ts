@@ -5,9 +5,13 @@ import { builders } from "../src/db/schema";
 import { SEED_BUILDERS } from "../src/data/seed-builders";
 
 async function main() {
-  const url = process.env.DATABASE_URL;
+  const url =
+    process.env.DATABASE_URL ||
+    process.env.POSTGRES_URL ||
+    process.env.DATABASE_URL_UNPOOLED ||
+    process.env.POSTGRES_URL_NON_POOLING;
   if (!url) {
-    console.error("DATABASE_URL not set. Provision Neon in Vercel and add it to .env.local.");
+    console.error("No database URL set. Connect Neon in Vercel (var name DATABASE_URL).");
     process.exit(1);
   }
   const db = drizzle(neon(url));

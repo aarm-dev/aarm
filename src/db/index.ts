@@ -11,10 +11,16 @@ import * as schema from "./schema";
  * `isDbConfigured` lets the app fall back to the static seed registry until
  * Neon is provisioned, so the public site never breaks mid-migration.
  */
-export const isDbConfigured = !!process.env.DATABASE_URL;
+// Accept the common names the Vercel ↔ Neon integration may emit, so a prefix
+// hiccup can't silently disable the DB.
+const DATABASE_URL =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.DATABASE_URL_UNPOOLED ||
+  process.env.POSTGRES_URL_NON_POOLING;
 
-export const db = isDbConfigured
-  ? drizzle(neon(process.env.DATABASE_URL!), { schema })
-  : null;
+export const isDbConfigured = !!DATABASE_URL;
+
+export const db = isDbConfigured ? drizzle(neon(DATABASE_URL!), { schema }) : null;
 
 export { schema };
