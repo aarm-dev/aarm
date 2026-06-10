@@ -4,6 +4,9 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { requestClaim } from "@/lib/actions";
 
+// Subtle "manage this listing" control shown at the bottom of a builder page.
+// Wording avoids "claim" — most teams listed themselves; this is about
+// verifying you work there so you can keep the listing up to date.
 export function ClaimButton({
   builderId,
   isAuthed,
@@ -23,48 +26,32 @@ export function ClaimButton({
   const [pending, start] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
 
+  const link = "text-sm font-semibold transition-opacity hover:opacity-70";
+
   if (isOwner) {
     return (
-      <a
-        href={`/builders/${slug}/edit`}
-        className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-85"
-        style={{ background: "linear-gradient(135deg, #1A6EB5 0%, #1E4FA0 100%)" }}
-      >
-        Edit your listing →
+      <a href={`/builders/${slug}/edit`} className={link} style={{ color: "#1A6EB5" }}>
+        Manage this listing →
       </a>
     );
   }
 
-  // Already owned by someone else — no claiming.
-  if (claimedByOther) {
-    return (
-      <span className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-400">
-        <span className="h-1.5 w-1.5 rounded-full bg-green-500" /> Claimed
-      </span>
-    );
-  }
+  // Owned by someone else — nothing to do here (footer notes who maintains it).
+  if (claimedByOther) return null;
 
-  // This user has a claim awaiting TWG review.
   if (hasPendingClaim) {
-    return (
-      <span className="rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-500">
-        Claim pending review
-      </span>
-    );
-  }
-
-  if (!isAuthed) {
-    return (
-      <a
-        href={`/login?next=/builders/${slug}`}
-        className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50"
-      >
-        Claim this listing
-      </a>
-    );
+    return <span className="text-sm text-neutral-400">Verification pending review</span>;
   }
 
   if (msg) return <span className="text-sm text-neutral-500">{msg}</span>;
+
+  if (!isAuthed) {
+    return (
+      <a href={`/login?next=/builders/${slug}`} className={link} style={{ color: "#1A6EB5" }}>
+        Work here? Manage this listing →
+      </a>
+    );
+  }
 
   return (
     <button
@@ -74,19 +61,20 @@ export function ClaimButton({
           try {
             const r = await requestClaim(builderId);
             if (r.status === "approved") {
-              setMsg("Verified — you can now edit this listing.");
+              setMsg("Verified — you can now manage this listing.");
               router.refresh();
             } else {
-              setMsg("Claim submitted — the TWG will verify and follow up.");
+              setMsg("Request submitted — the AARM team will verify and follow up.");
             }
           } catch (e) {
             setMsg(e instanceof Error ? e.message : "Something went wrong.");
           }
         })
       }
-      className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 disabled:opacity-50"
+      className={`${link} disabled:opacity-50`}
+      style={{ color: "#1A6EB5" }}
     >
-      {pending ? "Claiming…" : "Claim this listing"}
+      {pending ? "Submitting…" : "Work here? Manage this listing →"}
     </button>
   );
 }

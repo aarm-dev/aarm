@@ -107,42 +107,30 @@ export default async function BuilderDetailPage({ params }: Props) {
           <Link href="/builders" className="mb-8 inline-flex items-center gap-1.5 text-xs font-medium text-neutral-500 transition-colors hover:text-neutral-800">
             ← Builder Registry
           </Link>
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={b.logoUrl || faviconUrl(b.domain)} alt="" width={32} height={32} className="rounded-sm" />
-              </div>
-              <div>
-                <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <h1 className="text-2xl font-extrabold tracking-tight text-neutral-900">{b.name}</h1>
-                  {verified ? (
-                    <span className={`rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide ${isExtended ? "border-blue-200 bg-blue-50 text-blue-700" : "border-green-200 bg-green-50 text-green-700"}`}>
-                      {isExtended ? "AARM Extended" : "AARM Core"}
-                    </span>
-                  ) : (
-                    <span className="rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-neutral-500">
-                      Aligned
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm text-neutral-500"><Val>{b.tagline || b.description}</Val></p>
-                {b.website && (
-                  <a href={b.website} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-medium transition-opacity hover:opacity-70" style={{ color: "#1A6EB5" }}>
-                    {b.domain} ↗
-                  </a>
+          <div className="flex items-start gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={b.logoUrl || faviconUrl(b.domain)} alt="" width={32} height={32} className="rounded-sm" />
+            </div>
+            <div>
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <h1 className="text-2xl font-extrabold tracking-tight text-neutral-900">{b.name}</h1>
+                {verified ? (
+                  <span className={`rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide ${isExtended ? "border-blue-200 bg-blue-50 text-blue-700" : "border-green-200 bg-green-50 text-green-700"}`}>
+                    {isExtended ? "AARM Extended" : "AARM Core"}
+                  </span>
+                ) : (
+                  <span className="rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-neutral-500">
+                    Aligned
+                  </span>
                 )}
               </div>
-            </div>
-            <div className="shrink-0">
-              <ClaimButton
-                builderId={b.id}
-                isAuthed={isAuthed}
-                isOwner={isOwner || isAdmin}
-                claimedByOther={claimedByOther && !isAdmin}
-                hasPendingClaim={hasPendingClaim}
-                slug={b.slug}
-              />
+              <p className="text-sm text-neutral-500"><Val>{b.tagline || b.description}</Val></p>
+              {b.website && (
+                <a href={b.website} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-medium transition-opacity hover:opacity-70" style={{ color: "#1A6EB5" }}>
+                  {b.domain} ↗
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -292,11 +280,23 @@ export default async function BuilderDetailPage({ params }: Props) {
           </section>
         )}
 
-        <div className="border-t border-neutral-100 pt-8 text-xs text-neutral-400">
-          Maintained by the AARM Technical Working Group.{" "}
-          {!isOwner && !isAdmin && !claimedByOther && !hasPendingClaim && (
-            <Link href={`/login?next=/builders/${b.slug}`} className="underline hover:text-neutral-600">Work here? Claim this listing →</Link>
-          )}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100 pt-8">
+          <p className="text-xs text-neutral-400">
+            {claimedByOther && !isAdmin
+              ? `Maintained by the ${b.name} team.`
+              : isOwner
+              ? "You maintain this listing."
+              : "Listed in the AARM registry."}
+            {verified && " Conformance verified by the AARM working group."}
+          </p>
+          <ClaimButton
+            builderId={b.id}
+            isAuthed={isAuthed}
+            isOwner={isOwner || isAdmin}
+            claimedByOther={claimedByOther && !isAdmin}
+            hasPendingClaim={hasPendingClaim}
+            slug={b.slug}
+          />
         </div>
       </div>
     </div>
