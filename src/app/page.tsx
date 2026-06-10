@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BUILDERS } from "@/data/builders";
-import { spotlightEvents } from "@/data/events";
+import { getSpotlightEvent } from "@/data/events";
 
 const conformantCount = BUILDERS.filter((b) => b.conformance === "Conformant").length;
 const conformantBuilders = BUILDERS.filter((b) => b.conformance === "Conformant").slice(0, 6);
@@ -11,32 +11,29 @@ function faviconUrl(url: string) {
 }
 
 export default function HomePage() {
+  const spotlight = getSpotlightEvent();
   return (
     <div className="bg-white">
 
-      {/* Spotlight event banner — controlled by spotlight: true in src/data/events.ts */}
-      {spotlightEvents.length > 0 && (
-        <div className="border-b border-neutral-200 bg-neutral-900 px-6 py-2.5">
-          <div className="mx-auto flex max-w-5xl items-center justify-center gap-3 text-center sm:justify-between">
-            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 sm:justify-start">
-              <span className="rounded-full bg-white/10 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-white/60">
-                Upcoming
-              </span>
-              <span className="text-sm text-white/90">
-                {spotlightEvents[0].name}
-                {spotlightEvents[0].location && (
-                  <span className="ml-1.5 text-white/50">· {spotlightEvents[0].location}</span>
-                )}
-              </span>
-            </div>
-            <Link
-              href="/events"
-              className="shrink-0 text-xs font-semibold text-white/60 transition-colors hover:text-white"
-            >
-              See all events →
-            </Link>
+      {/* Spotlight banner — automatically shows the soonest upcoming event (see src/data/events.ts) */}
+      {spotlight && (
+        <Link
+          href="/events"
+          className="block border-b border-neutral-200 bg-neutral-900 px-6 py-2.5 transition-colors hover:bg-neutral-800"
+        >
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center">
+            <span className="rounded-full bg-white/10 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-white/70">
+              Upcoming Event
+            </span>
+            <span className="text-sm text-white/90">
+              {spotlight.name}
+              {spotlight.location && (
+                <span className="ml-1.5 text-white/50">· {spotlight.location}</span>
+              )}
+            </span>
+            <span className="text-xs font-semibold text-white/50">→</span>
           </div>
-        </div>
+        </Link>
       )}
 
       {/* Hero */}

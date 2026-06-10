@@ -5,55 +5,81 @@ export type AARMEvent = {
   id: string;
   name: string;
   url?: string;
-  date: string;          // display string, e.g. "August 2026"
-  dateISO?: string;      // ISO date for sorting, e.g. "2026-08-01"
+  /** Human-readable date shown in the UI, e.g. "August 2026" */
+  dateLabel: string;
+  /** ISO start date — used for ordering. Undated events sort first (treated as imminent/TBD). */
+  startISO?: string;
+  /** ISO date after which the event is considered over and auto-moves to Past. */
+  endISO?: string;
   location?: string;
   description?: string;
-  status: EventStatus;
+  /** No firm date yet — always rendered in the "Coming soon" section. */
+  comingSoon?: boolean;
   tag: EventTag;
-  /** When true, a subtle banner appears on the homepage hero */
-  spotlight: boolean;
 };
 
 export const EVENTS: AARMEvent[] = [
   {
     id: "aauth-night",
     name: "AAuth Night: Moving Beyond OAuth",
-    url: "https://lu.ma/a2h25m60",
-    date: "2026",
+    url: "https://luma.com/a2h25m60",
+    dateLabel: "2026",
+    // No public date yet — undated events sort first so this stays the spotlight.
+    // Add startISO + endISO when the date is confirmed and ordering/auto-past kicks in.
     location: "111 Minna St, San Francisco, CA",
     description:
       "An evening exploring authentication challenges for AI agents — featuring talks and demos on AAuth, a new auth protocol for agents built by OAuth author Dick Hardt. Topics include running agents without API keys, mission-bounded authority, multi-agent delegation, and production authentication patterns.",
-    status: "upcoming",
     tag: "Community",
-    spotlight: true,
   },
   {
     id: "blackhat-ciso-summit-2026",
     name: "Black Hat CISO Summit 2026",
     url: "https://www.blackhat.com/us-26/summit-sessions/schedule/index.html?track[]=ciso-summit#the-ai-arms-race-from-governance-to-runtime-control-in-an-autonomous-threat-landscape-55609",
-    date: "August 2026",
-    dateISO: "2026-08-01",
+    dateLabel: "August 2026",
+    startISO: "2026-08-01",
+    endISO: "2026-08-31",
     location: "Las Vegas, NV",
     description:
       "AARM featured at the Black Hat CISO Summit — session: \"The AI Arms Race: From Governance to Runtime Control in an Autonomous Threat Landscape.\"",
-    status: "upcoming",
     tag: "Summit",
-    spotlight: true,
   },
   {
     id: "aarm-con",
     name: "AARM Con",
-    date: "Fall 2026",
-    dateISO: "2026-10-01",
+    dateLabel: "Fall 2026",
+    comingSoon: true,
     description:
       "The first dedicated conference for AI agent runtime security. Details coming soon.",
-    status: "coming-soon",
     tag: "Conference",
-    spotlight: false,
   },
 ];
 
-export const spotlightEvents = EVENTS.filter(
-  (e) => e.spotlight && e.status === "upcoming"
-);
+/** Derive an event's status from the current date. */
+export function eventStatus(e: AARMEvent, now: Date = new Date()): EventStatus {
+  if (e.comingSoon) return "coming-soon";
+  const end = e.endISO ?? e.startISO;
+  if (end && new Date(end).getTime() < now.getTime()) return "past";
+  return "upcoming";
+}
+
+/** Sort key: undated events first (imminent/TBD), then by start date ascending. */
+function startKey(e: AARMEvent): number {
+  return e.startISO ? new Date(e.startISO).getTime() : -Infinity;
+}
+
+export function getEventsByStatus(now: Date = new Date()) {
+  const sorted = [...EVENTS].sort((a, b) => startKey(a) - startKey(b));
+  return {
+    upcoming: sorted.filter((e) => eventStatus(e, now) === "upcoming"),
+    comingSoon: sorted.filter((e) => eventStatus(e, now) === "coming-soon"),
+    // Past sorted most-recent first.
+    past: sorted
+      .filter((e) => eventStatus(e, now) === "past")
+      .sort((a, b) => startKey(b) - startKey(a)),
+  };
+}
+
+/** The single event promoted to the homepage banner: the soonest upcoming event. */
+export function getSpotlightEvent(now: Date = new Date()): AARMEvent | null {
+  return getEventsByStatus(now).upcoming[0] ?? null;
+}

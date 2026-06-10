@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { EVENTS } from "@/data/events";
+import { getEventsByStatus } from "@/data/events";
 
 export const metadata: Metadata = {
   title: "Events — AARM",
@@ -14,16 +14,8 @@ const tagColors: Record<string, { bg: string; text: string; border: string }> = 
   Meetup:     { bg: "rgba(107,114,128,0.06)", text: "#4B5563", border: "rgba(107,114,128,0.2)" },
 };
 
-const statusLabel: Record<string, { label: string; dot: string }> = {
-  upcoming:     { label: "Upcoming",    dot: "bg-green-500" },
-  "coming-soon": { label: "Coming soon", dot: "bg-yellow-400" },
-  past:         { label: "Past",        dot: "bg-neutral-300" },
-};
-
 export default function EventsPage() {
-  const upcoming = EVENTS.filter((e) => e.status === "upcoming");
-  const comingSoon = EVENTS.filter((e) => e.status === "coming-soon");
-  const past = EVENTS.filter((e) => e.status === "past");
+  const { upcoming, comingSoon, past } = getEventsByStatus();
 
   return (
     <div className="bg-white">
@@ -55,36 +47,28 @@ export default function EventsPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               {upcoming.map((event) => {
                 const tag = tagColors[event.tag];
-                const status = statusLabel[event.status];
                 return (
                   <div
                     key={event.id}
                     className="flex flex-col rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm"
                   >
-                    <div className="mb-4 flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide"
-                          style={{ backgroundColor: tag.bg, color: tag.text, border: `1px solid ${tag.border}` }}
-                        >
-                          {event.tag}
-                        </span>
-                        <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide text-neutral-400">
-                          <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
-                          {status.label}
-                        </span>
-                      </div>
-                      {event.spotlight && (
-                        <span className="rounded-full bg-yellow-50 px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wide text-yellow-600 border border-yellow-100">
-                          ★ spotlight
-                        </span>
-                      )}
+                    <div className="mb-4 flex items-center gap-2">
+                      <span
+                        className="rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide"
+                        style={{ backgroundColor: tag.bg, color: tag.text, border: `1px solid ${tag.border}` }}
+                      >
+                        {event.tag}
+                      </span>
+                      <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide text-neutral-400">
+                        <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                        Upcoming
+                      </span>
                     </div>
 
                     <h2 className="mb-1.5 text-base font-bold text-neutral-900 leading-snug">{event.name}</h2>
 
                     <div className="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-400">
-                      <span>{event.date}</span>
+                      <span>{event.dateLabel}</span>
                       {event.location && <span>{event.location}</span>}
                     </div>
 
@@ -140,7 +124,7 @@ export default function EventsPage() {
 
                     <h2 className="mb-1.5 text-base font-bold text-neutral-700 leading-snug">{event.name}</h2>
 
-                    <div className="mb-3 text-xs text-neutral-400">{event.date}</div>
+                    <div className="mb-3 text-xs text-neutral-400">{event.dateLabel}</div>
 
                     {event.description && (
                       <p className="text-sm leading-relaxed text-neutral-400">{event.description}</p>
@@ -163,7 +147,7 @@ export default function EventsPage() {
               {past.map((event) => (
                 <div key={event.id} className="rounded-xl border border-neutral-100 p-4 opacity-60">
                   <div className="mb-1.5 text-sm font-medium text-neutral-700">{event.name}</div>
-                  <div className="text-xs text-neutral-400">{event.date}{event.location ? ` · ${event.location}` : ""}</div>
+                  <div className="text-xs text-neutral-400">{event.dateLabel}{event.location ? ` · ${event.location}` : ""}</div>
                 </div>
               ))}
             </div>
