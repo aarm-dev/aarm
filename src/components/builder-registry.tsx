@@ -70,9 +70,9 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
       if (policy && b.policyModel !== policy) return false;
       return true;
     });
-    if (sortKey === "default") {
-      return [...filtered].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
-    }
+    // Default = the order delivered by the server (featured → priority →
+    // original order). Filtering is stable, so just keep it.
+    if (sortKey === "default") return filtered;
     const dir = sortDir === "asc" ? 1 : -1;
     return [...filtered].sort((a, b) => {
       let cmp = 0;

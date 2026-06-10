@@ -68,7 +68,8 @@ export const builders = pgTable("builders", {
 
   // ── Positioning (TWG-only) ──
   featured: boolean("featured").default(false),
-  sortOrder: integer("sort_order").default(0),
+  sortOrder: integer("sort_order").default(0), // original registry order (seed-owned)
+  priority: integer("priority"), // admin override; lower = higher. null = use sortOrder
 
   // ── Lifecycle ──
   status: text("status").$type<ListingStatus>().notNull().default("pending"),

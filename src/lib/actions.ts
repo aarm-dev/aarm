@@ -132,6 +132,25 @@ export async function updateOwnedBuilder(
 
 // ── Admin (TWG) ──────────────────────────────────────────────────────────
 
+/** Admin-only: pin/prioritize a builder in the registry order. */
+export async function setBuilderOrdering(
+  builderId: string,
+  input: { priority?: number | null; featured?: boolean }
+) {
+  const database = await requireDb();
+  await requireAdmin();
+  await database
+    .update(builders)
+    .set({
+      priority: input.priority === undefined ? undefined : input.priority,
+      featured: input.featured,
+      updatedAt: new Date(),
+    })
+    .where(eq(builders.id, builderId));
+  revalidatePath("/builders");
+  revalidatePath("/admin");
+}
+
 export async function setListingStatus(builderId: string, status: "approved" | "rejected") {
   const database = await requireDb();
   await requireAdmin();

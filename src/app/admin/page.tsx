@@ -6,6 +6,8 @@ import { auth } from "@/auth";
 import { db, isDbConfigured } from "@/db";
 import { builders, claims } from "@/db/schema";
 import { setListingStatus, reviewClaim } from "@/lib/actions";
+import { OrderingTable } from "@/components/ordering-table";
+import { asc } from "drizzle-orm";
 
 export const metadata: Metadata = { title: "Admin — AARM" };
 export const dynamic = "force-dynamic";
@@ -27,6 +29,11 @@ export default async function AdminPage() {
 
   const pendingListings = await db.select().from(builders).where(eq(builders.status, "pending"));
   const pendingClaims = await db.select().from(claims).where(eq(claims.status, "pending"));
+  const approved = await db
+    .select({ id: builders.id, name: builders.name, featured: builders.featured, priority: builders.priority, conformanceLevel: builders.conformanceLevel })
+    .from(builders)
+    .where(eq(builders.status, "approved"))
+    .orderBy(asc(builders.sortOrder));
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
@@ -93,6 +100,19 @@ export default async function AdminPage() {
             ))}
           </div>
         )}
+      </section>
+
+      {/* Ordering & priority */}
+      <section className="mt-16">
+        <div className="mb-2 flex items-center gap-3">
+          <span className="font-mono text-xs uppercase tracking-widest text-neutral-400">Registry order & priority</span>
+          <div className="h-px flex-1 bg-neutral-100" />
+        </div>
+        <p className="mb-5 text-sm text-neutral-500">
+          <strong>Featured</strong> pins a company to the top. <strong>Priority</strong> is a number —
+          lower shows higher; blank falls back to the original order.
+        </p>
+        <OrderingTable builders={approved} />
       </section>
 
       <div className="mt-12 border-t border-neutral-100 pt-6 text-xs text-neutral-400">

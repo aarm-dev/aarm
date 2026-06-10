@@ -1,7 +1,7 @@
 import { db, isDbConfigured } from "@/db";
 import { builders, type BuilderRow } from "@/db/schema";
 import { SEED_BUILDERS } from "@/data/seed-builders";
-import { eq, and, asc } from "drizzle-orm";
+import { eq, and, asc, desc, sql } from "drizzle-orm";
 
 // Static fallback: hydrate seed rows into full BuilderRow shape so pages render
 // identically whether or not Neon is wired up yet.
@@ -36,6 +36,7 @@ function seedAsRows(): BuilderRow[] {
     pocEmail: b.pocEmail ?? null,
     featured: b.featured ?? false,
     sortOrder: b.sortOrder ?? 0,
+    priority: b.priority ?? null,
     status: b.status ?? "approved",
     createdBy: b.createdBy ?? null,
     claimedBy: b.claimedBy ?? null,
@@ -50,7 +51,14 @@ export async function getApprovedBuilders(): Promise<BuilderRow[]> {
       .select()
       .from(builders)
       .where(eq(builders.status, "approved"))
-      .orderBy(asc(builders.sortOrder), asc(builders.createdAt));
+      // Featured first, then admin priority (lower = higher, nulls last),
+      // then the original registry order.
+      .orderBy(
+        desc(builders.featured),
+        sql`${builders.priority} asc nulls last`,
+        asc(builders.sortOrder),
+        asc(builders.createdAt)
+      );
   }
   // Fallback preserves seed array order (already original).
   return seedAsRows().filter((b) => b.status === "approved");
