@@ -81,17 +81,14 @@ export default async function BuilderDetailPage({ params }: Props) {
   const claimedByOther = !!b.claimedBy && b.claimedBy !== session?.user?.id;
 
   // Does the signed-in user already have a pending claim on this listing?
+  const userId = session?.user?.id;
   let hasPendingClaim = false;
-  if (isAuthed && !isOwner && isDbConfigured && db) {
+  if (userId && !isOwner && isDbConfigured && db) {
     const existing = await db
       .select({ id: claims.id })
       .from(claims)
       .where(
-        and(
-          eq(claims.builderId, b.id),
-          eq(claims.userId, session!.user!.id),
-          eq(claims.status, "pending")
-        )
+        and(eq(claims.builderId, b.id), eq(claims.userId, userId), eq(claims.status, "pending"))
       )
       .limit(1);
     hasPendingClaim = existing.length > 0;
