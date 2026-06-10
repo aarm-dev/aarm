@@ -18,11 +18,5 @@ export async function GET() {
   } catch (e) {
     error = e instanceof Error ? e.message : "unknown error";
   }
-  // Names only (never values) of DB-related env vars, to confirm what the
-  // Vercel ↔ Neon integration actually created.
-  const dbEnvNames = Object.keys(process.env)
-    .filter((k) => /(DATABASE|POSTGRES|PG|NEON)/i.test(k))
-    .sort();
-
-  return NextResponse.json({ dbConfigured: isDbConfigured, ok, builderCount, error, dbEnvNames });
+  return NextResponse.json({ dbConfigured: isDbConfigured, ok, builderCount, error });
 }
