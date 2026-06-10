@@ -133,6 +133,8 @@ export async function updateOwnedBuilder(
     interception?: InterceptionArchitecture[];
     policyModel?: PolicyModel;
     decisions?: AuthDecision[];
+    pocName?: string;
+    pocEmail?: string;
   }
 ) {
   const database = await requireDb();
@@ -140,6 +142,14 @@ export async function updateOwnedBuilder(
   const [b] = await database.select().from(builders).where(eq(builders.id, builderId)).limit(1);
   if (!b) throw new Error("Listing not found.");
   if (b.claimedBy !== user.id && !user.isAdmin) throw new Error("You don't own this listing.");
+
+  // Point of contact is required for owned listings.
+  if (!input.pocName?.trim() || !input.pocEmail?.trim()) {
+    throw new Error("A point-of-contact name and email are required.");
+  }
+  if (!/^\S+@\S+\.\S+$/.test(input.pocEmail.trim())) {
+    throw new Error("Enter a valid point-of-contact email.");
+  }
 
   await database
     .update(builders)

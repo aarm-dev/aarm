@@ -28,6 +28,10 @@ export function EditForm({ builder }: { builder: BuilderRow }) {
   const [interception, setInterception] = useState<InterceptionArchitecture[]>(builder.interception ?? []);
   const [policyModel, setPolicyModel] = useState<PolicyModel | "">((builder.policyModel as PolicyModel) ?? "");
   const [decisions, setDecisions] = useState<AuthDecision[]>(builder.decisions ?? []);
+  const [pocName, setPocName] = useState(builder.pocName ?? "");
+  const [pocEmail, setPocEmail] = useState(builder.pocEmail ?? "");
+
+  const pocValid = pocName.trim().length > 0 && /^\S+@\S+\.\S+$/.test(pocEmail.trim());
 
   return (
     <div className="space-y-6">
@@ -57,6 +61,23 @@ export function EditForm({ builder }: { builder: BuilderRow }) {
         </div>
       </div>
 
+      <div className="border-t border-neutral-100 pt-6">
+        <h2 className="mb-1 text-sm font-semibold text-neutral-900">Point of contact <span className="text-red-500">*</span></h2>
+        <p className="mb-5 text-xs text-neutral-400">
+          Required. Who the AARM working group reaches about this listing (team-only, not shown publicly).
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className={labelCls}>Name</label>
+            <input value={pocName} onChange={(e) => setPocName(e.target.value)} className={input} placeholder="Jane Doe" />
+          </div>
+          <div>
+            <label className={labelCls}>Email</label>
+            <input value={pocEmail} onChange={(e) => setPocEmail(e.target.value)} className={input} placeholder="jane@company.com" />
+          </div>
+        </div>
+      </div>
+
       <div className="rounded-lg border border-neutral-100 bg-neutral-50 px-4 py-3 text-xs text-neutral-500">
         Conformance level, verified date, and the R1–R9 pass/fail matrix are the AARM Technical
         Working Group&apos;s verified verdict and aren&apos;t editable here.
@@ -65,8 +86,10 @@ export function EditForm({ builder }: { builder: BuilderRow }) {
       {error && <p className="text-sm text-red-500">{error}</p>}
       {saved && <p className="text-sm text-green-600">Saved.</p>}
 
+      {!pocValid && <p className="text-xs text-neutral-400">Add a point-of-contact name and a valid email to save.</p>}
+
       <button
-        disabled={pending}
+        disabled={pending || !pocValid}
         onClick={() =>
           start(async () => {
             setError(null);
@@ -76,6 +99,7 @@ export function EditForm({ builder }: { builder: BuilderRow }) {
                 description, logoUrl,
                 surfaces, stage: stage || undefined, types, audiences, deployments,
                 interception, policyModel: policyModel || undefined, decisions,
+                pocName: pocName.trim(), pocEmail: pocEmail.trim(),
               });
               setSaved(true);
               router.refresh();
