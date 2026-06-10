@@ -27,12 +27,21 @@ function ConfBadge({ b }: { b: BuilderRow }) {
   return <span className={`${base} bg-neutral-100 text-neutral-400`}>Aligned</span>;
 }
 
-function Chips({ items }: { items?: string[] | null }) {
+const TONES: Record<string, string> = {
+  type: "bg-violet-50 text-violet-700",
+  target: "bg-amber-50 text-amber-700",
+  coverage: "bg-sky-50 text-sky-700",
+  deployment: "bg-teal-50 text-teal-700",
+  interception: "bg-indigo-50 text-indigo-700",
+  default: "bg-neutral-100 text-neutral-600",
+};
+
+function Chips({ items, tone = "default" }: { items?: string[] | null; tone?: keyof typeof TONES }) {
   if (!items || items.length === 0) return <span className="text-neutral-300">—</span>;
   return (
     <div className="flex flex-wrap gap-1">
       {items.map((s) => (
-        <span key={s} className="whitespace-nowrap rounded-md bg-neutral-100 px-1.5 py-0.5 text-[11px] text-neutral-600">{s}</span>
+        <span key={s} className={`whitespace-nowrap rounded-md px-1.5 py-0.5 text-[11px] font-medium ${TONES[tone]}`}>{s}</span>
       ))}
     </div>
   );
@@ -215,11 +224,11 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
                 </td>
                 <td className="px-4 py-3"><ConfBadge b={b} /></td>
                 <td className="px-4 py-3 text-neutral-600">{b.stage || <span className="text-neutral-300">—</span>}</td>
-                <td className="px-4 py-3"><Chips items={b.types} /></td>
-                <td className="px-4 py-3"><Chips items={b.audiences} /></td>
-                <td className="px-4 py-3"><Chips items={b.surfaces} /></td>
-                <td className="px-4 py-3"><Chips items={b.deployments} /></td>
-                <td className="px-4 py-3"><Chips items={b.interception} /></td>
+                <td className="px-4 py-3"><Chips items={b.types} tone="type" /></td>
+                <td className="px-4 py-3"><Chips items={b.audiences} tone="target" /></td>
+                <td className="px-4 py-3"><Chips items={b.surfaces} tone="coverage" /></td>
+                <td className="px-4 py-3"><Chips items={b.deployments} tone="deployment" /></td>
+                <td className="px-4 py-3"><Chips items={b.interception} tone="interception" /></td>
                 <td className="px-4 py-3 text-neutral-600">{b.policyModel || <span className="text-neutral-300">—</span>}</td>
               </tr>
             ))}
@@ -274,11 +283,11 @@ function CompareModal({ builders, onClose }: { builders: BuilderRow[]; onClose: 
   const rows: { label: string; render: (b: BuilderRow) => React.ReactNode }[] = [
     { label: "Conformance", render: (b) => confText(b) },
     { label: "Stage", render: (b) => b.stage || dash },
-    { label: "Type", render: (b) => list(b.types) },
-    { label: "Target", render: (b) => list(b.audiences) },
-    { label: "Coverage", render: (b) => list(b.surfaces) },
-    { label: "Deployment", render: (b) => list(b.deployments) },
-    { label: "Interception", render: (b) => list(b.interception) },
+    { label: "Type", render: (b) => list(b.types, "type") },
+    { label: "Target", render: (b) => list(b.audiences, "target") },
+    { label: "Coverage", render: (b) => list(b.surfaces, "coverage") },
+    { label: "Deployment", render: (b) => list(b.deployments, "deployment") },
+    { label: "Interception", render: (b) => list(b.interception, "interception") },
     { label: "Policy", render: (b) => b.policyModel || dash },
   ];
 
@@ -345,11 +354,11 @@ function CompareModal({ builders, onClose }: { builders: BuilderRow[]; onClose: 
 }
 
 const dash = <span className="text-neutral-300">—</span>;
-function list(items?: string[] | null) {
+function list(items?: string[] | null, tone: keyof typeof TONES = "default") {
   if (!items || items.length === 0) return dash;
   return (
     <div className="flex flex-wrap gap-1">
-      {items.map((s) => <span key={s} className="rounded-md bg-neutral-100 px-1.5 py-0.5 text-[11px] text-neutral-600">{s}</span>)}
+      {items.map((s) => <span key={s} className={`rounded-md px-1.5 py-0.5 text-[11px] font-medium ${TONES[tone]}`}>{s}</span>)}
     </div>
   );
 }
