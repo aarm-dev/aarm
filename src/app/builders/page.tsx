@@ -13,26 +13,17 @@ export default async function BuildersPage() {
   return (
     <div className="mx-auto max-w-5xl px-6 py-16">
       {/* Header */}
-      <div className="mb-12 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4">
-            Builders
-          </p>
-          <h1 className="mb-4 text-3xl font-bold sm:text-4xl tracking-tight">
-            Builder Registry
-          </h1>
-          <p className="max-w-xl text-muted-foreground text-sm leading-relaxed">
-            Companies building AARM-conformant systems and products aligned with the
-            AI agent runtime security problem space.
-          </p>
-        </div>
-        <Link
-          href="/builders/new"
-          className="shrink-0 rounded-lg px-5 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-85"
-          style={{ background: "linear-gradient(135deg, #F5923A 0%, #D45420 100%)" }}
-        >
-          Add your company
-        </Link>
+      <div className="mb-8">
+        <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4">
+          Builders
+        </p>
+        <h1 className="mb-4 text-3xl font-bold sm:text-4xl tracking-tight">
+          Builder Registry
+        </h1>
+        <p className="max-w-2xl text-muted-foreground text-sm leading-relaxed">
+          Compare the products building AARM-conformant systems and tools for the AI agent
+          runtime security problem space — by conformance, policy model, interception, and coverage.
+        </p>
       </div>
 
       {/* Legend */}
@@ -45,7 +36,8 @@ export default async function BuildersPage() {
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span className="rounded-full bg-neutral-100 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-neutral-400">Aligned</span>
-          building in the same space
+          building in the same space ·{" "}
+          <Link href="/builders/new" className="font-medium" style={{ color: "#1A6EB5" }}>add your company →</Link>
         </span>
       </div>
 
