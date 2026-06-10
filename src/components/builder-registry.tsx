@@ -52,6 +52,14 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
   const [sortKey, setSortKey] = useState<SortKey>("default");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [comparing, setComparing] = useState(false);
+
+  const MAX_COMPARE = 4;
+  function toggleSelect(id: string) {
+    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : s.length >= MAX_COMPARE ? s : [...s, id]));
+  }
+  const selectedBuilders = builders.filter((b) => selected.includes(b.id));
 
   const facets: { key: string; label: string; value: string; set: (v: string) => void; options: [string, string][] }[] = [
     { key: "conf", label: "Conformance", value: conf, set: setConf, options: [["conformant", "Conformant"], ["aligned", "Aligned"]] },
@@ -168,6 +176,7 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
         <table className="w-full min-w-[1500px] text-sm">
           <thead>
             <tr className="border-b border-neutral-200 bg-neutral-50/80">
+              <th className="w-10 px-4 py-3"></th>
               <SortTh label="Company" onClick={() => toggleSort("name")} active={sortKey === "name"} dir={sortDir} />
               <SortTh label="Conformance" onClick={() => toggleSort("conformance")} active={sortKey === "conformance"} dir={sortDir} />
               {["Stage", "Type", "Target", "Coverage", "Deployment", "Interception", "Policy"].map((h) => (
@@ -182,6 +191,16 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
                 onClick={() => router.push(`/builders/${b.slug}`)}
                 className="group cursor-pointer border-b border-neutral-100 transition-colors last:border-0 hover:bg-blue-50/40"
               >
+                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(b.id)}
+                    onChange={() => toggleSelect(b.id)}
+                    disabled={!selected.includes(b.id) && selected.length >= MAX_COMPARE}
+                    className="h-4 w-4 accent-blue-600 disabled:opacity-30"
+                    aria-label={`Select ${b.name} to compare`}
+                  />
+                </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-neutral-100 bg-white">
@@ -213,6 +232,124 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
           </div>
         )}
       </div>
+
+      {/* Floating compare bar */}
+      {selected.length > 0 && (
+        <div className="fixed inset-x-0 bottom-6 z-40 flex justify-center px-4">
+          <div className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-2.5 shadow-xl">
+            <span className="text-sm text-neutral-600">
+              <span className="font-semibold text-neutral-900">{selected.length}</span> selected
+              {selected.length >= MAX_COMPARE && <span className="ml-1 text-xs text-neutral-400">(max)</span>}
+            </span>
+            <button onClick={() => setSelected([])} className="text-sm text-neutral-400 hover:text-neutral-700">Clear</button>
+            <button
+              onClick={() => setComparing(true)}
+              disabled={selected.length < 2}
+              className="rounded-xl px-4 py-2 text-sm font-bold text-white transition-opacity hover:opacity-85 disabled:opacity-40"
+              style={{ background: "linear-gradient(135deg, #1A6EB5 0%, #1E4FA0 100%)" }}
+            >
+              Compare{selected.length >= 2 ? ` ${selected.length}` : ""}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {comparing && <CompareModal builders={selectedBuilders} onClose={() => setComparing(false)} />}
+    </div>
+  );
+}
+
+const COMPARE_REQS = [
+  ["R1", "Pre-execution interception"], ["R2", "Context accumulation"],
+  ["R3", "Policy + intent alignment"], ["R4", "Five decisions"],
+  ["R5", "Tamper-evident receipts"], ["R6", "Identity binding"],
+  ["R7", "Semantic drift tracking"], ["R8", "Telemetry export"],
+  ["R9", "Least-privilege"],
+] as const;
+
+function CompareModal({ builders, onClose }: { builders: BuilderRow[]; onClose: () => void }) {
+  const confText = (b: BuilderRow) =>
+    b.conformanceLevel === "extended" ? "Extended (R1–R9)" : b.conformanceLevel === "core" ? "Core (R1–R6)" : "Aligned";
+
+  const rows: { label: string; render: (b: BuilderRow) => React.ReactNode }[] = [
+    { label: "Conformance", render: (b) => confText(b) },
+    { label: "Stage", render: (b) => b.stage || dash },
+    { label: "Type", render: (b) => list(b.types) },
+    { label: "Target", render: (b) => list(b.audiences) },
+    { label: "Coverage", render: (b) => list(b.surfaces) },
+    { label: "Deployment", render: (b) => list(b.deployments) },
+    { label: "Interception", render: (b) => list(b.interception) },
+    { label: "Policy", render: (b) => b.policyModel || dash },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div
+        className="max-h-[85vh] w-full max-w-4xl overflow-auto rounded-2xl bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="sticky top-0 flex items-center justify-between border-b border-neutral-100 bg-white px-6 py-4">
+          <h2 className="text-lg font-bold tracking-tight text-neutral-900">Compare builders</h2>
+          <button onClick={onClose} className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700" aria-label="Close">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          </button>
+        </div>
+
+        <div className="overflow-x-auto p-2">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr>
+                <th className="w-40 px-4 py-3" />
+                {builders.map((b) => (
+                  <th key={b.id} className="min-w-[160px] px-4 py-3 text-left align-bottom">
+                    <a href={`/builders/${b.slug}`} className="flex items-center gap-2 font-semibold text-neutral-900 hover:text-blue-700">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={faviconUrl(b.domain)} alt="" width={18} height={18} className="rounded-sm" />
+                      {b.name}
+                    </a>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.label} className="border-t border-neutral-100">
+                  <td className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-neutral-400 align-top">{r.label}</td>
+                  {builders.map((b) => (
+                    <td key={b.id} className="px-4 py-3 align-top text-neutral-700">{r.render(b)}</td>
+                  ))}
+                </tr>
+              ))}
+              <tr className="border-t border-neutral-200">
+                <td colSpan={builders.length + 1} className="px-4 pt-4 pb-1 font-mono text-[10px] uppercase tracking-widest text-neutral-400">Requirement coverage</td>
+              </tr>
+              {COMPARE_REQS.map(([id, title]) => (
+                <tr key={id} className="border-t border-neutral-50">
+                  <td className="px-4 py-2 align-top text-neutral-600"><code className="text-xs font-bold" style={{ color: "#1A6EB5" }}>{id}</code> <span className="text-xs text-neutral-400">{title}</span></td>
+                  {builders.map((b) => {
+                    const st = b.requirements?.find((x) => x.id === id)?.status;
+                    return (
+                      <td key={b.id} className="px-4 py-2 align-top">
+                        {st === "pass" ? <span className="text-green-600">✓</span> : st === "fail" ? <span className="text-red-500">✕</span> : <span className="text-neutral-300">—</span>}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const dash = <span className="text-neutral-300">—</span>;
+function list(items?: string[] | null) {
+  if (!items || items.length === 0) return dash;
+  return (
+    <div className="flex flex-wrap gap-1">
+      {items.map((s) => <span key={s} className="rounded-md bg-neutral-100 px-1.5 py-0.5 text-[11px] text-neutral-600">{s}</span>)}
     </div>
   );
 }
