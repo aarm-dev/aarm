@@ -5,7 +5,10 @@ import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import { db, isDbConfigured } from "@/db";
 import { builders, claims } from "@/db/schema";
-import type { Category, Surface, Stage, ProductType, Audience, Deployment } from "@/db/taxonomy";
+import type {
+  Category, Surface, Stage, ProductType, Audience, Deployment,
+  InterceptionArchitecture, PolicyModel, AuthDecision,
+} from "@/db/taxonomy";
 
 function slugify(name: string) {
   return name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -108,6 +111,10 @@ export async function updateOwnedBuilder(
     types?: ProductType[];
     audiences?: Audience[];
     deployments?: Deployment[];
+    // Self-reported technical profile (the conformance verdict stays TWG-only).
+    interception?: InterceptionArchitecture[];
+    policyModel?: PolicyModel;
+    decisions?: AuthDecision[];
   }
 ) {
   const database = await requireDb();

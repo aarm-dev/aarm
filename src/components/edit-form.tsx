@@ -6,7 +6,9 @@ import { updateOwnedBuilder } from "@/lib/actions";
 import { MultiChips, SingleSelect } from "@/components/multi-chips";
 import {
   CATEGORIES, SURFACES, STAGES, TYPES, AUDIENCES, DEPLOYMENTS,
+  INTERCEPTION_ARCHITECTURES, POLICY_MODELS, AUTH_DECISIONS,
   type Category, type Surface, type Stage, type ProductType, type Audience, type Deployment,
+  type InterceptionArchitecture, type PolicyModel, type AuthDecision,
 } from "@/db/taxonomy";
 import type { BuilderRow } from "@/db/schema";
 
@@ -24,6 +26,9 @@ export function EditForm({ builder }: { builder: BuilderRow }) {
   const [types, setTypes] = useState<ProductType[]>(builder.types ?? []);
   const [audiences, setAudiences] = useState<Audience[]>(builder.audiences ?? []);
   const [deployments, setDeployments] = useState<Deployment[]>(builder.deployments ?? []);
+  const [interception, setInterception] = useState<InterceptionArchitecture[]>(builder.interception ?? []);
+  const [policyModel, setPolicyModel] = useState<PolicyModel | "">((builder.policyModel as PolicyModel) ?? "");
+  const [decisions, setDecisions] = useState<AuthDecision[]>(builder.decisions ?? []);
 
   return (
     <div className="space-y-6">
@@ -42,10 +47,21 @@ export function EditForm({ builder }: { builder: BuilderRow }) {
       <MultiChips label="Target audience" options={AUDIENCES} selected={audiences} onChange={setAudiences} />
       <MultiChips label="Deployment" options={DEPLOYMENTS} selected={deployments} onChange={setDeployments} />
 
+      <div className="border-t border-neutral-100 pt-6">
+        <h2 className="mb-1 text-sm font-semibold text-neutral-900">Technical profile</h2>
+        <p className="mb-5 text-xs text-neutral-400">
+          Self-reported — how your product works against the AARM spec.
+        </p>
+        <div className="space-y-6">
+          <MultiChips label="Interception architecture (R1)" options={INTERCEPTION_ARCHITECTURES} selected={interception} onChange={setInterception} />
+          <SingleSelect label="Policy model (R3)" options={POLICY_MODELS} value={policyModel} onChange={setPolicyModel} />
+          <MultiChips label="Authorization decisions (R4)" options={AUTH_DECISIONS} selected={decisions} onChange={setDecisions} />
+        </div>
+      </div>
+
       <div className="rounded-lg border border-neutral-100 bg-neutral-50 px-4 py-3 text-xs text-neutral-500">
-        Conformance level, verified date, interception architecture, policy model, and the
-        authorization-decision matrix are set by the AARM Technical Working Group and aren&apos;t
-        editable here.
+        Conformance level, verified date, and the R1–R9 pass/fail matrix are the AARM Technical
+        Working Group&apos;s verified verdict and aren&apos;t editable here.
       </div>
 
       {error && <p className="text-sm text-red-500">{error}</p>}
@@ -62,6 +78,7 @@ export function EditForm({ builder }: { builder: BuilderRow }) {
                 description, logoUrl,
                 category: category || undefined,
                 surfaces, stage: stage || undefined, types, audiences, deployments,
+                interception, policyModel: policyModel || undefined, decisions,
               });
               setSaved(true);
               router.refresh();
