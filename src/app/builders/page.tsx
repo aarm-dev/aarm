@@ -36,48 +36,17 @@ export default async function BuildersPage() {
       </div>
 
       {/* Legend */}
-      <div className="mb-10 overflow-hidden rounded-lg border border-border/60">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border/60 bg-muted/30">
-              <th className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-widest text-muted-foreground">status</th>
-              <th className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-widest text-muted-foreground">meaning</th>
-              <th className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-widest text-muted-foreground">how to get listed</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-b border-border/30">
-              <td className="px-4 py-3">
-                <code className="font-mono text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded uppercase tracking-wide">
-                  Conformant
-                </code>
-              </td>
-              <td className="px-4 py-3 text-xs text-muted-foreground">
-                Satisfies AARM specification requirements (R1–R6 Core or R1–R9 Extended)
-              </td>
-              <td className="px-4 py-3 text-xs">
-                <Link href="/conformance" className="font-medium transition-opacity hover:opacity-70" style={{ color: "#1A6EB5" }}>
-                  Complete the testing protocol →
-                </Link>
-              </td>
-            </tr>
-            <tr>
-              <td className="px-4 py-3">
-                <code className="font-mono text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded uppercase tracking-wide">
-                  Aligned
-                </code>
-              </td>
-              <td className="px-4 py-3 text-xs text-muted-foreground">
-                Building in the same problem space; no conformance testing required
-              </td>
-              <td className="px-4 py-3 text-xs">
-                <Link href="/builders/new" className="font-medium transition-opacity hover:opacity-70" style={{ color: "#1A6EB5" }}>
-                  Add your company →
-                </Link>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div className="mb-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="rounded-full bg-green-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-green-700">Core</span>
+          <span className="rounded-full bg-blue-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-blue-700">Extended</span>
+          satisfy AARM requirements (R1–R6 / R1–R9) ·{" "}
+          <Link href="/conformance" className="font-medium" style={{ color: "#1A6EB5" }}>get verified →</Link>
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="rounded-full bg-neutral-100 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-neutral-400">Aligned</span>
+          building in the same space
+        </span>
       </div>
 
       <BuilderRegistry builders={builders} />
