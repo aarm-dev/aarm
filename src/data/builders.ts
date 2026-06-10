@@ -13,6 +13,7 @@ export const BUILDERS: Builder[] = [
   { name: "Operant AI", desc: "Discover, Detect, and Defend your AI, Agents, and MCP in real-time.", conformance: "Conformant", url: "https://www.operant.ai", slug: "operant" },
   { name: "MintMCP", desc: "Enterprise governance platform for AI agents and MCP servers.", conformance: "Conformant", url: "https://www.mintmcp.com", slug: "mintmcp" },
   { name: "Okta", desc: "Identity-native control plane for AI agents — discover, govern, and secure agents and their access to resources.", conformance: "Aligned", url: "https://www.okta.com/products/govern-ai-agent-identity/" },
+  { name: "Rubrik", desc: "Cyber resilience platform securing enterprise data, identity, and AI agents against threats and ensuring recovery.", conformance: "Aligned", url: "https://www.rubrik.com/products/rubrik-agent-cloud" },
   { name: "Airia", desc: "AI Security and Governance platform with runtime security at two layers: an AI Gateway intercepts every model call and an MCP Gateway intercepts every tool call, both feeding a shared Policy Engine with prompt-injection, DLP, and identity-aware controls.", conformance: "Aligned", url: "https://airia.com" },
   { name: "Lasso", desc: "Lasso is the AI Security Platform built for the agentic era.", conformance: "Aligned", url: "https://www.lasso.security" },
   { name: "HiddenLayer", desc: "The most comprehensive security platform for AI.", conformance: "Aligned", url: "https://hiddenlayer.com" },
@@ -69,5 +70,4 @@ export const BUILDERS: Builder[] = [
   { name: "Reva AI", desc: "Intent & Behavior-based Access Control (IBAC) for every agentic action, at runtime.", conformance: "Aligned", url: "https://www.reva.ai" },
   { name: "Metano AI", desc: "Discover, monitor, govern, and defend autonomous agents everywhere they operate - across SaaS, endpoints, and shadow environments.", conformance: "Aligned", url: "https://metano.ai" },
   { name: "SURADAR", desc: "Cryptographic per-action authorization for AI agents — tamper-evident receipts, identity binding, and memory provenance.", conformance: "Aligned", url: "https://glyphzerolabs.com" },
-  { name: "Rubrik", desc: "Cyber resilience platform securing enterprise data, identity, and AI agents against threats and ensuring recovery.", conformance: "Aligned", url: "https://www.rubrik.com/products/rubrik-agent-cloud" },
 ];
