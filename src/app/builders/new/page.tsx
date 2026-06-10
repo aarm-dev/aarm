@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { submitListing } from "@/lib/actions";
 import { MultiChips, SingleSelect } from "@/components/multi-chips";
 import {
-  CATEGORIES, SURFACES, STAGES, TYPES, AUDIENCES, DEPLOYMENTS,
-  type Category, type Surface, type Stage, type ProductType, type Audience, type Deployment,
+  SURFACES, STAGES, TYPES, AUDIENCES, DEPLOYMENTS,
+  type Surface, type Stage, type ProductType, type Audience, type Deployment,
 } from "@/db/taxonomy";
 
 export default function NewBuilderPage() {
@@ -18,7 +18,6 @@ export default function NewBuilderPage() {
   const [name, setName] = useState("");
   const [website, setWebsite] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<Category | "">("");
   const [surfaces, setSurfaces] = useState<Surface[]>([]);
   const [stage, setStage] = useState<Stage | "">("");
   const [types, setTypes] = useState<ProductType[]>([]);
@@ -58,7 +57,6 @@ export default function NewBuilderPage() {
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className={input} placeholder="What does your product do?" />
         </Field>
 
-        <SingleSelect label="Primary category" options={CATEGORIES} value={category} onChange={setCategory} />
         <MultiChips label="Coverage surface" options={SURFACES} selected={surfaces} onChange={setSurfaces} />
         <SingleSelect label="Stage" options={STAGES} value={stage} onChange={setStage} />
         <MultiChips label="Type" options={TYPES} selected={types} onChange={setTypes} />
@@ -84,7 +82,6 @@ export default function NewBuilderPage() {
               try {
                 await submitListing({
                   name, website, description,
-                  category: category || undefined,
                   surfaces, stage: stage || undefined, types, audiences, deployments,
                   pocName: pocName || undefined, pocEmail: pocEmail || undefined,
                 });

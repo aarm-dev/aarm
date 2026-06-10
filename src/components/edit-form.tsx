@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { updateOwnedBuilder } from "@/lib/actions";
 import { MultiChips, SingleSelect } from "@/components/multi-chips";
 import {
-  CATEGORIES, SURFACES, STAGES, TYPES, AUDIENCES, DEPLOYMENTS,
+  SURFACES, STAGES, TYPES, AUDIENCES, DEPLOYMENTS,
   INTERCEPTION_ARCHITECTURES, POLICY_MODELS, AUTH_DECISIONS,
-  type Category, type Surface, type Stage, type ProductType, type Audience, type Deployment,
+  type Surface, type Stage, type ProductType, type Audience, type Deployment,
   type InterceptionArchitecture, type PolicyModel, type AuthDecision,
 } from "@/db/taxonomy";
 import type { BuilderRow } from "@/db/schema";
@@ -20,7 +20,6 @@ export function EditForm({ builder }: { builder: BuilderRow }) {
 
   const [description, setDescription] = useState(builder.description ?? "");
   const [logoUrl, setLogoUrl] = useState(builder.logoUrl ?? "");
-  const [category, setCategory] = useState<Category | "">((builder.category as Category) ?? "");
   const [surfaces, setSurfaces] = useState<Surface[]>(builder.surfaces ?? []);
   const [stage, setStage] = useState<Stage | "">((builder.stage as Stage) ?? "");
   const [types, setTypes] = useState<ProductType[]>(builder.types ?? []);
@@ -40,7 +39,6 @@ export function EditForm({ builder }: { builder: BuilderRow }) {
         <label className={labelCls}>Logo URL</label>
         <input value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} className={input} placeholder="https://…" />
       </div>
-      <SingleSelect label="Primary category" options={CATEGORIES} value={category} onChange={setCategory} />
       <MultiChips label="Coverage surface" options={SURFACES} selected={surfaces} onChange={setSurfaces} />
       <SingleSelect label="Stage" options={STAGES} value={stage} onChange={setStage} />
       <MultiChips label="Type" options={TYPES} selected={types} onChange={setTypes} />
@@ -76,7 +74,6 @@ export function EditForm({ builder }: { builder: BuilderRow }) {
             try {
               await updateOwnedBuilder(builder.id, {
                 description, logoUrl,
-                category: category || undefined,
                 surfaces, stage: stage || undefined, types, audiences, deployments,
                 interception, policyModel: policyModel || undefined, decisions,
               });

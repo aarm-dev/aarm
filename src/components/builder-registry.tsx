@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type { BuilderRow } from "@/db/schema";
-import { CATEGORIES, SURFACES, POLICY_MODELS } from "@/db/taxonomy";
+import { SURFACES, POLICY_MODELS } from "@/db/taxonomy";
 
 function faviconUrl(domain?: string | null) {
   return `https://www.google.com/s2/favicons?domain=${domain ?? ""}&sz=64`;
@@ -14,23 +14,7 @@ function isConformant(b: BuilderRow) {
 function confRank(b: BuilderRow) {
   return b.conformanceLevel === "extended" ? 2 : b.conformanceLevel === "core" ? 1 : 0;
 }
-function shortCategory(c?: string | null) {
-  if (!c) return "";
-  // "MCP / tool / API gateway" -> "MCP gateway"; otherwise first segment.
-  const map: Record<string, string> = {
-    "Runtime enforcement / control plane": "Runtime enforcement",
-    "MCP / tool / API gateway": "MCP gateway",
-    "Identity, access & authorization": "Identity & access",
-    "Discovery, posture & governance": "Discovery & governance",
-    "Threat detection & response": "Detection & response",
-    "Audit, receipts & assurance": "Audit & assurance",
-    "Data / wire-protocol security": "Data security",
-    "Endpoint / local runtime": "Endpoint",
-  };
-  return map[c] ?? c;
-}
-
-type SortKey = "default" | "name" | "conformance" | "category";
+type SortKey = "default" | "name" | "conformance";
 type SortDir = "asc" | "desc";
 
 function ConfBadge({ b }: { b: BuilderRow }) {
@@ -45,7 +29,6 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [conf, setConf] = useState<"all" | "conformant" | "aligned">("all");
-  const [category, setCategory] = useState("");
   const [surface, setSurface] = useState("");
   const [policy, setPolicy] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("default");
@@ -55,7 +38,7 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else {
       setSortKey(key);
-      setSortDir(key === "name" || key === "category" ? "asc" : "desc");
+      setSortDir(key === "name" ? "asc" : "desc");
     }
   }
 
@@ -65,7 +48,6 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
       if (q && !b.name.toLowerCase().includes(q) && !(b.description ?? "").toLowerCase().includes(q)) return false;
       if (conf === "conformant" && !isConformant(b)) return false;
       if (conf === "aligned" && isConformant(b)) return false;
-      if (category && b.category !== category) return false;
       if (surface && !(b.surfaces ?? []).includes(surface as never)) return false;
       if (policy && b.policyModel !== policy) return false;
       return true;
@@ -77,13 +59,12 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
     return [...filtered].sort((a, b) => {
       let cmp = 0;
       if (sortKey === "name") cmp = a.name.localeCompare(b.name);
-      else if (sortKey === "category") cmp = (a.category ?? "").localeCompare(b.category ?? "");
       else cmp = confRank(a) - confRank(b) || (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
       return cmp * dir;
     });
-  }, [builders, search, conf, category, surface, policy, sortKey, sortDir]);
+  }, [builders, search, conf, surface, policy, sortKey, sortDir]);
 
-  const filtersActive = search || conf !== "all" || category || surface || policy;
+  const filtersActive = search || conf !== "all" || surface || policy;
 
   return (
     <div>
@@ -100,14 +81,13 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
             className="h-9 w-48 rounded-lg border border-neutral-200 bg-white pl-8 pr-3 text-sm text-neutral-800 placeholder-neutral-400 outline-none focus:border-neutral-400"
           />
         </div>
-        <Select value={conf} onChange={(v) => setConf(v as typeof conf)} options={[["all", "All status"], ["conformant", "Conformant"], ["aligned", "Aligned"]]} />
-        <Select value={category} onChange={setCategory} options={[["", "All categories"], ...CATEGORIES.map((c) => [c, shortCategory(c)] as [string, string])]} />
-        <Select value={surface} onChange={setSurface} options={[["", "All surfaces"], ...SURFACES.map((s) => [s, s] as [string, string])]} />
+        <Select value={conf} onChange={(v) => setConf(v as typeof conf)} options={[["all", "All conformance"], ["conformant", "Conformant"], ["aligned", "Aligned"]]} />
+        <Select value={surface} onChange={setSurface} options={[["", "All coverage"], ...SURFACES.map((s) => [s, s] as [string, string])]} />
         <Select value={policy} onChange={setPolicy} options={[["", "All policies"], ...POLICY_MODELS.map((p) => [p, p] as [string, string])]} />
         <span className="ml-auto font-mono text-xs text-neutral-400">{rows.length} of {builders.length}</span>
         {filtersActive && (
           <button
-            onClick={() => { setSearch(""); setConf("all"); setCategory(""); setSurface(""); setPolicy(""); setSortKey("default"); }}
+            onClick={() => { setSearch(""); setConf("all"); setSurface(""); setPolicy(""); setSortKey("default"); }}
             className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-500 hover:bg-neutral-50"
           >
             Clear
@@ -117,12 +97,11 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
 
       {/* Data grid */}
       <div className="overflow-x-auto rounded-xl border border-neutral-200">
-        <table className="w-full min-w-[1040px] text-sm">
+        <table className="w-full min-w-[920px] text-sm">
           <thead className="sticky top-0 bg-neutral-50">
             <tr className="border-b border-neutral-200">
               <Th label="Company" sortable onSort={() => toggleSort("name")} active={sortKey === "name"} dir={sortDir} />
               <Th label="Conformance" sortable onSort={() => toggleSort("conformance")} active={sortKey === "conformance"} dir={sortDir} />
-              <Th label="Category" sortable onSort={() => toggleSort("category")} active={sortKey === "category"} dir={sortDir} />
               <Th label="Policy" />
               <Th label="Coverage" />
               <Th label="Type" />
@@ -149,7 +128,6 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
                   </div>
                 </td>
                 <td className="px-4 py-3"><ConfBadge b={b} /></td>
-                <td className="px-4 py-3 text-neutral-600">{shortCategory(b.category) || <span className="text-neutral-300">—</span>}</td>
                 <td className="px-4 py-3 text-neutral-600">{b.policyModel || <span className="text-neutral-300">—</span>}</td>
                 <td className="px-4 py-3"><CellChips items={b.surfaces} /></td>
                 <td className="px-4 py-3"><CellChips items={b.types} /></td>

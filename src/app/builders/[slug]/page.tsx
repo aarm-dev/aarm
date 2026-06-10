@@ -56,7 +56,6 @@ const ALL_REQS = [
 function completeness(b: BuilderRow) {
   const checks: [string, boolean][] = [
     ["Logo", !!b.logoUrl],
-    ["Category", !!b.category],
     ["Surfaces", (b.surfaces?.length ?? 0) > 0],
     ["Stage", !!b.stage],
     ["Type", (b.types?.length ?? 0) > 0],
@@ -145,7 +144,6 @@ export default async function BuilderDetailPage({ params }: Props) {
         <section className="mb-14">
           <h2 className="mb-5 font-mono text-xs uppercase tracking-widest text-neutral-400">Classification</h2>
           <dl className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
-            <Row label="Primary category"><Val>{b.category}</Val></Row>
             <Row label="Coverage surface"><Chips items={b.surfaces} /></Row>
             <Row label="Stage"><Val>{b.stage}</Val></Row>
             <Row label="Type"><Chips items={b.types} /></Row>

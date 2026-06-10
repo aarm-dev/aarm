@@ -9,7 +9,7 @@ import type {
   Category, Surface, Stage, ProductType, Audience, Deployment,
   InterceptionArchitecture, PolicyModel, AuthDecision,
 } from "@/db/taxonomy";
-import { notifyNewListing } from "@/lib/notify";
+import { notifyNewListing, notifyClaim } from "@/lib/notify";
 
 function slugify(name: string) {
   return name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -99,6 +99,13 @@ export async function requestClaim(builderId: string) {
     method: domainMatch ? "domain_match" : "manual",
     status: domainMatch ? "approved" : "pending",
     reviewedAt: domainMatch ? new Date() : null,
+  });
+
+  await notifyClaim({
+    builderName: b.name,
+    builderSlug: b.slug,
+    userEmail: user.email ?? "",
+    method: domainMatch ? "domain_match" : "manual",
   });
 
   if (domainMatch) {

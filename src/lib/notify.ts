@@ -59,6 +59,50 @@ export async function notifyNewListing(b: NewListing): Promise<void> {
   }
 }
 
+export async function notifyClaim(c: {
+  builderName: string;
+  builderSlug: string;
+  userEmail: string;
+  method: "domain_match" | "manual";
+}): Promise<void> {
+  const key = process.env.RESEND_API_KEY;
+  const to = recipients();
+  if (!key || to.length === 0) {
+    console.info("[notify] claim skipped (not configured)");
+    return;
+  }
+  const from = process.env.NOTIFY_FROM || "AARM <onboarding@resend.dev>";
+  const site = process.env.NEXT_PUBLIC_SITE_URL || "https://aarm.dev";
+  const auto = c.method === "domain_match";
+
+  const html = `
+    <h2>Listing claim ${auto ? "auto-approved" : "needs review"}</h2>
+    <p><strong>${esc(c.userEmail)}</strong> claimed <strong>${esc(c.builderName)}</strong>
+    via <em>${esc(c.method)}</em>.</p>
+    <p>${auto
+      ? "Domain matched — they now own the listing. No action needed."
+      : "This claim is pending your approval in the admin queue."}</p>
+    <p><a href="${site}/builders/${esc(c.builderSlug)}">View listing</a> ·
+       <a href="${site}/admin">Open admin queue →</a></p>
+  `;
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from,
+        to,
+        subject: `Claim ${auto ? "auto-approved" : "to review"}: ${c.builderName}`,
+        html,
+      }),
+    });
+    if (!res.ok) console.error("[notify] resend error", res.status, await res.text());
+  } catch (e) {
+    console.error("[notify] claim failed", e);
+  }
+}
+
 function esc(s: string) {
   return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
 }
