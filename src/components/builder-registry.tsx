@@ -97,15 +97,18 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
 
       {/* Data grid */}
       <div className="overflow-x-auto rounded-xl border border-neutral-200">
-        <table className="w-full min-w-[920px] text-sm">
+        <table className="w-full min-w-[1500px] text-sm">
           <thead className="sticky top-0 bg-neutral-50">
             <tr className="border-b border-neutral-200">
               <Th label="Company" sortable onSort={() => toggleSort("name")} active={sortKey === "name"} dir={sortDir} />
               <Th label="Conformance" sortable onSort={() => toggleSort("conformance")} active={sortKey === "conformance"} dir={sortDir} />
-              <Th label="Policy" />
-              <Th label="Coverage" />
+              <Th label="Stage" />
               <Th label="Type" />
               <Th label="Target" />
+              <Th label="Coverage" />
+              <Th label="Deployment" />
+              <Th label="Interception" />
+              <Th label="Policy" />
             </tr>
           </thead>
           <tbody>
@@ -128,10 +131,13 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
                   </div>
                 </td>
                 <td className="px-4 py-3"><ConfBadge b={b} /></td>
-                <td className="px-4 py-3 text-neutral-600">{b.policyModel || <span className="text-neutral-300">—</span>}</td>
-                <td className="px-4 py-3"><CellChips items={b.surfaces} /></td>
+                <td className="px-4 py-3 text-neutral-600">{b.stage || <span className="text-neutral-300">—</span>}</td>
                 <td className="px-4 py-3"><CellChips items={b.types} /></td>
                 <td className="px-4 py-3"><CellChips items={b.audiences} /></td>
+                <td className="px-4 py-3"><CellChips items={b.surfaces} /></td>
+                <td className="px-4 py-3"><CellChips items={b.deployments} /></td>
+                <td className="px-4 py-3"><CellChips items={b.interception} /></td>
+                <td className="px-4 py-3 text-neutral-600">{b.policyModel || <span className="text-neutral-300">—</span>}</td>
               </tr>
             ))}
           </tbody>
