@@ -22,7 +22,7 @@ export const EVENTS: AARMEvent[] = [
   {
     id: "aauth-night",
     name: "AAuth Night: Moving Beyond OAuth",
-    url: "https://luma.com/a2h25m60",
+    url: "https://luma.com/a2h25m60?utm_source=aarm.dev",
     dateLabel: "2026",
     // No public date yet — undated events sort first so this stays the spotlight.
     // Add startISO + endISO when the date is confirmed and ordering/auto-past kicks in.
