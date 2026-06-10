@@ -51,6 +51,18 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
   const [policy, setPolicy] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("default");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [open, setOpen] = useState(false);
+
+  const facets: { key: string; label: string; value: string; set: (v: string) => void; options: [string, string][] }[] = [
+    { key: "conf", label: "Conformance", value: conf, set: setConf, options: [["conformant", "Conformant"], ["aligned", "Aligned"]] },
+    { key: "stage", label: "Stage", value: stage, set: setStage, options: STAGES.map((s) => [s, s]) },
+    { key: "type", label: "Type", value: type, set: setType, options: TYPES.map((s) => [s, s]) },
+    { key: "target", label: "Target", value: target, set: setTarget, options: AUDIENCES.map((s) => [s, s]) },
+    { key: "coverage", label: "Coverage", value: coverage, set: setCoverage, options: SURFACES.map((s) => [s, s]) },
+    { key: "deployment", label: "Deployment", value: deployment, set: setDeployment, options: DEPLOYMENTS.map((s) => [s, s]) },
+    { key: "interception", label: "Interception", value: interception, set: setInterception, options: INTERCEPTION_ARCHITECTURES.map((s) => [s, s]) },
+    { key: "policy", label: "Policy", value: policy, set: setPolicy, options: POLICY_MODELS.map((s) => [s, s]) },
+  ];
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -94,10 +106,10 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
 
   return (
     <div>
-      {/* Toolbar */}
-      <div className="mb-5 rounded-2xl border border-neutral-200/70 bg-neutral-50/60 p-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative flex-1 min-w-[200px]">
+      {/* Toolbar — search + a single Filters toggle, with active filters as chips */}
+      <div className="mb-5">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
             <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <circle cx="11" cy="11" r="7" /><path strokeLinecap="round" d="M21 21l-4-4" />
             </svg>
@@ -108,24 +120,47 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
               className="h-10 w-full rounded-xl border border-neutral-200 bg-white pl-9 pr-3 text-sm text-neutral-800 placeholder-neutral-400 shadow-sm outline-none transition-colors focus:border-neutral-400"
             />
           </div>
-          <span className="font-mono text-xs text-neutral-400">{rows.length}/{builders.length}</span>
-          {dirty && (
-            <button onClick={clearAll} className="rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-neutral-500 shadow-sm transition-colors hover:bg-neutral-50">
-              Clear{activeCount ? ` (${activeCount})` : ""}
-            </button>
-          )}
+          <button
+            onClick={() => setOpen((o) => !o)}
+            className={`flex h-10 items-center gap-2 rounded-xl border px-3.5 text-sm font-medium shadow-sm transition-colors ${
+              open || activeCount ? "border-blue-300 bg-blue-50 text-blue-800" : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
+            }`}
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 12h12M10 19h4" />
+            </svg>
+            Filters
+            {activeCount > 0 && <span className="rounded-full bg-blue-600 px-1.5 text-[11px] font-bold text-white">{activeCount}</span>}
+          </button>
+          <span className="hidden font-mono text-xs text-neutral-400 sm:block">{rows.length}/{builders.length}</span>
         </div>
 
-        <div className="mt-2.5 flex flex-wrap gap-2">
-          <Facet label="Conformance" value={conf} onChange={setConf} options={[["conformant", "Conformant"], ["aligned", "Aligned"]]} />
-          <Facet label="Stage" value={stage} onChange={setStage} options={STAGES.map((s) => [s, s])} />
-          <Facet label="Type" value={type} onChange={setType} options={TYPES.map((s) => [s, s])} />
-          <Facet label="Target" value={target} onChange={setTarget} options={AUDIENCES.map((s) => [s, s])} />
-          <Facet label="Coverage" value={coverage} onChange={setCoverage} options={SURFACES.map((s) => [s, s])} />
-          <Facet label="Deployment" value={deployment} onChange={setDeployment} options={DEPLOYMENTS.map((s) => [s, s])} />
-          <Facet label="Interception" value={interception} onChange={setInterception} options={INTERCEPTION_ARCHITECTURES.map((s) => [s, s])} />
-          <Facet label="Policy" value={policy} onChange={setPolicy} options={POLICY_MODELS.map((s) => [s, s])} />
-        </div>
+        {/* Active filter chips */}
+        {activeCount > 0 && (
+          <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+            {facets.filter((f) => f.value).map((f) => (
+              <button
+                key={f.key}
+                onClick={() => f.set("")}
+                className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 py-0.5 pl-2.5 pr-1.5 text-xs font-medium text-blue-800 transition-colors hover:bg-blue-100"
+              >
+                <span className="text-blue-500">{f.label}:</span>
+                {f.options.find((o) => o[0] === f.value)?.[1] ?? f.value}
+                <span className="text-blue-400">✕</span>
+              </button>
+            ))}
+            <button onClick={clearAll} className="ml-1 text-xs font-medium text-neutral-400 hover:text-neutral-700">Clear all</button>
+          </div>
+        )}
+
+        {/* Filter panel (collapsed by default) */}
+        {open && (
+          <div className="mt-2.5 flex flex-wrap gap-2 rounded-2xl border border-neutral-200/70 bg-neutral-50/60 p-3">
+            {facets.map((f) => (
+              <Facet key={f.key} label={f.label} value={f.value} onChange={f.set} options={f.options} />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Data grid */}
