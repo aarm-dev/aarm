@@ -9,6 +9,7 @@ import type {
   Category, Surface, Stage, ProductType, Audience, Deployment,
   InterceptionArchitecture, PolicyModel, AuthDecision,
 } from "@/db/taxonomy";
+import { notifyNewListing } from "@/lib/notify";
 
 function slugify(name: string) {
   return name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -69,6 +70,16 @@ export async function submitListing(input: {
     conformanceLevel: "aligned",
     status: "pending",
     createdBy: user.id,
+  });
+  // Fire-and-forget; never let a notification failure break submission.
+  await notifyNewListing({
+    name: input.name,
+    website: input.website,
+    description: input.description,
+    category: input.category,
+    pocName: input.pocName,
+    pocEmail: input.pocEmail,
+    submittedBy: user.email,
   });
   revalidatePath("/builders");
 }

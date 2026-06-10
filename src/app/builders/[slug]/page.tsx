@@ -101,7 +101,7 @@ export default async function BuilderDetailPage({ params }: Props) {
                   <h1 className="text-2xl font-extrabold tracking-tight text-neutral-900">{b.name}</h1>
                   {verified ? (
                     <span className={`rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide ${isExtended ? "border-blue-200 bg-blue-50 text-blue-700" : "border-green-200 bg-green-50 text-green-700"}`}>
-                      {isExtended ? "✦ AARM Extended" : "✓ AARM Core"}
+                      {isExtended ? "AARM Extended" : "AARM Core"}
                     </span>
                   ) : (
                     <span className="rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-neutral-500">

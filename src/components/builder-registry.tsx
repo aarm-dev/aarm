@@ -35,9 +35,9 @@ type SortDir = "asc" | "desc";
 
 function ConfBadge({ b }: { b: BuilderRow }) {
   if (b.conformanceLevel === "extended")
-    return <span className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-blue-700">✦ Extended</span>;
+    return <span className="whitespace-nowrap rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-blue-700">Extended</span>;
   if (b.conformanceLevel === "core")
-    return <span className="rounded-full border border-green-200 bg-green-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-green-700">✓ Core</span>;
+    return <span className="whitespace-nowrap rounded-full border border-green-200 bg-green-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-green-700">Core</span>;
   return <span className="rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-neutral-400">Aligned</span>;
 }
 
