@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { and, eq } from "drizzle-orm";
 import { auth } from "@/auth";
+import { db, isDbConfigured } from "@/db";
+import { claims } from "@/db/schema";
 import { getBuilderBySlug } from "@/lib/builders";
 import { ClaimButton } from "@/components/claim-button";
 import type { BuilderRow } from "@/db/schema";
@@ -75,6 +78,24 @@ export default async function BuilderDetailPage({ params }: Props) {
   const isOwner = isAuthed && b.claimedBy === session!.user!.id;
   const isAdmin = !!(session?.user as { isAdmin?: boolean } | undefined)?.isAdmin;
   const isTeam = isOwner || isAdmin;
+  const claimedByOther = !!b.claimedBy && b.claimedBy !== session?.user?.id;
+
+  // Does the signed-in user already have a pending claim on this listing?
+  let hasPendingClaim = false;
+  if (isAuthed && !isOwner && isDbConfigured && db) {
+    const existing = await db
+      .select({ id: claims.id })
+      .from(claims)
+      .where(
+        and(
+          eq(claims.builderId, b.id),
+          eq(claims.userId, session!.user!.id),
+          eq(claims.status, "pending")
+        )
+      )
+      .limit(1);
+    hasPendingClaim = existing.length > 0;
+  }
 
   const isExtended = b.conformanceLevel === "extended";
   const isCore = b.conformanceLevel === "core";
@@ -117,7 +138,14 @@ export default async function BuilderDetailPage({ params }: Props) {
               </div>
             </div>
             <div className="shrink-0">
-              <ClaimButton builderId={b.id} isAuthed={isAuthed} isOwner={isOwner || isAdmin} slug={b.slug} />
+              <ClaimButton
+                builderId={b.id}
+                isAuthed={isAuthed}
+                isOwner={isOwner || isAdmin}
+                claimedByOther={claimedByOther && !isAdmin}
+                hasPendingClaim={hasPendingClaim}
+                slug={b.slug}
+              />
             </div>
           </div>
         </div>
@@ -269,7 +297,7 @@ export default async function BuilderDetailPage({ params }: Props) {
 
         <div className="border-t border-neutral-100 pt-8 text-xs text-neutral-400">
           Maintained by the AARM Technical Working Group.{" "}
-          {!isOwner && !isAdmin && (
+          {!isOwner && !isAdmin && !claimedByOther && !hasPendingClaim && (
             <Link href={`/login?next=/builders/${b.slug}`} className="underline hover:text-neutral-600">Work here? Claim this listing →</Link>
           )}
         </div>

@@ -8,11 +8,15 @@ export function ClaimButton({
   builderId,
   isAuthed,
   isOwner,
+  claimedByOther,
+  hasPendingClaim,
   slug,
 }: {
   builderId: string;
   isAuthed: boolean;
   isOwner: boolean;
+  claimedByOther?: boolean;
+  hasPendingClaim?: boolean;
   slug: string;
 }) {
   const router = useRouter();
@@ -28,6 +32,24 @@ export function ClaimButton({
       >
         Edit your listing →
       </a>
+    );
+  }
+
+  // Already owned by someone else — no claiming.
+  if (claimedByOther) {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-400">
+        <span className="h-1.5 w-1.5 rounded-full bg-green-500" /> Claimed
+      </span>
+    );
+  }
+
+  // This user has a claim awaiting TWG review.
+  if (hasPendingClaim) {
+    return (
+      <span className="rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-500">
+        Claim pending review
+      </span>
     );
   }
 
