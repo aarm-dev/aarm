@@ -24,7 +24,17 @@ async function main() {
     await db
       .insert(builders)
       .values(b)
-      .onConflictDoUpdate({ target: builders.slug, set: { sortOrder: b.sortOrder } });
+      .onConflictDoUpdate({
+        target: builders.slug,
+        // Refresh positioning + TWG conformance-review narrative on existing
+        // rows; never touch company-editable marketing/technical fields.
+        set: {
+          sortOrder: b.sortOrder,
+          about: b.about,
+          architecture: b.architecture,
+          capabilities: b.capabilities,
+        },
+      });
   }
   console.log("Done.");
   process.exit(0);

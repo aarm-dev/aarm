@@ -133,6 +133,14 @@ export default async function BuilderDetailPage({ params }: Props) {
           </div>
         )}
 
+        {/* Overview */}
+        {b.about && (
+          <section className="mb-14">
+            <h2 className="mb-4 font-mono text-xs uppercase tracking-widest text-neutral-400">Overview</h2>
+            <p className="leading-relaxed text-neutral-600">{b.about}</p>
+          </section>
+        )}
+
         {/* Classification */}
         <section className="mb-14">
           <h2 className="mb-5 font-mono text-xs uppercase tracking-widest text-neutral-400">Classification</h2>
@@ -158,10 +166,26 @@ export default async function BuilderDetailPage({ params }: Props) {
           </dl>
         </section>
 
-        {/* Requirement coverage (verified only) */}
+        {/* Conformance review (verified only) */}
         {verified && (b.requirements?.length ?? 0) > 0 && (
           <section className="mb-14">
-            <h2 className="mb-5 font-mono text-xs uppercase tracking-widest text-neutral-400">Requirement coverage</h2>
+            <h2 className="mb-5 font-mono text-xs uppercase tracking-widest text-neutral-400">Conformance review</h2>
+
+            {/* Record metadata */}
+            <div className="mb-6 grid gap-2 text-sm sm:grid-cols-2">
+              {[
+                { label: "Specification version", value: "AARM v1.0" },
+                { label: "Conformance tier", value: isExtended ? "Extended (R1–R9)" : "Core (R1–R6)" },
+                { label: "Verified by", value: "Herman Errico, AARM Author" },
+                { label: "Date", value: b.verifiedDate ?? "—" },
+              ].map((row) => (
+                <div key={row.label} className="flex justify-between rounded-lg border border-neutral-100 bg-neutral-50 px-4 py-2.5">
+                  <span className="text-neutral-400">{row.label}</span>
+                  <span className="font-medium text-neutral-700">{row.value}</span>
+                </div>
+              ))}
+            </div>
+
             <div className="overflow-hidden rounded-xl border border-neutral-100">
               <table className="w-full text-sm">
                 <tbody>
@@ -187,6 +211,31 @@ export default async function BuilderDetailPage({ params }: Props) {
                 </tbody>
               </table>
             </div>
+          </section>
+        )}
+
+        {/* Capabilities */}
+        {(b.capabilities?.length ?? 0) > 0 && (
+          <section className="mb-14">
+            <h2 className="mb-5 font-mono text-xs uppercase tracking-widest text-neutral-400">Platform capabilities</h2>
+            <ul className="space-y-2">
+              {b.capabilities!.map((cap) => (
+                <li key={cap} className="flex items-start gap-2.5 text-sm text-neutral-600">
+                  <svg className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "#1A6EB5" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {cap}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* Architecture */}
+        {b.architecture && (
+          <section className="mb-14">
+            <h2 className="mb-4 font-mono text-xs uppercase tracking-widest text-neutral-400">Architecture</h2>
+            <p className="leading-relaxed text-neutral-600">{b.architecture}</p>
           </section>
         )}
 

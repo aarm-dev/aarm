@@ -1,4 +1,5 @@
 import type { NewBuilderRow } from "@/db/schema";
+import { BUILDER_DETAILS } from "./builder-details";
 
 // Canonical registry seed. Used by scripts/seed.ts to populate Neon, and as the
 // static fallback (src/lib/builders.ts) until the DB is provisioned.
@@ -207,8 +208,15 @@ const RAW: Seed[] = [
   { slug: "suradar", name: "SURADAR", website: "https://glyphzerolabs.com", description: "Cryptographic per-action authorization for AI agents — tamper-evident receipts, identity binding, and memory provenance.", category: "Audit, receipts & assurance", conformanceLevel: "aligned", status: "approved" },
 ];
 
-export const SEED_BUILDERS: NewBuilderRow[] = RAW.map((b, i) => ({
-  ...b,
-  domain: domainOf(b.website),
-  sortOrder: i, // preserve original registry order (Noma first)
-}));
+export const SEED_BUILDERS: NewBuilderRow[] = RAW.map((b, i) => {
+  // Enrich verified builders with the full conformance-review narrative.
+  const detail = BUILDER_DETAILS.find((d) => d.slug === b.slug);
+  return {
+    ...b,
+    domain: domainOf(b.website),
+    sortOrder: i, // preserve original registry order (Noma first)
+    about: b.about ?? detail?.about ?? null,
+    architecture: b.architecture ?? detail?.architecture ?? null,
+    capabilities: b.capabilities ?? detail?.capabilities ?? [],
+  };
+});
