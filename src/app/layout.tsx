@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { Geist_Mono } from "next/font/google";
 import { SiteNav } from "@/components/site-nav";
+import { AuthProvider } from "@/components/auth-provider";
 import "./globals.css";
 
 const sans = Plus_Jakarta_Sans({
@@ -29,7 +30,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body className="flex min-h-screen flex-col bg-white antialiased">
-        <SiteNav />
+        <AuthProvider>
+          <SiteNav />
+        </AuthProvider>
         <main className="flex-1">{children}</main>
         <footer className="border-t border-neutral-100 bg-white pt-14 pb-8">
           <div className="mx-auto max-w-6xl px-6">

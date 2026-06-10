@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 
 const links = [
   { href: "/spec", label: "Spec" },
@@ -16,6 +17,8 @@ const links = [
 export function SiteNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const { data: session } = useSession();
+  const isAdmin = Boolean((session?.user as { isAdmin?: boolean } | undefined)?.isAdmin);
 
   return (
     <header className="sticky top-0 z-50 border-b border-neutral-100 bg-white/95 backdrop-blur-sm">
@@ -47,6 +50,31 @@ export function SiteNav() {
               {link.label}
             </Link>
           ))}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
+                pathname === "/admin" ? "font-medium text-neutral-900" : "text-neutral-500 hover:text-neutral-900"
+              }`}
+            >
+              Admin
+            </Link>
+          )}
+          {session?.user ? (
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="rounded-md px-3 py-1.5 text-sm text-neutral-500 transition-colors hover:text-neutral-900"
+            >
+              Sign out
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-md px-3 py-1.5 text-sm text-neutral-500 transition-colors hover:text-neutral-900"
+            >
+              Sign in
+            </Link>
+          )}
           <a
             href="https://cloudsecurityalliance.org/research/working-groups/autonomous-action-runtime-management-aarm"
             target="_blank"
@@ -105,6 +133,23 @@ export function SiteNav() {
                 {link.label}
               </Link>
             ))}
+            {isAdmin && (
+              <Link href="/admin" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900">
+                Admin
+              </Link>
+            )}
+            {session?.user ? (
+              <button
+                onClick={() => { setOpen(false); signOut({ callbackUrl: "/" }); }}
+                className="rounded-lg px-3 py-2.5 text-left text-sm text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
+              >
+                Sign out
+              </button>
+            ) : (
+              <Link href="/login" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900">
+                Sign in
+              </Link>
+            )}
           </nav>
         </div>
       )}
