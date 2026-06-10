@@ -123,6 +123,7 @@ export default function RootLayout({
                 <ul className="space-y-2.5">
                   {[
                     { href: "/working-group", label: "Working group" },
+                    { href: "/events", label: "Events" },
                     { href: "https://cloudsecurityalliance.org/research/working-groups/autonomous-action-runtime-management-aarm", label: "Join the TWG", external: true },
                     { href: "https://github.com/aarm-dev/aarm", label: "Contribute on GitHub", external: true },
                   ].map((link) => (
