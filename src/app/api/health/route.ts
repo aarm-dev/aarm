@@ -18,5 +18,12 @@ export async function GET() {
   } catch (e) {
     error = e instanceof Error ? e.message : "unknown error";
   }
-  return NextResponse.json({ dbConfigured: isDbConfigured, ok, builderCount, error });
+  // Booleans only — confirms whether email notifications can send.
+  const notify = {
+    resendKey: !!process.env.RESEND_API_KEY,
+    hasRecipients: !!(process.env.NOTIFY_TO || process.env.ADMIN_EMAILS),
+    fromSet: !!process.env.NOTIFY_FROM,
+  };
+
+  return NextResponse.json({ dbConfigured: isDbConfigured, ok, builderCount, error, notify });
 }
