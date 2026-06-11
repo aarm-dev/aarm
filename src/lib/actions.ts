@@ -76,6 +76,9 @@ export async function submitListing(input: {
     conformanceLevel: "aligned",
     status: "pending",
     createdBy: user.id,
+    // Land new submissions at the bottom of the registry by default; admins can
+    // lift them with priority/featured in the admin panel. (Seed rows use 0–~99.)
+    sortOrder: 100000,
   });
   // Fire-and-forget; never let a notification failure break submission.
   await notifyNewListing({
