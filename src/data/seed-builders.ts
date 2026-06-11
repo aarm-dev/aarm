@@ -177,7 +177,51 @@ const RAW: Seed[] = [
   { slug: "the-mcp-company", name: "The MCP Company", website: "https://themcp.company", description: "Dev tool giving control and visibility over agents and MCP actions.", category: "MCP / tool / API gateway", surfaces: ["MCP"], audiences: ["Developers"], conformanceLevel: "aligned", status: "approved" },
   { slug: "laptop-bot", name: "Laptop Bot", website: "https://laptop.bot", description: "AI Security and Governance for laptops.", category: "Endpoint / local runtime", surfaces: ["Endpoint"], conformanceLevel: "aligned", status: "approved" },
   { slug: "raxit", name: "Raxit", website: "https://raxit.ai", description: "Preemptive cybersecurity platform for AI agents.", conformanceLevel: "aligned", status: "approved" },
-  { slug: "highflame", name: "Highflame", website: "https://highflame.com", description: "Unified enterprise Agent security platform with real-time protection.", category: "Runtime enforcement / control plane", audiences: ["Enterprise"], conformanceLevel: "aligned", status: "approved" },
+  {
+    slug: "highflame",
+    name: "Highflame",
+    website: "https://highflame.com",
+    description: "Shield — runtime action-enforcement for AI agents: intercept, evaluate against policy, decide, and record signed receipts.",
+    category: "Runtime enforcement / control plane",
+    audiences: ["Enterprise"],
+    conformanceLevel: "core",
+    verifiedDate: "June 11, 2026",
+    verifiedBy: "AARM Conformance Agent",
+    tagline: "Runtime action-enforcement for AI agents",
+    interception: ["SDK Instrumentation"],
+    policyModel: "Deterministic",
+    decisions: ["ALLOW", "DENY", "MODIFY", "STEP_UP", "DEFER"],
+    about:
+      "Highflame Shield is a runtime action-enforcement product for AI agents. It intercepts every agent-initiated action before execution, evaluates it against declarative policy and accumulated session context, enforces one of five authorization decisions, and emits a signed, offline-verifiable receipt for each decision.",
+    capabilities: [
+      "Pre-execution interception at a fail-closed enforcement endpoint — no fail-open path",
+      "Per-session context accumulation (prior actions, data classifications, original request), defaulting to highest sensitivity",
+      "Append-only, hash-chained session context log (tamper-evident)",
+      "Cedar policy engine with four classifications and documented, auditable defer triggers",
+      "Typed parameter validation (type, range, pattern, allow/blocklist) on tool-call arguments",
+      "All five decisions: ALLOW, DENY, MODIFY (PII redaction), STEP_UP (human approval), DEFER (bounded cascade depth)",
+      "Cryptographically signed receipts over a canonical serialization, verifiable offline; workload-attested signing keys",
+      "Identity binding across human, service, agent, session, and role/privilege with freshness, revocation, and delegation-chain preservation",
+    ],
+    architecture:
+      "This review was conducted by the AARM Conformance Agent and completed on June 11, 2026. Highflame Shield satisfies all six AARM Core requirements (R1–R6); the extended requirements (R7–R9) were not assessed in this review.\n\n" +
+      "Interception (R1): Shield intercepts every action before execution at a dedicated enforcement endpoint and is fail-closed — absent or unsynced policies return an error rather than silently allowing, and no configuration path bypasses policy evaluation. A matching DENY blocks execution and emits a signed denial receipt recording the determining policy and reason; DEFER suspends the action with no side effects.\n\n" +
+      "Context (R2): Shield accumulates per-session context — prior actions, data classifications, and the original request — and defaults to the highest sensitivity when classification is unavailable. The session log is append-only and hash-chained, so tampering with a prior entry breaks the chain.\n\n" +
+      "Policy & intent alignment (R3): The Cedar-based engine supports forbidden, context-dependent deny, context-dependent allow, and context-dependent defer. Deferral triggers (unpopulated context, same-priority conflict, low detector confidence) are documented and auditable, and tool-call arguments are projected into a typed record and validated by type, range, and allow/blocklist.\n\n" +
+      "Decisions (R4): All five authorization decisions are enforced. MODIFY applies PII redaction; STEP_UP routes for human approval with a bounded, deny-on-timeout window (no fail-open); DEFER supports dependent-action cascading with a configurable depth limit and follow-up receipts.\n\n" +
+      "Receipts (R5): Every decision type produces a cryptographically signed receipt over a canonical serialization, verifiable offline against published keys, with workload-attested signing credentials.\n\n" +
+      "Identity (R6): Each action is bound to human, service, agent, session, and role/privilege scope. Identity is validated against trusted issuers including freshness and revocation; unverifiable identity is denied, and identity is preserved across deferral and delegation.",
+    requirements: [
+      { id: "R1", status: "pass" }, { id: "R2", status: "pass" }, { id: "R3", status: "pass" },
+      { id: "R4", status: "pass" }, { id: "R5", status: "pass" }, { id: "R6", status: "pass" },
+      { id: "R7", status: "na" }, { id: "R8", status: "na" }, { id: "R9", status: "na" },
+    ],
+    keyFacts: [
+      { label: "Conformance", value: "AARM Core (R1–R6)" },
+      { label: "Verified", value: "June 11, 2026" },
+    ],
+    status: "approved",
+  },
   { slug: "cortexhub", name: "Cortexhub", website: "https://cortexhub.ai", description: "Runtime governance for AI-era systems.", category: "Discovery, posture & governance", conformanceLevel: "aligned", status: "approved" },
   { slug: "aris", name: "Aris", website: "https://aris-platform.com", description: "Discovers running AI, measures exposure, and provides control.", category: "Discovery, posture & governance", conformanceLevel: "aligned", status: "approved" },
   { slug: "pipelock", name: "Pipelock", website: "https://pipelab.org", description: "Open-source firewall for AI agents. Single binary, no cloud required.", category: "Endpoint / local runtime", surfaces: ["Endpoint", "Network"], types: ["Open Source"], deployments: ["Self-hosted"], conformanceLevel: "aligned", status: "approved" },

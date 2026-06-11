@@ -52,6 +52,7 @@ export const builders = pgTable("builders", {
   // ── Conformance + technical axes (TWG-only) ──
   conformanceLevel: text("conformance_level").$type<ConformanceLevel>().default("aligned"),
   verifiedDate: text("verified_date"),
+  verifiedBy: text("verified_by"),
   tagline: text("tagline"),
   about: text("about"),
   architecture: text("architecture"),

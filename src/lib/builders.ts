@@ -23,6 +23,7 @@ function seedAsRows(): BuilderRow[] {
     deployments: b.deployments ?? [],
     conformanceLevel: b.conformanceLevel ?? "aligned",
     verifiedDate: b.verifiedDate ?? null,
+    verifiedBy: b.verifiedBy ?? null,
     tagline: b.tagline ?? null,
     about: b.about ?? null,
     architecture: b.architecture ?? null,

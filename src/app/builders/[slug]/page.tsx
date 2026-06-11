@@ -186,7 +186,7 @@ export default async function BuilderDetailPage({ params }: Props) {
               {[
                 { label: "Specification version", value: "AARM v1.0" },
                 { label: "Conformance tier", value: isExtended ? "Extended (R1–R9)" : "Core (R1–R6)" },
-                { label: "Verified by", value: "Herman Errico, AARM Author" },
+                { label: "Verified by", value: b.verifiedBy ?? "Herman Errico, AARM Author" },
                 { label: "Date", value: b.verifiedDate ?? "—" },
               ].map((row) => (
                 <div key={row.label} className="flex justify-between rounded-lg border border-neutral-100 bg-neutral-50 px-4 py-2.5">
