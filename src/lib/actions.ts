@@ -53,8 +53,14 @@ export async function submitListing(input: {
 }) {
   const database = await requireDb();
   const user = await requireUser();
+
+  // Ensure a unique slug — a company with the same name may already be listed.
+  const base = slugify(input.name);
+  const clash = await database.select({ id: builders.id }).from(builders).where(eq(builders.slug, base)).limit(1);
+  const slug = clash.length ? `${base}-${user.id.slice(0, 6)}` : base;
+
   await database.insert(builders).values({
-    slug: slugify(input.name),
+    slug,
     name: input.name,
     website: input.website,
     domain: domainOf(input.website),
