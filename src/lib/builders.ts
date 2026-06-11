@@ -4,8 +4,8 @@ import { SEED_BUILDERS } from "@/data/seed-builders";
 import { eq, and } from "drizzle-orm";
 
 // Registry ranking:
-//   1. Conformant Extended  — by verified date (newest first)
-//   2. Conformant Core      — by verified date (newest first)
+//   1. Conformant Extended  — by verified date (earliest verified first)
+//   2. Conformant Core      — by verified date (earliest verified first)
 //   3. Aligned + featured   — by admin priority (lower first), then sortOrder
 //   4. Aligned, the rest    — stable here; the client reshuffles per page load
 function confTier(b: BuilderRow) {
@@ -21,7 +21,7 @@ export function sortBuilders(rows: BuilderRow[]): BuilderRow[] {
   return [...rows].sort((a, b) => {
     const ta = confTier(a), tb = confTier(b);
     if (ta !== tb) return ta - tb;
-    if (ta <= 1) return dateVal(b) - dateVal(a);
+    if (ta <= 1) return dateVal(a) - dateVal(b);
     if (ta === 2) {
       const pa = a.priority ?? Infinity, pb = b.priority ?? Infinity;
       return pa - pb || (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
