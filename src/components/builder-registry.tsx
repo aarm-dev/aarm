@@ -76,6 +76,18 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [comparing, setComparing] = useState(false);
+  const [tailOrder, setTailOrder] = useState<string[] | null>(null);
+
+  // Shuffle the non-featured aligned tail once per page load (after mount, so
+  // it matches SSR on first paint and avoids a hydration mismatch).
+  useEffect(() => {
+    const ids = builders.filter((b) => !isConformant(b) && !b.featured).map((b) => b.id);
+    for (let i = ids.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [ids[i], ids[j]] = [ids[j], ids[i]];
+    }
+    setTailOrder(ids);
+  }, [builders]);
 
   const MAX_COMPARE = 4;
   function toggleSelect(id: string) {
@@ -116,7 +128,17 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
       if (!has(b.interception, interception)) return false;
       return true;
     });
-    if (sortKey === "default") return filtered;
+    // Default = server ranking (Extended → Core → featured Aligned), with the
+    // non-featured aligned tail reshuffled client-side per load.
+    if (sortKey === "default") {
+      if (!tailOrder) return filtered;
+      const rank = new Map(tailOrder.map((id, i) => [id, i]));
+      const head = filtered.filter((b) => isConformant(b) || b.featured);
+      const tail = filtered
+        .filter((b) => !isConformant(b) && !b.featured)
+        .sort((a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0));
+      return [...head, ...tail];
+    }
     const dir = sortDir === "asc" ? 1 : -1;
     return [...filtered].sort((a, b) => {
       const cmp = sortKey === "name"
@@ -124,7 +146,7 @@ export function BuilderRegistry({ builders }: { builders: BuilderRow[] }) {
         : confRank(a) - confRank(b) || (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
       return cmp * dir;
     });
-  }, [builders, search, conf, stage, type, target, coverage, deployment, interception, policy, sortKey, sortDir]);
+  }, [builders, search, conf, stage, type, target, coverage, deployment, interception, policy, sortKey, sortDir, tailOrder]);
 
   const activeCount = [conf, stage, type, target, coverage, deployment, interception, policy].filter(Boolean).length;
   const dirty = !!search || activeCount > 0 || sortKey !== "default";

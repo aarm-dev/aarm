@@ -1,7 +1,34 @@
 import { db, isDbConfigured } from "@/db";
 import { builders, type BuilderRow } from "@/db/schema";
 import { SEED_BUILDERS } from "@/data/seed-builders";
-import { eq, and, asc, desc, sql } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
+
+// Registry ranking:
+//   1. Conformant Extended  — by verified date (newest first)
+//   2. Conformant Core      — by verified date (newest first)
+//   3. Aligned + featured   — by admin priority (lower first), then sortOrder
+//   4. Aligned, the rest    — stable here; the client reshuffles per page load
+function confTier(b: BuilderRow) {
+  if (b.conformanceLevel === "extended") return 0;
+  if (b.conformanceLevel === "core") return 1;
+  return b.featured ? 2 : 3;
+}
+function dateVal(b: BuilderRow) {
+  const t = b.verifiedDate ? Date.parse(b.verifiedDate) : NaN;
+  return Number.isNaN(t) ? 0 : t;
+}
+export function sortBuilders(rows: BuilderRow[]): BuilderRow[] {
+  return [...rows].sort((a, b) => {
+    const ta = confTier(a), tb = confTier(b);
+    if (ta !== tb) return ta - tb;
+    if (ta <= 1) return dateVal(b) - dateVal(a);
+    if (ta === 2) {
+      const pa = a.priority ?? Infinity, pb = b.priority ?? Infinity;
+      return pa - pb || (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+    }
+    return a.name.localeCompare(b.name);
+  });
+}
 
 // Static fallback: hydrate seed rows into full BuilderRow shape so pages render
 // identically whether or not Neon is wired up yet.
@@ -48,21 +75,10 @@ function seedAsRows(): BuilderRow[] {
 
 export async function getApprovedBuilders(): Promise<BuilderRow[]> {
   if (isDbConfigured && db) {
-    return db
-      .select()
-      .from(builders)
-      .where(eq(builders.status, "approved"))
-      // Featured first, then admin priority (lower = higher, nulls last),
-      // then the original registry order.
-      .orderBy(
-        desc(builders.featured),
-        sql`${builders.priority} asc nulls last`,
-        asc(builders.sortOrder),
-        asc(builders.createdAt)
-      );
+    const rows = await db.select().from(builders).where(eq(builders.status, "approved"));
+    return sortBuilders(rows);
   }
-  // Fallback preserves seed array order (already original).
-  return seedAsRows().filter((b) => b.status === "approved");
+  return sortBuilders(seedAsRows().filter((b) => b.status === "approved"));
 }
 
 export async function getBuilderBySlug(slug: string): Promise<BuilderRow | null> {
