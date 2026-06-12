@@ -165,6 +165,7 @@ export async function updateOwnedBuilder(
     .set({ ...input, updatedAt: new Date() })
     .where(eq(builders.id, builderId));
   revalidatePath(`/builders/${b.slug}`);
+  revalidatePath("/builders");
 }
 
 // ── Admin (TWG) ──────────────────────────────────────────────────────────

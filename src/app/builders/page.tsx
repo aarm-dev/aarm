@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   description: "Companies building AARM-conformant and AARM-aligned AI agent runtime security products.",
 };
 
+// Read the live DB on each request so profile edits show immediately.
+export const dynamic = "force-dynamic";
+
 export default async function BuildersPage() {
   const builders = await getApprovedBuilders();
   return (
