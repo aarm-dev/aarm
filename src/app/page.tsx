@@ -1,17 +1,21 @@
 import Link from "next/link";
-import { BUILDERS } from "@/data/builders";
 import { getSpotlightEvent } from "@/data/events";
+import { getApprovedBuilders } from "@/lib/builders";
 
-const conformantCount = BUILDERS.filter((b) => b.conformance === "Conformant").length;
-const conformantBuilders = BUILDERS.filter((b) => b.conformance === "Conformant").slice(0, 6);
+export const dynamic = "force-dynamic";
 
-function faviconUrl(url: string) {
-  const domain = url.replace(/https?:\/\/(www\.)?/, "").split("/")[0];
-  return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+function faviconUrl(domain?: string | null) {
+  return `https://www.google.com/s2/favicons?domain=${domain ?? ""}&sz=64`;
 }
 
-export default function HomePage() {
+export default async function HomePage() {
   const spotlight = getSpotlightEvent();
+  const builders = await getApprovedBuilders();
+  const total = builders.length;
+  const conformantBuilders = builders.filter(
+    (b) => b.conformanceLevel === "core" || b.conformanceLevel === "extended"
+  );
+  const conformantCount = conformantBuilders.length;
   return (
     <div className="bg-white">
 
@@ -83,21 +87,24 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Trust indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-neutral-500">
-            {[
-              `${BUILDERS.length}+ Builders`,
-              `${conformantCount} Conformant Products`,
-              "16 TWG Members",
-              "CSA Verified",
-            ].map((item) => (
-              <span key={item} className="flex items-center gap-1.5">
-                <svg className="h-4 w-4 shrink-0" style={{ color: "#1A6EB5" }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                {item}
-              </span>
-            ))}
+          {/* Adoption stats */}
+          <p className="mb-7 text-sm font-medium uppercase tracking-widest text-blue-700/70">
+            The AARM specification has been adopted by
+          </p>
+          <div className="flex flex-wrap items-stretch justify-center gap-x-14 gap-y-8">
+            <div className="text-center">
+              <div className="text-6xl font-extrabold leading-none tracking-tight sm:text-7xl" style={{ color: "#1A6EB5" }}>
+                {total}
+              </div>
+              <div className="mt-2 text-sm text-neutral-500">companies building on AARM</div>
+            </div>
+            <div className="hidden w-px self-stretch bg-blue-200 sm:block" />
+            <div className="text-center">
+              <div className="text-6xl font-extrabold leading-none tracking-tight sm:text-7xl" style={{ color: "#1A6EB5" }}>
+                {conformantCount}
+              </div>
+              <div className="mt-2 text-sm text-neutral-500">completed a formal conformance review</div>
+            </div>
           </div>
         </div>
       </section>
@@ -164,32 +171,31 @@ export default function HomePage() {
               className="shrink-0 text-sm font-semibold transition-opacity hover:opacity-70"
               style={{ color: "#1A6EB5" }}
             >
-              All {BUILDERS.length}+ builders →
+              All {total} builders →
             </Link>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {conformantBuilders.map((b) => (
-              <a
-                key={b.name}
-                href={b.url}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                key={b.id}
+                href={`/builders/${b.slug}`}
                 className="group flex items-start gap-3.5 rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-neutral-100 bg-neutral-50">
-                  <img src={faviconUrl(b.url)} alt="" width={24} height={24} className="rounded-sm" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={faviconUrl(b.domain)} alt="" width={24} height={24} className="rounded-sm" />
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-neutral-900">{b.name}</span>
-                    <span className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-green-700 border border-green-100">
-                      conformant
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border ${b.conformanceLevel === "extended" ? "bg-blue-50 text-blue-700 border-blue-100" : "bg-green-50 text-green-700 border-green-100"}`}>
+                      {b.conformanceLevel === "extended" ? "extended" : "core"}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs leading-relaxed text-neutral-500 line-clamp-2">{b.desc}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-neutral-500 line-clamp-2">{b.description}</p>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </div>
