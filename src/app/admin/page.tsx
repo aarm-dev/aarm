@@ -40,7 +40,7 @@ export default async function AdminPage() {
     .innerJoin(builders, eq(claims.builderId, builders.id))
     .where(eq(claims.status, "pending"));
   const approved = await db
-    .select({ id: builders.id, name: builders.name, featured: builders.featured, priority: builders.priority, conformanceLevel: builders.conformanceLevel })
+    .select({ id: builders.id, slug: builders.slug, name: builders.name, featured: builders.featured, priority: builders.priority, conformanceLevel: builders.conformanceLevel })
     .from(builders)
     .where(eq(builders.status, "approved"))
     .orderBy(asc(builders.sortOrder));

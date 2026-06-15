@@ -245,5 +245,6 @@ export async function updateConformance(
   await database.update(builders).set({ ...input, updatedAt: new Date() }).where(eq(builders.id, builderId));
   const [b] = await database.select().from(builders).where(eq(builders.id, builderId)).limit(1);
   if (b) revalidatePath(`/builders/${b.slug}`);
+  revalidatePath("/builders");
   revalidatePath("/admin");
 }

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { setBuilderOrdering } from "@/lib/actions";
 import type { BuilderRow } from "@/db/schema";
 
-type Row = Pick<BuilderRow, "id" | "name" | "featured" | "priority" | "conformanceLevel">;
+type Row = Pick<BuilderRow, "id" | "slug" | "name" | "featured" | "priority" | "conformanceLevel">;
 
 export function OrderingTable({ builders }: { builders: Row[] }) {
   const router = useRouter();
@@ -44,7 +44,7 @@ export function OrderingTable({ builders }: { builders: Row[] }) {
           {rows.map((r) => (
             <tr key={r.id} className="border-b border-neutral-50 last:border-0">
               <td className="px-4 py-2.5 font-medium text-neutral-800">
-                {r.name}
+                <a href={`/admin/${r.slug}`} className="hover:underline" style={{ color: "#1A6EB5" }}>{r.name}</a>
                 {(r.conformanceLevel === "core" || r.conformanceLevel === "extended") && (
                   <span className="ml-2 font-mono text-[10px] uppercase text-green-600">{r.conformanceLevel}</span>
                 )}
