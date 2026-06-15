@@ -27,6 +27,7 @@ const RAW: Seed[] = [
     surfaces: ["MCP", "API", "Cloud", "SaaS", "Data/DB"],
     audiences: ["Enterprise"],
     deployments: ["SaaS", "Hybrid", "Self-hosted"],
+    stage: "Launched",
     conformanceLevel: "extended",
     verifiedDate: "March 25, 2026",
     tagline: "Enterprise AI security & governance platform",
