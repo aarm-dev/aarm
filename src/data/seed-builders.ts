@@ -24,18 +24,38 @@ const RAW: Seed[] = [
     description:
       "Noma discovers, governs, and protects AI and agents across the enterprise — from homegrown AI to SaaS agents and coding assistants.",
     category: "Discovery, posture & governance",
-    surfaces: ["SaaS", "Cloud", "MCP"],
+    surfaces: ["MCP", "API", "Cloud", "SaaS", "Data/DB"],
     audiences: ["Enterprise"],
-    deployments: ["SaaS"],
-    conformanceLevel: "core",
+    deployments: ["SaaS", "Hybrid", "Self-hosted"],
+    conformanceLevel: "extended",
     verifiedDate: "March 25, 2026",
     tagline: "Enterprise AI security & governance platform",
-    interception: ["Protocol Gateway"],
+    interception: ["Protocol Gateway", "SDK Instrumentation"],
+    policyModel: "Hybrid",
     decisions: ["ALLOW", "DENY", "MODIFY", "STEP_UP", "DEFER"],
+    about:
+      "Noma discovers, governs, and protects AI and agents across the enterprise — from homegrown AI to SaaS agents and coding assistants. It intercepts agent actions before execution, evaluates them against policy and accumulated session context, enforces a decision, and records a tamper-evident audit trail, integrating through an SDK, a protocol gateway, an AI gateway, and an MCP gateway.",
+    capabilities: [
+      "Pre-execution interception of agent actions across SDK, protocol-gateway, AI-gateway, and MCP-gateway integrations",
+      "Session context accumulation across conversation threads and task horizons",
+      "Policy evaluation with intent alignment at action time",
+      "Five-outcome authorization engine: ALLOW, DENY, MODIFY, STEP_UP, DEFER",
+      "Tamper-evident receipts with timestamp and decision context",
+      "Cryptographic identity binding on every action receipt",
+      "Intent-drift detection (AIDR): embedding-based scoring of each action against the session's stated-intent baseline (R7)",
+      "OpenTelemetry export to SIEM/SOAR and observability pipelines for SOC teams (R8)",
+      "Least-privilege enforcement via the Access Control module — constraining capabilities, autonomy, and permissions per action (R9)",
+    ],
+    architecture:
+      "Noma satisfies all nine AARM requirements (R1–R6 core and R7–R9 extended).\n\n" +
+      "Core (R1–R6): Noma intercepts agent-initiated actions before execution, accumulates per-session context (prior actions and data classifications), evaluates each action against organizational policy with intent alignment, and produces one of five authorization decisions. Every decision is written to a tamper-evident audit trail with cryptographic identity binding, enabling forensic reconstruction across sessions. It integrates through an SDK, a protocol gateway, an AI gateway, and an MCP gateway.\n\n" +
+      "Semantic distance tracking (R7): Implemented as part of the intent-misalignment module within Noma's AIDR layer. Each session is anchored to the agent's stated intent, and every proposed action or tool call is scored for embedding-based divergence from that baseline — surfacing intent drift before misaligned-but-permitted actions execute.\n\n" +
+      "Telemetry export (R8): Decisions are exported via OpenTelemetry to SIEM, SOAR, and observability pipelines; a primary persona is SOC teams consuming this through Noma's SIEM/SOAR integrations.\n\n" +
+      "Least-privilege enforcement (R9): Operationalized through Noma's Access Control module, which constrains an agent's capabilities, autonomy, and permissions to the minimum required for each action at enforcement time, rather than provisioning blanket session-wide privilege.",
     requirements: [
       { id: "R1", status: "pass" }, { id: "R2", status: "pass" }, { id: "R3", status: "pass" },
       { id: "R4", status: "pass" }, { id: "R5", status: "pass" }, { id: "R6", status: "pass" },
-      { id: "R7", status: "na" }, { id: "R8", status: "na" }, { id: "R9", status: "na" },
+      { id: "R7", status: "pass" }, { id: "R8", status: "pass" }, { id: "R9", status: "pass" },
     ],
     keyFacts: [
       { label: "Headquarters", value: "Tel Aviv & New York" },
