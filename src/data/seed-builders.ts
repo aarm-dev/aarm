@@ -147,6 +147,61 @@ const RAW: Seed[] = [
     status: "approved",
   },
 
+  {
+    slug: "agent-governance-toolkit-microsoft",
+    name: "Agent Governance Toolkit (Microsoft)",
+    website: "https://github.com/microsoft/agent-governance-toolkit",
+    description: "Open-source runtime policy enforcement, execution rings, and tamper-evident audit chain for autonomous AI agents",
+    surfaces: ["MCP", "API", "Cloud", "SaaS"],
+    types: ["Open Source"],
+    audiences: ["Enterprise", "Developers"],
+    deployments: ["SaaS", "Self-hosted", "Hybrid"],
+    stage: "Launched",
+    conformanceLevel: "extended",
+    verifiedDate: "June 14, 2026",
+    verifiedBy: "AARM Conformance Agent",
+    tagline: "Open-source runtime governance for autonomous AI agents",
+    interception: ["SDK Instrumentation", "Protocol Gateway"],
+    policyModel: "Hybrid",
+    decisions: ["ALLOW", "DENY", "MODIFY", "STEP_UP", "DEFER"],
+    about:
+      "The Agent Governance Toolkit (AGT) is an open-source runtime governance layer for autonomous AI agents — policy enforcement, execution rings, and a tamper-evident audit chain. It intercepts every tool call before execution, evaluates it with a Cedar policy backend against accumulated session context and intent, enforces one of five decisions, and records a Merkle-chained, offline-verifiable audit trail. AGT is used in production at Microsoft and by adopters including Dayos and Provedit.",
+    capabilities: [
+      "PolicyInterceptor intercepts every tool call before execution across all five framework adapters — no bypass paths",
+      "ExecutionContext accumulates tool calls, outputs, spend, and delegation chain across a session for cumulative-behaviour policies (rate limits, budget caps)",
+      "Cedar policy backend evaluating tool name, parameters, agent role, and session intent together",
+      "Five governance decisions: ALLOW, DENY, MODIFY (pre-execution parameter rewrite), STEP_UP (human approval), DEFER",
+      "Merkle-chained, offline-verifiable audit records (SHA-256 per-entry hash chain)",
+      "Ed25519 did:mesh identity per agent with single-use-nonce IATP handshake; TEE keystore + liveness attestation for advanced deployments",
+      "PromptDefense evaluator: prompt-injection, semantic-drift, and goal-misgeneralisation detection pre-policy (OWASP LLM01 / ASI-002)",
+      "OpenTelemetry decision export with pluggable sinks (OTLP, CloudEvents, Merkle-chain) and an audit-overflow-denies circuit breaker",
+      "MCP Security Gateway: every MCP tool call governed with ephemeral, least-privilege credentials scoped per invocation",
+    ],
+    architecture:
+      "This review was conducted by the AARM Conformance Agent and completed on June 14, 2026. The Agent Governance Toolkit satisfies all nine AARM requirements (R1–R6 core and R7–R9 extended), qualifying for AARM Extended.\n\n" +
+      "Interception (R1): Every tool call is intercepted by the PolicyInterceptor before execution; all five framework adapters route through it and bypass paths are forbidden by spec.\n\n" +
+      "Context (R2): An ExecutionContext accumulates tool calls, outputs, spend, and the delegation chain across a session, and policy rules use it for cumulative-behaviour enforcement such as rate limits and budget caps.\n\n" +
+      "Policy & intent alignment (R3): A Cedar backend evaluates the tool name, parameters, agent role, and session intent together, and the PromptDefense evaluator detects intent-action semantic drift.\n\n" +
+      "Decisions (R4): Exactly five decisions — ALLOW, DENY, MODIFY, STEP_UP, DEFER. MODIFY rewrites parameters before execution; STEP_UP halts for human approval.\n\n" +
+      "Receipts (R5): Audit records are Merkle-chained — each entry hashes its predecessor (SHA-256) — and are offline-verifiable.\n\n" +
+      "Identity (R6): Each agent holds an Ed25519 did:mesh identity whose private key never leaves the agent process; the IATP handshake uses a single-use nonce under a 200ms SLO, with a TEE keystore and liveness attestation for advanced deployments.\n\n" +
+      "Drift tracking (R7): The PromptDefense evaluator runs as a pre-policy layer, flagging prompt injection, semantic drift, and goal misgeneralisation for DENY/STEP_UP before policy evaluation (aligned to OWASP LLM01 and ASI-002).\n\n" +
+      "Telemetry export (R8): Every decision is exported as an OpenTelemetry log event through pluggable sinks (OTLP, CloudEvents, Merkle-chain), with a circuit breaker that denies on audit overflow.\n\n" +
+      "Least-privilege (R9): The MCP Security Gateway governs every MCP tool call and issues an ephemeral, minimum-privilege credential scoped per invocation, with no ungoverned paths.",
+    requirements: [
+      { id: "R1", status: "pass" }, { id: "R2", status: "pass" }, { id: "R3", status: "pass" },
+      { id: "R4", status: "pass" }, { id: "R5", status: "pass" }, { id: "R6", status: "pass" },
+      { id: "R7", status: "pass" }, { id: "R8", status: "pass" }, { id: "R9", status: "pass" },
+    ],
+    keyFacts: [
+      { label: "License", value: "Open source" },
+      { label: "Adopters", value: "Microsoft, Dayos, Provedit" },
+      { label: "Conformance", value: "AARM Extended (R1–R9)" },
+      { label: "Verified", value: "June 14, 2026" },
+    ],
+    status: "approved",
+  },
+
   // ── Aligned ────────────────────────────────────────────────────────────
   { slug: "okta", name: "Okta", website: "https://www.okta.com/products/govern-ai-agent-identity/", description: "Identity-native control plane for AI agents — discover, govern, and secure agents and their access to resources.", category: "Identity, access & authorization", surfaces: ["SaaS", "Cloud"], audiences: ["Enterprise"], conformanceLevel: "aligned", status: "approved" },
   { slug: "rubrik", name: "Rubrik", website: "https://www.rubrik.com/products/rubrik-agent-cloud", description: "Cyber resilience platform securing enterprise data, identity, and AI agents against threats and ensuring recovery.", surfaces: ["Cloud", "Data/DB"], audiences: ["Enterprise"], conformanceLevel: "aligned", status: "approved" },
