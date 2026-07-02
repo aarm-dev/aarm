@@ -57,7 +57,7 @@ export type AuthDecision = (typeof AUTH_DECISIONS)[number];
 export const CONFORMANCE_LEVELS = ["none", "aligned", "core", "extended"] as const;
 export type ConformanceLevel = (typeof CONFORMANCE_LEVELS)[number];
 
-export const LISTING_STATUSES = ["pending", "approved", "rejected"] as const;
+export const LISTING_STATUSES = ["pending", "approved", "rejected", "deleted"] as const;
 export type ListingStatus = (typeof LISTING_STATUSES)[number];
 
 export const CLAIM_STATUSES = ["pending", "approved", "rejected"] as const;

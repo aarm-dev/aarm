@@ -7,6 +7,7 @@ import { db, isDbConfigured } from "@/db";
 import { builders, claims } from "@/db/schema";
 import { setListingStatus, reviewClaim } from "@/lib/actions";
 import { OrderingTable } from "@/components/ordering-table";
+import { DeleteBuilderButton } from "@/components/delete-builder-button";
 import { asc } from "drizzle-orm";
 
 export const metadata: Metadata = { title: "Admin — AARM" };
@@ -137,6 +138,7 @@ export default async function AdminPage() {
                 <th className="px-4 py-2.5 text-left font-mono text-[10px] uppercase tracking-widest text-neutral-400">Claimed</th>
                 <th className="px-4 py-2.5 text-left font-mono text-[10px] uppercase tracking-widest text-neutral-400">Point of contact</th>
                 <th className="px-4 py-2.5 text-left font-mono text-[10px] uppercase tracking-widest text-neutral-400">Conformance</th>
+                <th className="px-4 py-2.5"></th>
               </tr>
             </thead>
             <tbody>
@@ -162,6 +164,9 @@ export default async function AdminPage() {
                     </td>
                     <td className="px-4 py-2.5 font-mono text-[11px] uppercase text-neutral-500">
                       {(b.conformanceRequestStatus ?? "not_started").replace("_", " ")}
+                    </td>
+                    <td className="px-4 py-2.5 text-right">
+                      <DeleteBuilderButton builderId={b.id} name={b.name} />
                     </td>
                   </tr>
                 );

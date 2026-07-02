@@ -60,6 +60,11 @@ export async function submitListing(input: {
   const clash = await database.select({ id: builders.id }).from(builders).where(eq(builders.slug, base)).limit(1);
   const slug = clash.length ? `${base}-${user.id.slice(0, 6)}` : base;
 
+  // If the submitter lists their own email as the point of contact, they have
+  // effectively claimed the page — bind ownership to them now.
+  const selfPoc =
+    !!input.pocEmail && !!user.email && input.pocEmail.trim().toLowerCase() === user.email.toLowerCase();
+
   await database.insert(builders).values({
     slug,
     name: input.name,
@@ -77,6 +82,7 @@ export async function submitListing(input: {
     conformanceLevel: "aligned",
     status: "pending",
     createdBy: user.id,
+    claimedBy: selfPoc ? user.id : undefined,
     // Land new submissions at the bottom of the registry by default; admins can
     // lift them with priority/featured in the admin panel. (Seed rows use 0–~99.)
     sortOrder: 100000,
@@ -186,6 +192,20 @@ export async function setBuilderOrdering(
       updatedAt: new Date(),
     })
     .where(eq(builders.id, builderId));
+  revalidatePath("/builders");
+  revalidatePath("/admin");
+}
+
+/**
+ * Admin: remove a company page. Soft-delete (status "deleted") so it disappears
+ * from the public registry and admin lists but survives the bootstrap seed
+ * (a hard delete would let seeded rows reappear on the next deploy) and stays
+ * reversible.
+ */
+export async function deleteBuilder(builderId: string) {
+  const database = await requireDb();
+  await requireAdmin();
+  await database.update(builders).set({ status: "deleted", updatedAt: new Date() }).where(eq(builders.id, builderId));
   revalidatePath("/builders");
   revalidatePath("/admin");
 }
