@@ -10,6 +10,7 @@ import type {
   InterceptionArchitecture, PolicyModel, AuthDecision,
 } from "@/db/taxonomy";
 import { notifyNewListing, notifyClaim, notifyListingDecision, notifyClaimDecision } from "@/lib/notify";
+import { ACTIVATION_CODE } from "@/lib/conformance-config";
 
 function slugify(name: string) {
   return name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -246,5 +247,71 @@ export async function updateConformance(
   const [b] = await database.select().from(builders).where(eq(builders.id, builderId)).limit(1);
   if (b) revalidatePath(`/builders/${b.slug}`);
   revalidatePath("/builders");
+  revalidatePath("/admin");
+}
+
+// ── Conformance request flow ───────────────────────────────────────────────
+
+/** The builder the signed-in user has claimed (owns), or null. */
+export async function getMyBuilder() {
+  if (!isDbConfigured || !db) return null;
+  const session = await auth();
+  if (!session?.user?.id) return null;
+  const [b] = await db.select().from(builders).where(eq(builders.claimedBy, session.user.id)).limit(1);
+  return b ?? null;
+}
+
+/**
+ * Owner starts a conformance review. Requires eligibility (both true) + explicit
+ * agreement. Returns the activation code ONLY on success — it is never shipped
+ * in client code, only returned to the eligible, authenticated owner.
+ */
+export async function startConformance(input: {
+  hasSecurityCert: boolean;
+  hasFiveCustomers: boolean;
+  agreed: boolean;
+  targetLevel: "core" | "extended";
+}): Promise<{ activationCode: string }> {
+  const database = await requireDb();
+  const user = await requireUser();
+  const [b] = await database.select().from(builders).where(eq(builders.claimedBy, user.id)).limit(1);
+  if (!b) throw new Error("You need to claim your company listing first.");
+  if (!input.hasSecurityCert || !input.hasFiveCustomers) {
+    throw new Error("Both eligibility conditions must be met to start a conformance review.");
+  }
+  if (!input.agreed) throw new Error("You must acknowledge the evidence requirement to proceed.");
+
+  await database
+    .update(builders)
+    .set({
+      conformanceRequestStatus:
+        b.conformanceRequestStatus === "not_started" || !b.conformanceRequestStatus
+          ? "started"
+          : b.conformanceRequestStatus,
+      conformanceTargetLevel: input.targetLevel,
+      updatedAt: new Date(),
+    })
+    .where(eq(builders.id, b.id));
+
+  revalidatePath("/my-conformance");
+  return { activationCode: ACTIVATION_CODE };
+}
+
+/** Admin: update a company's conformance-request status + MCP assessment id. */
+export async function setConformanceRequest(
+  builderId: string,
+  input: { status?: "not_started" | "started" | "in_review" | "verified" | "declined"; assessmentId?: string | null }
+) {
+  const database = await requireDb();
+  await requireAdmin();
+  await database
+    .update(builders)
+    .set({
+      conformanceRequestStatus: input.status,
+      conformanceAssessmentId: input.assessmentId === undefined ? undefined : input.assessmentId,
+      updatedAt: new Date(),
+    })
+    .where(eq(builders.id, builderId));
+  revalidatePath("/my-conformance");
   revalidatePath("/admin");
 }

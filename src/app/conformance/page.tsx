@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { auth } from "@/auth";
+import { getMyBuilder } from "@/lib/actions";
 
 export const metadata: Metadata = {
   title: "Conformance — AARM",
@@ -68,12 +70,26 @@ const technicalTests = [
   { req: "R9", test: "Submit read operation", expected: "Issued credential cannot perform writes", level: "SHOULD" },
 ];
 
-export default function ConformancePage() {
+export const dynamic = "force-dynamic";
+
+export default async function ConformancePage() {
+  const session = await auth();
+  const signedIn = !!session?.user?.id;
+  const myBuilder = signedIn ? await getMyBuilder() : null;
+
+  // Route the CTA by state: claimed owner → the gated flow; signed-in-no-claim →
+  // claim first; signed-out → login then the flow.
+  const cta = myBuilder
+    ? { href: "/my-conformance", label: "Start your conformance process →" }
+    : signedIn
+    ? { href: "/builders", label: "Claim your listing to start →" }
+    : { href: "/login?next=/my-conformance", label: "Sign in to start your conformance →" };
+
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
 
       {/* Header */}
-      <div className="mb-14">
+      <div className="mb-10">
         <p className="font-mono text-xs uppercase tracking-widest text-neutral-400 mb-4">Conformance</p>
         <h1 className="mb-4 text-3xl font-bold sm:text-4xl tracking-tight text-neutral-900">
           Conformance Requirements
@@ -82,6 +98,22 @@ export default function ConformancePage() {
           Two levels: <strong>AARM Core</strong> (R1–R6, all MUST) for baseline conformance
           and <strong>AARM Extended</strong> (R1–R9) for mature implementations.
         </p>
+      </div>
+
+      {/* Primary CTA */}
+      <div className="mb-14 flex flex-col items-start gap-3 rounded-2xl border border-blue-100 p-6" style={{ backgroundColor: "#EEF4FF" }}>
+        <h2 className="text-lg font-bold tracking-tight text-neutral-900">Ready to get verified?</h2>
+        <p className="text-sm text-neutral-600">
+          The AARM Conformance Agent runs the assessment end-to-end against your implementation.
+          You&apos;ll confirm eligibility, then get everything you need to run your review.
+        </p>
+        <Link
+          href={cta.href}
+          className="mt-1 rounded-xl px-6 py-3 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-85"
+          style={{ background: "linear-gradient(135deg, #F5923A 0%, #D45420 100%)" }}
+        >
+          {cta.label}
+        </Link>
       </div>
 
       {/* Levels */}
@@ -144,91 +176,6 @@ export default function ConformancePage() {
         </div>
       </section>
 
-      {/* Validation Process */}
-      <section className="mb-14">
-        <h2 className="text-xs font-mono uppercase tracking-widest text-neutral-400 mb-2">Validation Process</h2>
-        <p className="text-sm text-neutral-500 mb-8 leading-relaxed">
-          Conformance validation is performed through the <strong className="text-neutral-700">AARM Conformance MCP server</strong>. An agent runs the assessment end-to-end against your implementation — no manual checklists.
-        </p>
-
-        <div className="space-y-4 mb-10">
-          {[
-            {
-              n: "01",
-              title: "Request an activation key",
-              desc: "Submit the form below with your organization name, product name, and target conformance level (Core or Extended). If your organization is on the allow-list, you will receive an activation key by email. Only listed organizations can run the assessment.",
-            },
-            {
-              n: "02",
-              title: "Connect to the AARM MCP server",
-              desc: "Add the server to Claude Desktop or Claude Code using the instructions below.",
-              code: "https://aarm-conformance-mcp.herman-d10.workers.dev/",
-            },
-            {
-              n: "03",
-              title: "Run the assessment",
-              desc: "Start a conversation with Claude and ask it to run the AARM conformance assessment. The agent will walk through each check, collect evidence, and produce a validation report.",
-            },
-          ].map((step) => (
-            <div key={step.n} className="flex gap-4 rounded-xl border border-neutral-100 bg-white p-5">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white" style={{ backgroundColor: "#1A6EB5" }}>
-                {step.n}
-              </div>
-              <div className="min-w-0">
-                <p className="mb-1 text-sm font-semibold text-neutral-900">{step.title}</p>
-                <p className="text-sm leading-relaxed text-neutral-500">{step.desc}</p>
-                {step.code && (
-                  <code className="mt-2 block rounded-lg bg-neutral-900 px-4 py-2.5 font-mono text-xs text-green-400">
-                    {step.code}
-                  </code>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Install instructions */}
-        <div className="grid gap-4 sm:grid-cols-2 mb-10">
-          <div className="rounded-xl border border-neutral-100 p-5">
-            <h3 className="mb-3 text-sm font-semibold text-neutral-900">Install on Claude Code</h3>
-            <p className="mb-3 text-xs text-neutral-500">Run this in your terminal:</p>
-            <pre className="overflow-x-auto rounded-lg bg-neutral-900 px-4 py-3 font-mono text-xs text-green-400">
-              {`claude mcp add --transport http aarm-conformance https://aarm-conformance-mcp.herman-d10.workers.dev/`}
-            </pre>
-            <p className="mt-3 text-xs text-neutral-500">Then launch Claude Code and ask it to start the AARM conformance assessment.</p>
-          </div>
-          <div className="rounded-xl border border-neutral-100 p-5">
-            <h3 className="mb-3 text-sm font-semibold text-neutral-900">Install on Claude Desktop</h3>
-            <p className="mb-2 text-xs text-neutral-500">Add to your <code className="font-mono text-[11px] bg-neutral-100 px-1 py-0.5 rounded">claude_desktop_config.json</code>:</p>
-            <pre className="overflow-x-auto rounded-lg bg-neutral-900 px-4 py-3 font-mono text-xs text-green-400">
-              {`{
-  "mcpServers": {
-    "aarm-conformance": {
-      "type": "http",
-      "url": "https://aarm-conformance-mcp.herman-d10.workers.dev/"
-    }
-  }
-}`}
-            </pre>
-          </div>
-        </div>
-
-        {/* Request access form */}
-        <div className="rounded-xl border border-neutral-100 p-6">
-          <h3 className="mb-2 text-sm font-semibold text-neutral-900">Request access</h3>
-          <p className="mb-4 text-sm text-neutral-500">Submit your organization details to receive an activation key.</p>
-          <iframe
-            src="https://docs.google.com/forms/d/e/1FAIpQLSdTjaSGNVLm8IAvOP29MZmqBorJ5h4oognTQc5tFRQEo9TfGg/viewform?embedded=true"
-            width="100%"
-            height="600"
-            frameBorder="0"
-            marginHeight={0}
-            marginWidth={0}
-          >
-            Loading…
-          </iframe>
-        </div>
-      </section>
 
       {/* Organizational Requirements */}
       <section className="mb-14">

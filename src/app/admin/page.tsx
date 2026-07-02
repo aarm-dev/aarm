@@ -40,7 +40,12 @@ export default async function AdminPage() {
     .innerJoin(builders, eq(claims.builderId, builders.id))
     .where(eq(claims.status, "pending"));
   const approved = await db
-    .select({ id: builders.id, slug: builders.slug, name: builders.name, featured: builders.featured, priority: builders.priority, conformanceLevel: builders.conformanceLevel })
+    .select({
+      id: builders.id, slug: builders.slug, name: builders.name, featured: builders.featured,
+      priority: builders.priority, conformanceLevel: builders.conformanceLevel,
+      claimedBy: builders.claimedBy, pocName: builders.pocName, pocEmail: builders.pocEmail,
+      conformanceRequestStatus: builders.conformanceRequestStatus,
+    })
     .from(builders)
     .where(eq(builders.status, "approved"))
     .orderBy(asc(builders.sortOrder));
@@ -116,6 +121,54 @@ export default async function AdminPage() {
             ))}
           </div>
         )}
+      </section>
+
+      {/* Builders overview — claimed + POC */}
+      <section className="mt-16">
+        <div className="mb-4 flex items-center gap-3">
+          <span className="font-mono text-xs uppercase tracking-widest text-neutral-400">Builders — claimed & point of contact</span>
+          <div className="h-px flex-1 bg-neutral-100" />
+        </div>
+        <div className="overflow-x-auto rounded-xl border border-neutral-100">
+          <table className="w-full min-w-[640px] text-sm">
+            <thead className="bg-neutral-50">
+              <tr className="border-b border-neutral-100">
+                <th className="px-4 py-2.5 text-left font-mono text-[10px] uppercase tracking-widest text-neutral-400">Company</th>
+                <th className="px-4 py-2.5 text-left font-mono text-[10px] uppercase tracking-widest text-neutral-400">Claimed</th>
+                <th className="px-4 py-2.5 text-left font-mono text-[10px] uppercase tracking-widest text-neutral-400">Point of contact</th>
+                <th className="px-4 py-2.5 text-left font-mono text-[10px] uppercase tracking-widest text-neutral-400">Conformance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {approved.map((b) => {
+                const claimed = !!b.claimedBy;
+                const hasPoc = !!b.pocEmail;
+                return (
+                  <tr key={b.id} className="border-b border-neutral-50 last:border-0">
+                    <td className="px-4 py-2.5">
+                      <a href={`/admin/${b.slug}`} className="font-medium hover:underline" style={{ color: "#1A6EB5" }}>{b.name}</a>
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <span className={`rounded-full px-2 py-0.5 font-mono text-[10px] font-bold uppercase ${claimed ? "bg-green-50 text-green-700" : "bg-neutral-100 text-neutral-400"}`}>
+                        {claimed ? "Claimed" : "Unclaimed"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2.5">
+                      {hasPoc ? (
+                        <span className="text-neutral-700">{b.pocName ? `${b.pocName} · ` : ""}{b.pocEmail}</span>
+                      ) : (
+                        <span className="rounded-full bg-amber-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-amber-700">Missing</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2.5 font-mono text-[11px] uppercase text-neutral-500">
+                      {(b.conformanceRequestStatus ?? "not_started").replace("_", " ")}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       {/* Ordering & priority */}

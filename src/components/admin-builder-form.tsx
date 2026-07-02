@@ -42,6 +42,8 @@ export function AdminBuilderForm({ builder }: { builder: BuilderRow }) {
   const [types, setTypes] = useState<ProductType[]>(builder.types ?? []);
   const [audiences, setAudiences] = useState<Audience[]>(builder.audiences ?? []);
   const [deployments, setDeployments] = useState<Deployment[]>(builder.deployments ?? []);
+  const [reqStatus, setReqStatus] = useState(builder.conformanceRequestStatus ?? "not_started");
+  const [assessmentId, setAssessmentId] = useState(builder.conformanceAssessmentId ?? "");
   const [reqs, setReqs] = useState<Record<string, Status>>(() => {
     const m: Record<string, Status> = {};
     for (const [id] of REQS) m[id] = (builder.requirements?.find((r) => r.id === id)?.status as Status) ?? "na";
@@ -66,6 +68,8 @@ export function AdminBuilderForm({ builder }: { builder: BuilderRow }) {
           surfaces, types, audiences, deployments,
           stage: (stage || null) as Stage,
           requirements: REQS.map(([id]) => ({ id, status: reqs[id] })),
+          conformanceRequestStatus: reqStatus as typeof builder.conformanceRequestStatus,
+          conformanceAssessmentId: assessmentId || null,
         });
         setSaved(true);
         router.refresh();
@@ -101,6 +105,22 @@ export function AdminBuilderForm({ builder }: { builder: BuilderRow }) {
               </select>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400">Conformance request</h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Request status">
+            <select value={reqStatus} onChange={(e) => setReqStatus(e.target.value as typeof reqStatus)} className={input}>
+              {["not_started", "started", "in_review", "verified", "declined"].map((s) => (
+                <option key={s} value={s}>{s.replace("_", " ")}</option>
+              ))}
+            </select>
+          </Field>
+          <Field label="MCP assessment ID (shown to owner)">
+            <input className={input} value={assessmentId} onChange={(e) => setAssessmentId(e.target.value)} placeholder="run id from the MCP server" />
+          </Field>
         </div>
       </section>
 

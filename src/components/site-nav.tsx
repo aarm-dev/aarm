@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { AvatarMenu } from "@/components/avatar-menu";
 
 const links = [
   { href: "/spec", label: "Spec" },
@@ -50,31 +51,6 @@ export function SiteNav() {
               {link.label}
             </Link>
           ))}
-          {isAdmin && (
-            <Link
-              href="/admin"
-              className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
-                pathname === "/admin" ? "font-medium text-neutral-900" : "text-neutral-500 hover:text-neutral-900"
-              }`}
-            >
-              Admin
-            </Link>
-          )}
-          {session?.user ? (
-            <button
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="rounded-md px-3 py-1.5 text-sm text-neutral-500 transition-colors hover:text-neutral-900"
-            >
-              Sign out
-            </button>
-          ) : (
-            <Link
-              href="/login"
-              className="rounded-md px-3 py-1.5 text-sm text-neutral-500 transition-colors hover:text-neutral-900"
-            >
-              Sign in
-            </Link>
-          )}
           <a
             href="https://cloudsecurityalliance.org/research/working-groups/autonomous-action-runtime-management-aarm"
             target="_blank"
@@ -84,6 +60,16 @@ export function SiteNav() {
           >
             Join TWG
           </a>
+          {session?.user ? (
+            <AvatarMenu />
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-md px-3 py-1.5 text-sm text-neutral-500 transition-colors hover:text-neutral-900"
+            >
+              Sign in
+            </Link>
+          )}
         </nav>
 
         {/* Mobile: Join TWG + hamburger */}
@@ -133,6 +119,17 @@ export function SiteNav() {
                 {link.label}
               </Link>
             ))}
+            {session?.user && (
+              <>
+                <div className="my-1 h-px bg-neutral-100" />
+                <Link href="/company" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900">
+                  Company page
+                </Link>
+                <Link href="/my-conformance" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900">
+                  My conformance
+                </Link>
+              </>
+            )}
             {isAdmin && (
               <Link href="/admin" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900">
                 Admin

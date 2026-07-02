@@ -67,6 +67,13 @@ export const builders = pgTable("builders", {
   pocName: text("poc_name"),
   pocEmail: text("poc_email"),
 
+  // ── Conformance request (owner-initiated, TWG-tracked) ──
+  conformanceRequestStatus: text("conformance_request_status")
+    .$type<"not_started" | "started" | "in_review" | "verified" | "declined">()
+    .default("not_started"),
+  conformanceTargetLevel: text("conformance_target_level").$type<"core" | "extended">(),
+  conformanceAssessmentId: text("conformance_assessment_id"), // MCP run id, shown to owner
+
   // ── Positioning (TWG-only) ──
   featured: boolean("featured").default(false),
   sortOrder: integer("sort_order").default(0), // original registry order (seed-owned)
