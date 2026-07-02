@@ -15,6 +15,8 @@ export type AARMEvent = {
   description?: string;
   /** No firm date yet — always rendered in the "Coming soon" section. */
   comingSoon?: boolean;
+  /** Force into "Past" — for undated events that have already happened. */
+  past?: boolean;
   tag: EventTag;
 };
 
@@ -30,6 +32,19 @@ export const EVENTS: AARMEvent[] = [
     description:
       "An evening exploring authentication challenges for AI agents — featuring talks and demos on AAuth, a new auth protocol for agents built by OAuth author Dick Hardt. Topics include running agents without API keys, mission-bounded authority, multi-agent delegation, and production authentication patterns.",
     tag: "Community",
+    past: true,
+  },
+  {
+    id: "noma-aarm-webinar",
+    name: "Governing Agentic AI: The AARM Standard in Practice",
+    url: "https://noma.security/webinars/governing-agentic-ai-the-aarm-standard-in-practice/",
+    dateLabel: "Online webinar",
+    // Add startISO + endISO once the broadcast date is confirmed.
+    location: "Online · hosted by Noma Security",
+    description:
+      "A fireside webinar on runtime security for AI agents — the AARM specification's requirements, what conformance demonstrates, and practical strategies for enterprise teams to start governing autonomous AI today.",
+    tag: "Community",
+    past: true,
   },
   {
     id: "blackhat-ciso-summit-2026",
@@ -56,6 +71,7 @@ export const EVENTS: AARMEvent[] = [
 
 /** Derive an event's status from the current date. */
 export function eventStatus(e: AARMEvent, now: Date = new Date()): EventStatus {
+  if (e.past) return "past";
   if (e.comingSoon) return "coming-soon";
   const end = e.endISO ?? e.startISO;
   if (end && new Date(end).getTime() < now.getTime()) return "past";

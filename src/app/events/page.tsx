@@ -7,6 +7,9 @@ export const metadata: Metadata = {
     "AARM events, conferences, and community gatherings around AI agent runtime security.",
 };
 
+// Evaluate upcoming/past against the current date on each request.
+export const dynamic = "force-dynamic";
+
 const tagColors: Record<string, { bg: string; text: string; border: string }> = {
   Conference: { bg: "rgba(26,110,181,0.06)", text: "#1A6EB5", border: "rgba(26,110,181,0.18)" },
   Summit:     { bg: "rgba(245,146,58,0.06)", text: "#D45420", border: "rgba(245,146,58,0.2)" },
