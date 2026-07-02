@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@/auth";
-import { getMyBuilder } from "@/lib/actions";
 
 export const metadata: Metadata = {
   title: "Conformance — AARM",
@@ -75,14 +74,11 @@ export const dynamic = "force-dynamic";
 export default async function ConformancePage() {
   const session = await auth();
   const signedIn = !!session?.user?.id;
-  const myBuilder = signedIn ? await getMyBuilder() : null;
 
-  // Route the CTA by state: claimed owner → the gated flow; signed-in-no-claim →
-  // claim first; signed-out → login then the flow.
-  const cta = myBuilder
-    ? { href: "/my-conformance", label: "Start your conformance process →" }
-    : signedIn
-    ? { href: "/builders", label: "Claim your listing to start →" }
+  // Signed-in users go straight to the gated flow (it handles the claim step if
+  // they haven't claimed a listing yet); signed-out users sign in first.
+  const cta = signedIn
+    ? { href: "/my-conformance", label: "Start my conformance →" }
     : { href: "/login?next=/my-conformance", label: "Sign in to start your conformance →" };
 
   return (
