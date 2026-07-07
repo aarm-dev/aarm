@@ -66,9 +66,9 @@ export default async function HomePage() {
           </h1>
 
           <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-neutral-500">
-            AARM defines the security controls an AI agent runtime must implement
-            before any action is executed — intercept, evaluate against policy,
-            decide, and produce a tamper-evident record.
+            AARM is the system category specification for agentic runtime security — it
+            defines the capabilities an agent security system must provide to govern what
+            an AI agent is allowed to do at runtime.
           </p>
 
           <div className="mb-8 flex flex-wrap items-center justify-center gap-3">
