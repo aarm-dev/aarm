@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Press_Start_2P, JetBrains_Mono } from "next/font/google";
 import { InterceptSignup } from "@/components/intercept-signup";
-import {
-  EVENT, EMCEE, SPEAKERS, PROGRAM, SPONSOR_TIERS, SUPPORTING_ORGS,
-} from "@/data/intercept";
+import { EVENT, EMCEE, SPEAKERS, PROGRAM, SPONSOR_TIERS } from "@/data/intercept";
 
 const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"], variable: "--font-pixel" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono-i" });
@@ -83,9 +81,10 @@ export default function InterceptPage() {
               </div>
             ))}
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-3">
             <TrackColumn title="BUILDERS" color={GREEN} rows={PROGRAM.tracks.builders} />
             <TrackColumn title="BREAKERS" color={RED} rows={PROGRAM.tracks.breakers} />
+            <TrackColumn title="DEFENDERS" color={AMBER} rows={PROGRAM.tracks.defenders} />
           </div>
           <p className="mt-4 font-mono text-xs text-neutral-600">
             ✛ Sessions within each track are curated and run by AARM member companies. Slots open.
@@ -135,27 +134,6 @@ export default function InterceptPage() {
           <p id="expo" className="mt-6 font-mono text-xs text-neutral-600">Tiers nod to AARM conformance levels. Expo runs all day.</p>
         </Section>
 
-        {/* Supporting orgs */}
-        <Section id="orgs" kicker="Backed by" title="SUPPORTING ORGS">
-          <div className="flex flex-wrap gap-3">
-            {SUPPORTING_ORGS.map((o) => (
-              <span key={o} className="border border-neutral-800 px-4 py-2 font-mono text-xs uppercase tracking-widest text-neutral-400">{o}</span>
-            ))}
-          </div>
-        </Section>
-
-        {/* Startup pitch */}
-        <Section id="pitch" kicker="Compete" title="STARTUP PITCH">
-          <div className="flex flex-col items-start gap-4 border border-neutral-800 bg-neutral-950 p-8">
-            <p className="max-w-2xl font-mono text-sm text-neutral-300">
-              Building in agentic runtime security? Pitch on the INTERCEPT stage. Short format, live
-              judging, in front of the people buying and breaking these systems.
-            </p>
-            <a href="#signup" className="border border-[#FF7A00] px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-widest text-[#FF7A00] transition-colors hover:bg-[#FF7A00] hover:text-black">
-              [ Apply to Pitch ]
-            </a>
-          </div>
-        </Section>
       </main>
 
       {/* Footer */}

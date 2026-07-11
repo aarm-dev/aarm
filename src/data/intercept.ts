@@ -8,7 +8,7 @@ export const EVENT = {
   aarmUrl: "https://aarm.dev",
 };
 
-export type Track = "builders" | "breakers";
+export type Track = "builders" | "breakers" | "defenders";
 
 export type Speaker = {
   name: string;
@@ -55,6 +55,11 @@ export const PROGRAM = {
       { time: "TBD", title: "Breakers session — slot open", by: "AARM member company" },
       { time: "TBD", title: "Breakers session — slot open", by: "AARM member company" },
     ],
+    defenders: [
+      { time: "TBD", title: "Defenders session — slot open", by: "AARM member company" },
+      { time: "TBD", title: "Defenders session — slot open", by: "AARM member company" },
+      { time: "TBD", title: "Defenders session — slot open", by: "AARM member company" },
+    ],
   },
 };
 
@@ -62,5 +67,3 @@ export const SPONSOR_TIERS = [
   { tier: "Extended Conformant", note: "Top-tier sponsors", slots: 4 },
   { tier: "Core Conformant", note: "Sponsors", slots: 6 },
 ];
-
-export const SUPPORTING_ORGS = ["Cloud Security Alliance", "OWASP", "AARM Working Group"];

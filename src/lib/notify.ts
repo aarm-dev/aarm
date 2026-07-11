@@ -158,6 +158,41 @@ export async function notifyClaimDecision(p: { to: string; builderName: string; 
   );
 }
 
+/** INTERCEPT interest confirmation to the registrant (+ a team heads-up). */
+export async function notifyInterceptSignup(p: { to: string; name?: string; role?: string }) {
+  if (!p.to) return;
+  const name = (p.name && p.name.trim()) || "there";
+  const html = `
+  <div style="background:#0A0A0A;padding:28px 16px">
+    <div style="max-width:520px;margin:0 auto;border:1px solid #262626;background:#0A0A0A;padding:32px;font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace">
+      <div style="font-size:26px;font-weight:800;letter-spacing:3px;color:#ffffff">INTERCEPT</div>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:3px;color:#737373;margin-top:8px">Builders · Breakers · Defenders of Agentic Runtime Security</div>
+      <div style="height:2px;background:#FF7A00;margin:22px 0"></div>
+      <p style="color:#e5e5e5;font-size:14px">Dear ${esc(name)},</p>
+      <p style="color:#a3a3a3;font-size:14px;line-height:1.7">
+        Thanks for registering your interest in <strong style="color:#ffffff">INTERCEPT</strong>.
+        You&rsquo;re on the list — we&rsquo;ll notify you with updates as the program, speakers, and
+        venue come together.
+      </p>
+      <div style="border:1px solid #262626;padding:14px 16px;margin:22px 0">
+        <span style="color:#2EFF7B;font-weight:700;font-size:13px">ACCESS: PENDING</span>
+        <div style="color:#737373;font-size:12px;margin-top:6px">OCT 14 2026 // LOCATION TBA</div>
+      </div>
+      <p style="color:#737373;font-size:12px">— The AARM team · <a href="https://aarm.dev" style="color:#FF7A00;text-decoration:none">aarm.dev</a></p>
+    </div>
+  </div>`;
+  await sendEmail([p.to], "You're on the list — INTERCEPT", html);
+
+  const team = recipients();
+  if (team.length) {
+    await sendEmail(
+      team,
+      `INTERCEPT interest: ${p.to}`,
+      `<p style="font-family:sans-serif">${esc(p.to)}${p.name ? ` (${esc(p.name)})` : ""}${p.role ? ` — ${esc(p.role)}` : ""} registered interest in INTERCEPT.</p>`
+    );
+  }
+}
+
 function esc(s: string) {
   return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
 }

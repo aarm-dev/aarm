@@ -154,16 +154,6 @@ export const verificationTokens = pgTable(
   })
 );
 
-// INTERCEPT event — early-access signups
-export const interceptSignups = pgTable("intercept_signup", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  email: text("email").notNull(),
-  name: text("name"),
-  company: text("company"),
-  role: text("role").$type<"builder" | "breaker" | "">(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
-
 export type BuilderRow = typeof builders.$inferSelect;
 export type NewBuilderRow = typeof builders.$inferInsert;
 export type ClaimRow = typeof claims.$inferSelect;

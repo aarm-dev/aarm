@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { submitInterceptSignup } from "@/lib/actions";
 
+type Role = "builder" | "breaker" | "defender" | "";
+
 export function InterceptSignup() {
   const [pending, start] = useTransition();
   const [done, setDone] = useState(false);
@@ -10,7 +12,7 @@ export function InterceptSignup() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
-  const [role, setRole] = useState<"builder" | "breaker" | "">("");
+  const [role, setRole] = useState<Role>("");
 
   const field =
     "w-full border border-neutral-700 bg-black px-3 py-2.5 font-mono text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-[#FF7A00]";
@@ -18,10 +20,9 @@ export function InterceptSignup() {
   if (done) {
     return (
       <div className="border border-[#2EFF7B] bg-[#2EFF7B]/5 p-8 text-center">
-        <div className="font-mono text-xs uppercase tracking-[0.3em] text-neutral-500">Request received</div>
-        <div className="mt-2 font-mono text-2xl font-bold text-[#2EFF7B]">ACCESS: GRANTED</div>
+        <div className="font-mono text-2xl font-bold text-[#2EFF7B]">Thank you for registering your interest</div>
         <p className="mt-3 font-mono text-sm text-neutral-400">
-          You&apos;re on the list. Watch your inbox for your INTERCEPT access details.
+          We&apos;ll email you with updates as INTERCEPT comes together.
         </p>
       </div>
     );
@@ -37,8 +38,8 @@ export function InterceptSignup() {
         </div>
         <div>
           <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-500">Are you a…</div>
-          <div className="grid grid-cols-2 gap-3">
-            {([["builder", "#2EFF7B"], ["breaker", "#FF3B30"]] as const).map(([r, color]) => (
+          <div className="grid grid-cols-3 gap-3">
+            {([["builder", "#2EFF7B"], ["breaker", "#FF3B30"], ["defender", "#FF7A00"]] as const).map(([r, color]) => (
               <button
                 key={r}
                 type="button"
