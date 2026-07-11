@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import { db, isDbConfigured } from "@/db";
-import { builders, claims, users } from "@/db/schema";
+import { builders, claims, users, interceptSignups } from "@/db/schema";
 import type {
   Category, Surface, Stage, ProductType, Audience, Deployment,
   InterceptionArchitecture, PolicyModel, AuthDecision,
@@ -344,9 +344,16 @@ export async function submitInterceptSignup(input: {
   company?: string;
   role?: "builder" | "breaker" | "defender" | "";
 }): Promise<{ ok: true }> {
+  const database = await requireDb();
   const email = input.email.trim().toLowerCase();
   if (!/^\S+@\S+\.\S+$/.test(email)) throw new Error("Enter a valid email address.");
-  // No stored list — just send the confirmation email (and a team heads-up).
+  // Store the signup in the existing Neon DB, then send the confirmation email.
+  await database.insert(interceptSignups).values({
+    email,
+    name: input.name?.trim() || null,
+    company: input.company?.trim() || null,
+    role: input.role || null,
+  });
   await notifyInterceptSignup({ to: email, name: input.name, role: input.role || undefined });
   return { ok: true };
 }
