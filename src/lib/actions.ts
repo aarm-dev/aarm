@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import { db, isDbConfigured } from "@/db";
-import { builders, claims, users } from "@/db/schema";
+import { builders, claims, users, interceptSignups } from "@/db/schema";
 import type {
   Category, Surface, Stage, ProductType, Audience, Deployment,
   InterceptionArchitecture, PolicyModel, AuthDecision,
@@ -334,4 +334,24 @@ export async function setConformanceRequest(
     .where(eq(builders.id, builderId));
   revalidatePath("/my-conformance");
   revalidatePath("/admin");
+}
+
+// ── INTERCEPT event signup ─────────────────────────────────────────────────
+
+export async function submitInterceptSignup(input: {
+  email: string;
+  name?: string;
+  company?: string;
+  role?: "builder" | "breaker" | "";
+}): Promise<{ ok: true }> {
+  const database = await requireDb();
+  const email = input.email.trim().toLowerCase();
+  if (!/^\S+@\S+\.\S+$/.test(email)) throw new Error("Enter a valid email address.");
+  await database.insert(interceptSignups).values({
+    email,
+    name: input.name?.trim() || null,
+    company: input.company?.trim() || null,
+    role: input.role || null,
+  });
+  return { ok: true };
 }

@@ -21,6 +21,9 @@ export function SiteNav() {
   const { data: session } = useSession();
   const isAdmin = Boolean((session?.user as { isAdmin?: boolean } | undefined)?.isAdmin);
 
+  // INTERCEPT is a standalone arcade page with its own nav — hide the AARM chrome.
+  if (pathname.startsWith("/intercept")) return null;
+
   return (
     <header className="sticky top-0 z-50 border-b border-neutral-100 bg-white/95 backdrop-blur-sm">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">

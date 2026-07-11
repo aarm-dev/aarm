@@ -189,9 +189,10 @@ export default async function AdminPage() {
         <OrderingTable builders={approved} />
       </section>
 
-      <div className="mt-12 border-t border-neutral-100 pt-6 text-xs text-neutral-400">
-        Editing conformance level, verified date, and the technical axes is done per-listing — open a
-        builder and use the TWG controls. <Link href="/builders" className="underline">Browse builders →</Link>
+      <div className="mt-12 flex flex-wrap gap-x-4 gap-y-1 border-t border-neutral-100 pt-6 text-xs text-neutral-400">
+        <span>Editing conformance is per-listing — open a builder and use the TWG controls.</span>
+        <Link href="/builders" className="underline">Browse builders →</Link>
+        <Link href="/admin/intercept" className="underline">INTERCEPT signups →</Link>
       </div>
     </div>
   );
