@@ -429,6 +429,9 @@ export async function submitPaper(input: {
   if (!input.talkTitle.trim() || !input.coreTopics.trim() || !input.keyTakeaways.trim() || !input.relevance.trim()) {
     throw new Error("Talk title and all three sections are required.");
   }
+  if (!input.fileUrl) {
+    throw new Error("A PDF paper in IEEE conference format is required.");
+  }
 
   // Submission is final — one paper per author, no edits once submitted.
   const existing = await getMyPaper();

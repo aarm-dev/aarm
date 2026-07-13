@@ -1,34 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
-import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
+import { put } from "@vercel/blob";
 import { auth } from "@/auth";
 
 export const runtime = "nodejs";
+export const maxDuration = 30;
 
-// Client-upload token endpoint. The browser uploads the file directly to Vercel
-// Blob (bypassing the 4.5MB serverless request-body limit); this route only
-// authorizes and issues the upload token.
-export async function POST(req: NextRequest): Promise<NextResponse> {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return NextResponse.json({ error: "File upload isn't configured yet (no Blob store)." }, { status: 503 });
-  }
-  const session = await auth();
-  const body = (await req.json()) as HandleUploadBody;
+// Uploads a CFP paper (PDF) to Vercel Blob. Kept simple + server-side; returns
+// the real error so failures are diagnosable. Cap fits the serverless body
+// limit (~4.5MB) — plenty for an IEEE conference paper.
+export async function POST(req: NextRequest) {
   try {
-    const json = await handleUpload({
-      body,
-      request: req,
-      onBeforeGenerateToken: async () => {
-        if (!session?.user?.id) throw new Error("Not signed in.");
-        return {
-          allowedContentTypes: ["application/pdf"],
-          maximumSizeInBytes: 25 * 1024 * 1024,
-          addRandomSuffix: true,
-        };
-      },
-      onUploadCompleted: async () => {},
+    const session = await auth();
+    if (!session?.user?.id) return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      return NextResponse.json({ error: "File upload isn't configured (no Blob store)." }, { status: 503 });
+    }
+
+    const form = await req.formData();
+    const file = form.get("file");
+    if (!(file instanceof File)) return NextResponse.json({ error: "No file received." }, { status: 400 });
+    if (file.type !== "application/pdf" && !/\.pdf$/i.test(file.name)) {
+      return NextResponse.json({ error: "PDF files only." }, { status: 400 });
+    }
+    if (file.size > 4 * 1024 * 1024) {
+      return NextResponse.json({ error: "Keep the PDF under 4MB." }, { status: 400 });
+    }
+
+    const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const blob = await put(`intercept-papers/${session.user.id}/${Date.now()}-${safe}`, file, {
+      access: "public",
+      contentType: "application/pdf",
     });
-    return NextResponse.json(json);
+    return NextResponse.json({ url: blob.url, name: file.name });
   } catch (e) {
-    return NextResponse.json({ error: e instanceof Error ? e.message : "Upload failed." }, { status: 400 });
+    console.error("[intercept upload]", e);
+    return NextResponse.json({ error: e instanceof Error ? e.message : "Upload failed." }, { status: 500 });
   }
 }

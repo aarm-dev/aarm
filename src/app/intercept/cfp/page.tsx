@@ -50,11 +50,23 @@ export default async function CfpPage() {
 
         {/* Anonymize banner — only while composing a new submission */}
         {!paper && (
-          <div className="mb-8 border-l-2 border-[#FF3B30] bg-[#FF3B30]/10 px-4 py-3">
-            <p className="font-mono text-sm text-[#FFB4AE]">
-              <span className="font-bold text-[#FF3B30]">Blind review:</span> do <strong>not</strong> include your
-              name or company name anywhere in the talk title or sections. Doing so will disqualify your submission.
-            </p>
+          <div className="mb-8 space-y-3">
+            <div className="border-l-2 border-[#FF3B30] bg-[#FF3B30]/10 px-4 py-3">
+              <p className="font-mono text-sm text-[#FFB4AE]">
+                <span className="font-bold text-[#FF3B30]">Blind review:</span> do <strong>not</strong> include your
+                name or company name anywhere — in the talk title, the sections, or the paper.
+                A paper with a reference to an author or company <strong>will be deleted</strong>.
+              </p>
+            </div>
+            <div className="border-l-2 border-[#FF7A00] bg-[#FF7A00]/10 px-4 py-3">
+              <p className="font-mono text-sm text-[#FFD9B0]">
+                <span className="font-bold text-[#FF7A00]">Required format:</span> submit your paper as an IEEE
+                conference paper using the{" "}
+                <a href="https://www.overleaf.com/latex/templates/ieee-conference-template/grfzhhncsfqn" target="_blank" rel="noopener noreferrer" className="underline">
+                  Overleaf IEEE conference template ↗
+                </a>, exported to PDF.
+              </p>
+            </div>
           </div>
         )}
 

@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { upload } from "@vercel/blob/client";
 import { submitPaper } from "@/lib/actions";
 import type { PaperRow } from "@/db/schema";
 
@@ -31,27 +30,28 @@ export function CfpForm({ paper }: { paper: PaperRow | null }) {
     if (f.type !== "application/pdf" && !/\.pdf$/i.test(f.name)) {
       setUploadNote("PDF files only."); e.target.value = ""; return;
     }
-    setUploading(true); setUploadNote(null);
+    if (f.size > 4 * 1024 * 1024) {
+      setUploadNote("Keep the PDF under 4MB."); e.target.value = ""; return;
+    }
+    setUploading(true); setUploadNote(null); setFileUrl(""); setFileName("");
     try {
-      const safe = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const blob = (await Promise.race([
-        upload(`intercept-papers/${safe}`, f, {
-          access: "public",
-          handleUploadUrl: "/api/intercept/upload",
-          contentType: "application/pdf",
-        }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error("Upload timed out — try again, or submit without a file.")), 90_000)),
-      ])) as { url: string };
-      setFileUrl(blob.url);
-      setFileName(f.name);
-    } catch (e) {
-      setUploadNote(e instanceof Error ? e.message : "Upload failed.");
+      const fd = new FormData();
+      fd.append("file", f);
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 60_000);
+      const res = await fetch("/api/intercept/upload", { method: "POST", body: fd, signal: ctrl.signal });
+      clearTimeout(t);
+      const data = await res.json().catch(() => ({ error: `Upload failed (${res.status}).` }));
+      if (!res.ok) setUploadNote(data.error || "Upload failed.");
+      else { setFileUrl(data.url); setFileName(data.name); }
+    } catch (err) {
+      setUploadNote(err instanceof Error && err.name === "AbortError" ? "Upload timed out — try again." : "Upload failed — try again.");
     } finally {
       setUploading(false);
     }
   }
 
-  const canSubmit = talkTitle && coreTopics && keyTakeaways && relevance;
+  const canSubmit = talkTitle && coreTopics && keyTakeaways && relevance && fileUrl;
 
   return (
     <div className="space-y-6">
@@ -62,11 +62,18 @@ export function CfpForm({ paper }: { paper: PaperRow | null }) {
         <div><label className={label}>Why it matters &amp; who it&apos;s for *</label><textarea rows={4} className={field} value={relevance} onChange={(e) => setRelevance(e.target.value)} /></div>
 
         <div>
-          <label className={label}>Supporting paper (PDF only — optional)</label>
+          <label className={label}>Conference paper — IEEE format (PDF) *</label>
+          <p className="mb-2 font-mono text-xs leading-relaxed text-neutral-500">
+            Required. Format your paper with the{" "}
+            <a href="https://www.overleaf.com/latex/templates/ieee-conference-template/grfzhhncsfqn" target="_blank" rel="noopener noreferrer" className="text-[#FF7A00] underline">
+              Overleaf IEEE conference template ↗
+            </a>{" "}
+            and export to PDF (under 4MB). Keep it anonymous — no author or company names anywhere.
+          </p>
           <input type="file" accept="application/pdf,.pdf" onChange={onFile} className="block w-full font-mono text-xs text-neutral-400 file:mr-3 file:border file:border-neutral-700 file:bg-black file:px-3 file:py-1.5 file:font-mono file:text-xs file:uppercase file:tracking-widest file:text-[#FF7A00]" />
           {uploading && <p className="mt-2 font-mono text-xs text-neutral-500">Uploading…</p>}
           {fileName && !uploading && <p className="mt-2 font-mono text-xs text-[#2EFF7B]">Attached: {fileName}</p>}
-          {uploadNote && <p className="mt-2 font-mono text-xs text-neutral-500">{uploadNote}</p>}
+          {uploadNote && <p className="mt-2 font-mono text-xs text-[#FF3B30]">{uploadNote}</p>}
         </div>
       </div>
 
