@@ -430,20 +430,14 @@ export async function submitPaper(input: {
     throw new Error("Talk title and all three sections are required.");
   }
 
+  // Submission is final — one paper per author, no edits once submitted.
   const existing = await getMyPaper();
-  if (existing) {
-    await database.update(papers).set({
-      title: input.talkTitle, coreTopics: input.coreTopics, keyTakeaways: input.keyTakeaways,
-      relevance: input.relevance, fileUrl: input.fileUrl ?? existing.fileUrl,
-      fileName: input.fileName ?? existing.fileName, updatedAt: new Date(),
-    }).where(eq(papers.id, existing.id));
-  } else {
-    await database.insert(papers).values({
-      userId: u.id, title: input.talkTitle, coreTopics: input.coreTopics,
-      keyTakeaways: input.keyTakeaways, relevance: input.relevance,
-      fileUrl: input.fileUrl, fileName: input.fileName, status: "pending",
-    });
-  }
+  if (existing) throw new Error("Your paper is already submitted and can't be changed.");
+  await database.insert(papers).values({
+    userId: u.id, title: input.talkTitle, coreTopics: input.coreTopics,
+    keyTakeaways: input.keyTakeaways, relevance: input.relevance,
+    fileUrl: input.fileUrl, fileName: input.fileName, status: "pending",
+  });
   await notifyPaperSubmitted({ to: u.email ?? "", talkTitle: input.talkTitle });
   revalidatePath("/intercept/cfp");
 }
@@ -518,7 +512,7 @@ export async function getPaperForReview(paperId: string) {
   const database = await requireDb();
   const u = await requireEvaluator();
   const [p] = await database
-    .select({ id: papers.id, number: papers.number, title: papers.title, coreTopics: papers.coreTopics, keyTakeaways: papers.keyTakeaways, relevance: papers.relevance, fileUrl: papers.fileUrl, fileName: papers.fileName })
+    .select({ id: papers.id, number: papers.number, title: papers.title, coreTopics: papers.coreTopics, keyTakeaways: papers.keyTakeaways, relevance: papers.relevance, fileUrl: papers.fileUrl, fileName: papers.fileName, status: papers.status })
     .from(papers)
     .where(eq(papers.id, paperId))
     .limit(1);
@@ -606,6 +600,16 @@ export async function getPaperReviews(paperId: string) {
 export async function setPaperDecision(paperId: string, decision: "accepted" | "rejected") {
   const database = await requireDb();
   await requireChairOrAdmin();
+
+  // Require at least 3 completed reviews before any decision.
+  const completed = await database
+    .select({ id: paperReviews.id })
+    .from(paperReviews)
+    .where(and(eq(paperReviews.paperId, paperId), eq(paperReviews.completed, true)));
+  if (completed.length < 3) {
+    throw new Error(`At least 3 completed reviews are required before a decision (${completed.length}/3).`);
+  }
+
   await database.update(papers).set({ status: decision, updatedAt: new Date() }).where(eq(papers.id, paperId));
   const [p] = await database.select().from(papers).where(eq(papers.id, paperId)).limit(1);
   if (p) {

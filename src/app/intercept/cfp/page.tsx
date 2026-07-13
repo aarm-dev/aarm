@@ -55,9 +55,27 @@ export default async function CfpPage() {
           </p>
         </div>
 
-        {paper && !decided && (
-          <div className="mb-8 border border-neutral-800 bg-neutral-950 p-5 font-mono text-sm text-neutral-400">
-            Submitted as <span className="text-white">Paper #{paper.number}</span>. You can update it below until review begins.
+        {/* No paper yet → submission form. Otherwise a locked, read-only view. */}
+        {!paper ? (
+          <CfpForm paper={null} />
+        ) : (
+          <div className="mb-10 space-y-6">
+            <div className="border border-neutral-800 bg-neutral-950 p-5 font-mono text-sm text-neutral-400">
+              Submitted as <span className="text-white">Paper #{paper.number}</span> — locked for review. Submissions can&apos;t be edited once they&apos;re in.
+            </div>
+            <div className="space-y-5">
+              {([["Title of talk", paper.title], ["Core topics", paper.coreTopics], ["Key takeaways", paper.keyTakeaways], ["Why it matters & who it's for", paper.relevance]] as const).map(([lab, val]) => (
+                <div key={lab} className="border border-neutral-800 bg-neutral-950 p-5">
+                  <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-500">{lab}</div>
+                  <p className="whitespace-pre-wrap font-mono text-sm text-neutral-200">{val || "—"}</p>
+                </div>
+              ))}
+              {paper.fileName && (
+                <div className="font-mono text-xs text-neutral-500">
+                  Attached: {paper.fileUrl ? <a href={paper.fileUrl} target="_blank" rel="noopener noreferrer" className="text-[#2EFF7B] underline">{paper.fileName} ↗</a> : paper.fileName}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -90,7 +108,6 @@ export default async function CfpPage() {
           </div>
         )}
 
-        {!decided && <CfpForm paper={paper} />}
       </div>
     </div>
   );

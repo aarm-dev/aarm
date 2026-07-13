@@ -11,7 +11,7 @@ type ChairReview = {
 };
 
 type QueueItem = { id: string; number: number; title: string; status: string; reviewStatus: string; avg: number | null };
-type Paper = { id: string; number: number; title: string; coreTopics: string | null; keyTakeaways: string | null; relevance: string | null; fileUrl: string | null; fileName: string | null };
+type Paper = { id: string; number: number; title: string; coreTopics: string | null; keyTakeaways: string | null; relevance: string | null; fileUrl: string | null; fileName: string | null; status?: string };
 
 const SECTIONS = [
   { key: "Core", label: "Core topics", field: "coreTopics" as const },
@@ -204,11 +204,28 @@ export function ReviewConsole({ queue: initialQueue, isChair = false }: { queue:
                   </div>
                 )}
 
-                <div className="mt-5 flex items-center gap-3">
-                  <button onClick={() => decide("accepted")} disabled={pending} className="border border-[#2EFF7B] px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-[#2EFF7B] hover:bg-[#2EFF7B] hover:text-black disabled:opacity-40">Approve</button>
-                  <button onClick={() => decide("rejected")} disabled={pending} className="border border-[#FF3B30] px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-[#FF3B30] hover:bg-[#FF3B30] hover:text-black disabled:opacity-40">Reject</button>
-                  {decision && <span className="font-mono text-xs text-neutral-400">Marked {decision}. Author emailed.</span>}
-                </div>
+                {(() => {
+                  const finalDecision = decision || (sel.status === "accepted" || sel.status === "rejected" ? sel.status : null);
+                  const completedCount = chairReviews.filter((r) => r.completed).length;
+                  if (finalDecision) {
+                    return (
+                      <div className="mt-5 border border-neutral-800 px-4 py-3 font-mono text-sm">
+                        Decision: <span className={finalDecision === "accepted" ? "text-[#2EFF7B]" : "text-[#FF3B30]"}>{finalDecision === "accepted" ? "Accepted" : "Rejected"}</span>
+                        <span className="text-neutral-500"> · author emailed. This is final.</span>
+                      </div>
+                    );
+                  }
+                  const ready = completedCount >= 3;
+                  return (
+                    <div className="mt-5">
+                      <div className="flex items-center gap-3">
+                        <button onClick={() => decide("accepted")} disabled={pending || !ready} className="border border-[#2EFF7B] px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-[#2EFF7B] hover:bg-[#2EFF7B] hover:text-black disabled:opacity-30">Approve</button>
+                        <button onClick={() => decide("rejected")} disabled={pending || !ready} className="border border-[#FF3B30] px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-[#FF3B30] hover:bg-[#FF3B30] hover:text-black disabled:opacity-30">Reject</button>
+                      </div>
+                      {!ready && <p className="mt-2 font-mono text-xs text-neutral-500">Need 3 completed reviews to decide — {completedCount}/3 so far.</p>}
+                    </div>
+                  );
+                })()}
               </div>
             )}
           </div>

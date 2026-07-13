@@ -34,11 +34,14 @@ export function CfpForm({ paper }: { paper: PaperRow | null }) {
     setUploading(true); setUploadNote(null);
     try {
       const safe = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const blob = await upload(`intercept-papers/${safe}`, f, {
-        access: "public",
-        handleUploadUrl: "/api/intercept/upload",
-        contentType: "application/pdf",
-      });
+      const blob = (await Promise.race([
+        upload(`intercept-papers/${safe}`, f, {
+          access: "public",
+          handleUploadUrl: "/api/intercept/upload",
+          contentType: "application/pdf",
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Upload timed out — try again, or submit without a file.")), 90_000)),
+      ])) as { url: string };
       setFileUrl(blob.url);
       setFileName(f.name);
     } catch (e) {

@@ -72,7 +72,7 @@ async function ProfileBody() {
               Your submission: <span className="text-white">Paper #{paper.number}</span> ·{" "}
               <span className="text-[#FF7A00]">{STATUS[paper.status] ?? "Pending review"}</span>
             </div>
-            <Link href="/intercept/cfp" className="border border-neutral-700 px-4 py-2 font-mono text-xs uppercase tracking-widest text-neutral-200 hover:border-[#FF7A00] hover:text-[#FF7A00]">View / edit submission</Link>
+            <Link href="/intercept/cfp" className="border border-neutral-700 px-4 py-2 font-mono text-xs uppercase tracking-widest text-neutral-200 hover:border-[#FF7A00] hover:text-[#FF7A00]">View submission</Link>
           </div>
         ) : (
           <div className="space-y-4">
