@@ -170,6 +170,12 @@ export default async function InterceptPage() {
               Sign in, build your speaker profile, and submit your paper across three sections.
               Selected speakers are announced ahead of the event.
             </p>
+            <p className="font-mono text-sm text-neutral-500">
+              Papers must be submitted as IEEE conference papers (PDF), formatted with the{" "}
+              <a href="https://www.overleaf.com/latex/templates/ieee-conference-template/grfzhhncsfqn" target="_blank" rel="noopener noreferrer" className="text-[#FF7A00] underline hover:text-white">
+                Overleaf IEEE conference template ↗
+              </a>.
+            </p>
           </div>
           {/* Timeline */}
           <div className="mt-10">
