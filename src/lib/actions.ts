@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { eq, and, ne } from "drizzle-orm";
 import { auth } from "@/auth";
 import { db, isDbConfigured } from "@/db";
-import { builders, claims, users, interceptSignups, speakerProfiles, papers, paperReviews } from "@/db/schema";
+import { builders, claims, users, interceptSignups, speakerProfiles, papers, paperReviews, paperAssignments } from "@/db/schema";
 import type {
   Category, Surface, Stage, ProductType, Audience, Deployment,
   InterceptionArchitecture, PolicyModel, AuthDecision,
@@ -502,12 +502,27 @@ export async function getReviewQueue() {
     .orderBy(papers.number);
   const mine = await database.select().from(paperReviews).where(eq(paperReviews.evaluatorId, u.id));
   const byPaper = new Map(mine.map((r) => [r.paperId, r]));
-  return rows.map((p) => {
-    const r = byPaper.get(p.id);
-    const scores = r ? [r.scoreCore, r.scoreTakeaways, r.scoreRelevance].filter((s): s is number => s != null) : [];
-    const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
-    return { ...p, reviewStatus: r?.completed ? "completed" : r ? "in_progress" : "not_started", avg };
-  });
+
+  // Assignment gating: a paper with any assignments is visible only to the
+  // evaluators the chair assigned; papers with none stay open to all.
+  const assignments = await database.select().from(paperAssignments);
+  const assignedByPaper = new Map<string, Set<string>>();
+  for (const a of assignments) {
+    if (!assignedByPaper.has(a.paperId)) assignedByPaper.set(a.paperId, new Set());
+    assignedByPaper.get(a.paperId)!.add(a.evaluatorId);
+  }
+
+  return rows
+    .filter((p) => {
+      const assigned = assignedByPaper.get(p.id);
+      return !assigned || assigned.size === 0 || assigned.has(u.id);
+    })
+    .map((p) => {
+      const r = byPaper.get(p.id);
+      const scores = r ? [r.scoreCore, r.scoreTakeaways, r.scoreRelevance].filter((s): s is number => s != null) : [];
+      const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
+      return { ...p, reviewStatus: r?.completed ? "completed" : r ? "in_progress" : "not_started", avg };
+    });
 }
 
 /** A single paper for blind review — no author identity. */
@@ -520,6 +535,24 @@ export async function getPaperForReview(paperId: string) {
     .where(eq(papers.id, paperId))
     .limit(1);
   if (!p) throw new Error("Paper not found.");
+
+  // Enforce chair assignments for plain evaluators (chairs/admins see all).
+  const flags = u as { isAdmin?: boolean; isChair?: boolean };
+  if (!flags.isAdmin && !flags.isChair) {
+    const assigned = await database
+      .select({ id: paperAssignments.id })
+      .from(paperAssignments)
+      .where(eq(paperAssignments.paperId, paperId));
+    if (assigned.length > 0) {
+      const [mine] = await database
+        .select({ id: paperAssignments.id })
+        .from(paperAssignments)
+        .where(and(eq(paperAssignments.paperId, paperId), eq(paperAssignments.evaluatorId, u.id)))
+        .limit(1);
+      if (!mine) throw new Error("You're not assigned to review this paper.");
+    }
+  }
+
   const [r] = await database
     .select()
     .from(paperReviews)
@@ -597,6 +630,79 @@ export async function getPaperReviews(paperId: string) {
     .from(paperReviews)
     .leftJoin(users, eq(users.id, paperReviews.evaluatorId))
     .where(eq(paperReviews.paperId, paperId));
+}
+
+/**
+ * Chair/admin: submitter identity (blind to evaluators) plus the evaluator
+ * roster with who's assigned and each one's review status. Powers the
+ * "who submitted" line and the assignment picker.
+ */
+export async function getChairPaperMeta(paperId: string) {
+  const database = await requireDb();
+  await requireChairOrAdmin();
+
+  const [p] = await database.select().from(papers).where(eq(papers.id, paperId)).limit(1);
+  if (!p) throw new Error("Paper not found.");
+
+  const [author] = await database
+    .select({ name: users.name, email: users.email, first: speakerProfiles.firstName, last: speakerProfiles.lastName, title: speakerProfiles.title })
+    .from(users)
+    .leftJoin(speakerProfiles, eq(speakerProfiles.userId, users.id))
+    .where(eq(users.id, p.userId))
+    .limit(1);
+
+  const evals = await database
+    .select({ id: users.id, name: users.name, email: users.email, first: speakerProfiles.firstName, last: speakerProfiles.lastName })
+    .from(users)
+    .leftJoin(speakerProfiles, eq(speakerProfiles.userId, users.id))
+    .where(eq(users.isEvaluator, true));
+
+  const assignedRows = await database
+    .select({ evaluatorId: paperAssignments.evaluatorId })
+    .from(paperAssignments)
+    .where(eq(paperAssignments.paperId, paperId));
+  const assigned = new Set(assignedRows.map((a) => a.evaluatorId));
+
+  const reviews = await database
+    .select({ evaluatorId: paperReviews.evaluatorId, completed: paperReviews.completed })
+    .from(paperReviews)
+    .where(eq(paperReviews.paperId, paperId));
+  const reviewBy = new Map(reviews.map((r) => [r.evaluatorId, r]));
+
+  return {
+    author: {
+      name: author?.first && author?.last ? `${author.first} ${author.last}` : author?.name || "Unknown",
+      email: author?.email ?? null,
+      title: author?.title ?? null,
+    },
+    evaluators: evals
+      .filter((e) => e.id !== p.userId) // authors can't review their own paper
+      .map((e) => ({
+        id: e.id,
+        name: e.first && e.last ? `${e.first} ${e.last}` : e.name || e.email || "Evaluator",
+        email: e.email,
+        assigned: assigned.has(e.id),
+        reviewStatus: reviewBy.get(e.id)?.completed ? "completed" : reviewBy.has(e.id) ? "in_progress" : "none",
+      })),
+  };
+}
+
+/** Chair/admin: set exactly which evaluators are assigned to a paper. */
+export async function setPaperAssignments(paperId: string, evaluatorIds: string[]) {
+  const database = await requireDb();
+  await requireChairOrAdmin();
+
+  const [p] = await database.select({ id: papers.id, userId: papers.userId }).from(papers).where(eq(papers.id, paperId)).limit(1);
+  if (!p) throw new Error("Paper not found.");
+  const ids = [...new Set(evaluatorIds)].filter((id) => id !== p.userId);
+
+  // Replace the assignment set for this paper.
+  await database.delete(paperAssignments).where(eq(paperAssignments.paperId, paperId));
+  if (ids.length > 0) {
+    await database.insert(paperAssignments).values(ids.map((evaluatorId) => ({ paperId, evaluatorId })));
+  }
+  revalidatePath("/intercept/review");
+  return { assigned: ids.length };
 }
 
 /** Chair/admin: accept or reject a paper; emails the author the outcome. */

@@ -210,6 +210,19 @@ export const paperReviews = pgTable(
   (t) => ({ uniq: unique("paper_review_unique").on(t.paperId, t.evaluatorId) })
 );
 
+// INTERCEPT — chair-assigned reviewers (which evaluators review which paper).
+// When a paper has no assignments it stays open to all evaluators.
+export const paperAssignments = pgTable(
+  "paper_assignment",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    paperId: uuid("paper_id").notNull().references(() => papers.id, { onDelete: "cascade" }),
+    evaluatorId: text("evaluator_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({ uniq: unique("paper_assignment_unique").on(t.paperId, t.evaluatorId) })
+);
+
 export type SpeakerProfileRow = typeof speakerProfiles.$inferSelect;
 export type PaperRow = typeof papers.$inferSelect;
 export type PaperReviewRow = typeof paperReviews.$inferSelect;

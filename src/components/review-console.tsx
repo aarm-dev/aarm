@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { getPaperForReview, saveReviewScores, completeReview, getPaperReviews, setPaperDecision } from "@/lib/actions";
+import { getPaperForReview, saveReviewScores, completeReview, getPaperReviews, setPaperDecision, getChairPaperMeta, setPaperAssignments } from "@/lib/actions";
 
 type ChairReview = {
   evaluatorName: string | null; evaluatorEmail: string | null;
@@ -9,6 +9,9 @@ type ChairReview = {
   commentCore: string | null; commentTakeaways: string | null; commentRelevance: string | null;
   completed: boolean | null;
 };
+
+type ChairAuthor = { name: string; email: string | null; title: string | null };
+type EvaluatorOption = { id: string; name: string; email: string | null; assigned: boolean; reviewStatus: string };
 
 type QueueItem = { id: string; number: number; title: string; status: string; reviewStatus: string; avg: number | null };
 type Paper = { id: string; number: number; title: string; coreTopics: string | null; keyTakeaways: string | null; relevance: string | null; fileUrl: string | null; fileName: string | null; status?: string };
@@ -29,16 +32,40 @@ export function ReviewConsole({ queue: initialQueue, isChair = false }: { queue:
   const [completed, setCompleted] = useState(false);
   const [chairReviews, setChairReviews] = useState<ChairReview[]>([]);
   const [decision, setDecision] = useState<string | null>(null);
+  const [author, setAuthor] = useState<ChairAuthor | null>(null);
+  const [evaluators, setEvaluators] = useState<EvaluatorOption[]>([]);
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [assignMsg, setAssignMsg] = useState<string | null>(null);
 
   function open(id: string) {
-    setMsg(null); setDecision(null); setChairReviews([]);
+    setMsg(null); setDecision(null); setChairReviews([]); setAuthor(null); setEvaluators([]); setPicked(new Set()); setAssignMsg(null);
     start(async () => {
       const { paper, review } = await getPaperForReview(id);
       setSel(paper as Paper);
       setScores({ Core: review?.scoreCore ?? null, Takeaways: review?.scoreTakeaways ?? null, Relevance: review?.scoreRelevance ?? null });
       setComments({ Core: review?.commentCore ?? "", Takeaways: review?.commentTakeaways ?? "", Relevance: review?.commentRelevance ?? "" });
       setCompleted(!!review?.completed);
-      if (isChair) setChairReviews(await getPaperReviews(id));
+      if (isChair) {
+        setChairReviews(await getPaperReviews(id));
+        const meta = await getChairPaperMeta(id);
+        setAuthor(meta.author);
+        setEvaluators(meta.evaluators);
+        setPicked(new Set(meta.evaluators.filter((e) => e.assigned).map((e) => e.id)));
+      }
+    });
+  }
+
+  function saveAssignments() {
+    if (!sel) return;
+    setAssignMsg(null);
+    start(async () => {
+      try {
+        const res = await setPaperAssignments(sel.id, [...picked]);
+        setEvaluators((list) => list.map((e) => ({ ...e, assigned: picked.has(e.id) })));
+        setAssignMsg(res.assigned === 0 ? "Cleared — open to all evaluators." : `Assigned to ${res.assigned} evaluator${res.assigned === 1 ? "" : "s"}.`);
+      } catch (e) {
+        setAssignMsg(e instanceof Error ? e.message : "Could not save assignments.");
+      }
     });
   }
 
@@ -115,6 +142,14 @@ export function ReviewConsole({ queue: initialQueue, isChair = false }: { queue:
               <div>
                 <div className="font-mono text-[11px] uppercase tracking-widest text-neutral-500">Paper #{sel.number}</div>
                 <h2 className="mt-1 font-mono text-lg font-bold text-white">{sel.title}</h2>
+                {isChair && author && (
+                  <div className="mt-1.5 font-mono text-xs text-[#FF7A00]">
+                    Submitted by <span className="text-white">{author.name}</span>
+                    {author.title ? <span className="text-neutral-500"> · {author.title}</span> : null}
+                    {author.email ? <span className="text-neutral-500"> · {author.email}</span> : null}
+                    <span className="ml-2 text-neutral-600">(hidden from evaluators)</span>
+                  </div>
+                )}
               </div>
               <button
                 onClick={finish}
@@ -167,6 +202,48 @@ export function ReviewConsole({ queue: initialQueue, isChair = false }: { queue:
               <button onClick={save} disabled={pending} className="border border-neutral-700 px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-neutral-300 hover:border-neutral-500 disabled:opacity-40">
                 {pending ? "Saving…" : "Save progress"}
               </button>
+            )}
+
+            {/* Chair: assign reviewers */}
+            {isChair && (
+              <div className="mt-4 border-t border-neutral-800 pt-6">
+                <div className="mb-1 font-mono text-xs uppercase tracking-[0.25em] text-[#FF7A00]">Chair · assign reviewers</div>
+                <p className="mb-4 font-mono text-xs text-neutral-500">
+                  Pick which evaluators review this paper. Assigned evaluators see it in their queue; others don&apos;t.
+                  Leave all unchecked to keep it open to every evaluator.
+                </p>
+                {evaluators.length === 0 ? (
+                  <p className="font-mono text-xs text-neutral-600">No evaluators yet — mark people as evaluators in People &amp; roles.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {evaluators.map((e) => {
+                      const on = picked.has(e.id);
+                      return (
+                        <label key={e.id} className="flex cursor-pointer items-center justify-between gap-3 border border-neutral-900 bg-neutral-950 px-4 py-2.5 hover:border-neutral-700">
+                          <span className="flex items-center gap-3">
+                            <input
+                              type="checkbox" checked={on}
+                              onChange={() => setPicked((prev) => { const next = new Set(prev); if (next.has(e.id)) next.delete(e.id); else next.add(e.id); return next; })}
+                              className="h-4 w-4 accent-[#FF7A00]"
+                            />
+                            <span className="font-mono text-sm text-neutral-200">{e.name}</span>
+                            {e.email ? <span className="font-mono text-xs text-neutral-600">{e.email}</span> : null}
+                          </span>
+                          <span className={`font-mono text-[10px] uppercase tracking-widest ${e.reviewStatus === "completed" ? "text-[#2EFF7B]" : e.reviewStatus === "in_progress" ? "text-[#FF7A00]" : "text-neutral-600"}`}>
+                            {e.reviewStatus === "none" ? "no review" : e.reviewStatus.replace("_", " ")}
+                          </span>
+                        </label>
+                      );
+                    })}
+                    <div className="flex items-center gap-3 pt-1">
+                      <button onClick={saveAssignments} disabled={pending} className="border border-[#FF7A00] px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-[#FF7A00] hover:bg-[#FF7A00] hover:text-black disabled:opacity-40">
+                        {pending ? "Saving…" : "Save assignments"}
+                      </button>
+                      {assignMsg && <span className="font-mono text-xs text-neutral-400">{assignMsg}</span>}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Chair: all evaluator scores + decision */}
