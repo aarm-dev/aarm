@@ -30,7 +30,7 @@ export default async function HomePage() {
               Upcoming Event
             </span>
             <span className="text-sm text-white/90">
-              {spotlight.name}
+              {spotlight.bannerLabel ?? spotlight.name}
               <span className="ml-1.5 text-white/50">· {spotlight.dateLabel}</span>
               {spotlight.location && (
                 <span className="ml-1.5 text-white/50">· {spotlight.location}</span>

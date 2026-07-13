@@ -19,6 +19,8 @@ export type AARMEvent = {
   past?: boolean;
   /** Promote ahead of other upcoming events — spotlight banner + top of the list. */
   featured?: boolean;
+  /** Optional label used only in the homepage spotlight banner (falls back to name). */
+  bannerLabel?: string;
   tag: EventTag;
 };
 
@@ -26,6 +28,7 @@ export const EVENTS: AARMEvent[] = [
   {
     id: "intercept-2026",
     name: "INTERCEPT 2026",
+    bannerLabel: "INTERCEPT — The AARM Conference",
     url: "/intercept",
     dateLabel: "October 14, 2026",
     startISO: "2026-10-14",
