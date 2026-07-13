@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { upload } from "@vercel/blob/client";
 import { submitPaper } from "@/lib/actions";
 import type { PaperRow } from "@/db/schema";
 
@@ -32,14 +33,16 @@ export function CfpForm({ paper }: { paper: PaperRow | null }) {
     }
     setUploading(true); setUploadNote(null);
     try {
-      const fd = new FormData();
-      fd.append("file", f);
-      const res = await fetch("/api/intercept/upload", { method: "POST", body: fd });
-      const data = await res.json();
-      if (!res.ok) setUploadNote(data.error || "Upload failed.");
-      else { setFileUrl(data.url); setFileName(data.name); }
-    } catch {
-      setUploadNote("Upload failed.");
+      const safe = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const blob = await upload(`intercept-papers/${safe}`, f, {
+        access: "public",
+        handleUploadUrl: "/api/intercept/upload",
+        contentType: "application/pdf",
+      });
+      setFileUrl(blob.url);
+      setFileName(f.name);
+    } catch (e) {
+      setUploadNote(e instanceof Error ? e.message : "Upload failed.");
     } finally {
       setUploading(false);
     }
