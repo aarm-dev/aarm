@@ -178,6 +178,7 @@ export async function notifyInterceptSignup(p: { to: string; name?: string; role
 
         <!-- header -->
         <tr><td style="padding:34px 34px 0;font-family:${mono}">
+          <img src="${SITE()}/logo/light.png" width="104" alt="AARM" style="display:block;height:auto;border:0;margin-bottom:18px" />
           <div style="font-size:10px;letter-spacing:5px;color:${AMBER};text-transform:uppercase">&#9698; Access request received</div>
           <div style="font-size:40px;line-height:1;font-weight:800;letter-spacing:5px;color:#ffffff;margin-top:16px">INTERCEPT</div>
           <div style="font-size:10px;text-transform:uppercase;letter-spacing:3px;color:${MUTE};margin-top:10px">Builders &middot; Breakers &middot; Defenders of Agentic Runtime Security</div>
@@ -261,6 +262,7 @@ function interceptShell(bodyHtml: string) {
       <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:560px;max-width:100%;background:#0A0A0A;border:1px solid #1f1f1f">
         <tr><td style="height:6px;background-image:repeating-linear-gradient(90deg,#FF7A00 0,#FF7A00 10px,#0A0A0A 10px,#0A0A0A 16px);line-height:6px;font-size:0">&nbsp;</td></tr>
         <tr><td style="padding:32px 34px;font-family:${mono}">
+          <img src="${SITE()}/logo/light.png" width="104" alt="AARM" style="display:block;height:auto;border:0;margin-bottom:16px" />
           <div style="font-size:32px;font-weight:800;letter-spacing:5px;color:#fff">INTERCEPT</div>
           <div style="font-size:10px;text-transform:uppercase;letter-spacing:3px;color:#737373;margin-top:8px">Call for Papers</div>
           <div style="height:1px;background:#1f1f1f;margin:22px 0"></div>
