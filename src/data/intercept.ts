@@ -4,7 +4,7 @@ export const EVENT = {
   name: "INTERCEPT",
   tagline: "Builders & Breakers of Agentic Runtime Security",
   dateStamp: "OCT 14 2026",
-  location: "[LOCATION TBD]",
+  location: "San Francisco",
   aarmUrl: "https://aarm.dev",
 };
 

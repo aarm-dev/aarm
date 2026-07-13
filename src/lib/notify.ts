@@ -199,7 +199,7 @@ export async function notifyInterceptSignup(p: { to: string; name?: string; role
         <tr><td style="padding:24px 34px 0;font-family:${mono}">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#000;border:1px solid ${LINE}">
             <tr><td style="padding:18px 20px">
-              <div style="color:${GREEN};font-weight:700;font-size:13px;letter-spacing:2px">&#9635; ACCESS PASS &nbsp; // &nbsp; STATUS: REGISTERED</div>
+              <div style="color:${GREEN};font-weight:700;font-size:13px;letter-spacing:2px">&#9635; ACCESS PASS &nbsp; // &nbsp; INTEREST: SUBMITTED</div>
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px">
                 <tr>
                   <td style="width:50%;vertical-align:top">
@@ -218,7 +218,7 @@ export async function notifyInterceptSignup(p: { to: string; name?: string; role
                   </td>
                   <td style="padding-top:14px;vertical-align:top">
                     <div style="color:${MUTE};font-size:9px;letter-spacing:2px;text-transform:uppercase">Location</div>
-                    <div style="color:#fff;font-size:14px;margin-top:4px">TBA</div>
+                    <div style="color:#fff;font-size:14px;margin-top:4px">San Francisco</div>
                   </td>
                 </tr>
               </table>

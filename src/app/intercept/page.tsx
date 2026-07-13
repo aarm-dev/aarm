@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Press_Start_2P, JetBrains_Mono } from "next/font/google";
 import { InterceptSignup } from "@/components/intercept-signup";
-import { EVENT, EMCEE, SPEAKERS, PROGRAM, SPONSOR_TIERS } from "@/data/intercept";
+import { EVENT, EMCEE, SPEAKERS, PROGRAM } from "@/data/intercept";
 
 const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"], variable: "--font-pixel" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono-i" });
@@ -16,8 +16,7 @@ const GREEN = "#2EFF7B";
 const RED = "#FF3B30";
 
 const NAV = [
-  ["Program", "#program"], ["Speakers", "#speakers"], ["Expo", "#expo"],
-  ["Sponsors", "#sponsors"], ["Sign Up", "#signup"],
+  ["Program", "#program"], ["Speakers", "#speakers"], ["Call for Papers", "#cfp"],
 ] as const;
 
 export default function InterceptPage() {
@@ -36,7 +35,7 @@ export default function InterceptPage() {
             ))}
           </nav>
           <a href="#signup" className="border border-[#FF7A00] px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-[#FF7A00] transition-colors hover:bg-[#FF7A00] hover:text-black">
-            [ Request Access ]
+            [ Submit Interest ]
           </a>
         </div>
       </header>
@@ -57,16 +56,17 @@ export default function InterceptPage() {
             </div>
             <div className="mt-10">
               <a href="#signup" className="inline-block border-2 border-[#FF7A00] bg-[#FF7A00] px-8 py-4 font-mono text-sm font-bold uppercase tracking-[0.2em] text-black transition-colors hover:bg-transparent hover:text-[#FF7A00]">
-                [ Request Access ]
+                [ Submit Interest ]
               </a>
             </div>
           </div>
         </section>
 
-        {/* Signup */}
-        <Section id="signup" kicker="Access Request" title="EARLY ACCESS">
+        {/* Submit interest */}
+        <Section id="signup" kicker="Get on the list" title="SUBMIT INTEREST">
           <p className="mb-8 max-w-2xl font-mono text-sm text-neutral-400">
-            INTERCEPT is invite-reviewed. Submit your request — builders and breakers both welcome.
+            Register your interest in INTERCEPT — builders, breakers, and defenders all welcome.
+            We&apos;ll email you with the details as they land.
           </p>
           <div className="max-w-xl"><InterceptSignup /></div>
         </Section>
@@ -115,23 +115,26 @@ export default function InterceptPage() {
           </div>
         </Section>
 
-        {/* Expo / Sponsors */}
-        <Section id="sponsors" kicker="Exhibitor expo" title="SPONSORS">
-          <div className="space-y-6">
-            {SPONSOR_TIERS.map((t) => (
-              <div key={t.tier}>
-                <div className="mb-3 font-mono text-xs uppercase tracking-widest" style={{ color: AMBER }}>{t.tier}</div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                  {Array.from({ length: t.slots }).map((_, i) => (
-                    <div key={i} className="flex h-20 items-center justify-center border border-dashed border-neutral-800 font-mono text-[11px] uppercase tracking-widest text-neutral-600">
-                      Your logo
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+        {/* Call for Papers */}
+        <Section id="cfp" kicker="Speak at INTERCEPT" title="CALL FOR PAPERS">
+          <div className="max-w-2xl space-y-4">
+            <p className="font-mono text-sm text-neutral-300">
+              Talks are selected through a <span className="text-white">blind peer review</span>.
+              Submit an anonymized proposal — the review panel scores it without seeing who you are.
+            </p>
+            <p className="font-mono text-sm text-neutral-500">
+              Sign in, build your speaker profile, and submit your paper across three sections.
+              Selected speakers are announced ahead of the event.
+            </p>
           </div>
-          <p id="expo" className="mt-6 font-mono text-xs text-neutral-600">Tiers nod to AARM conformance levels. Expo runs all day.</p>
+          <div className="mt-8">
+            <a
+              href="/intercept/cfp"
+              className="inline-block border-2 border-[#FF7A00] bg-[#FF7A00] px-8 py-4 font-mono text-sm font-bold uppercase tracking-[0.2em] text-black transition-colors hover:bg-transparent hover:text-[#FF7A00]"
+            >
+              [ Submit a Paper ]
+            </a>
+          </div>
         </Section>
 
       </main>
