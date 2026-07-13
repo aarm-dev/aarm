@@ -32,8 +32,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = user.id;
         const email = session.user.email?.toLowerCase() ?? "";
         // Admin = on the allowlist OR flagged in the DB.
-        (session.user as { isAdmin?: boolean }).isAdmin =
-          adminEmails.includes(email) || Boolean((user as { isAdmin?: boolean }).isAdmin);
+        const dbUser = user as { isAdmin?: boolean; isChair?: boolean; isEvaluator?: boolean };
+        const isAdmin = adminEmails.includes(email) || Boolean(dbUser.isAdmin);
+        (session.user as { isAdmin?: boolean }).isAdmin = isAdmin;
+        (session.user as { isChair?: boolean }).isChair = isAdmin || Boolean(dbUser.isChair);
+        (session.user as { isEvaluator?: boolean }).isEvaluator =
+          isAdmin || Boolean(dbUser.isChair) || Boolean(dbUser.isEvaluator);
         (session.user as { emailDomain?: string }).emailDomain = email.split("@")[1] ?? "";
       }
       return session;

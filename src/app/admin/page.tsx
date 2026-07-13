@@ -193,6 +193,7 @@ export default async function AdminPage() {
         <span>Editing conformance is per-listing — open a builder and use the TWG controls.</span>
         <Link href="/builders" className="underline">Browse builders →</Link>
         <Link href="/admin/intercept" className="underline">INTERCEPT signups →</Link>
+        <Link href="/admin/people" className="underline">People &amp; roles →</Link>
       </div>
     </div>
   );

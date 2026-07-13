@@ -7,6 +7,8 @@ import {
   primaryKey,
   integer,
   uuid,
+  serial,
+  unique,
 } from "drizzle-orm/pg-core";
 import type {
   Category,
@@ -110,6 +112,8 @@ export const users = pgTable("user", {
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
   isAdmin: boolean("is_admin").default(false),
+  isChair: boolean("is_chair").default(false),
+  isEvaluator: boolean("is_evaluator").default(false),
 });
 
 export const accounts = pgTable(
@@ -153,6 +157,62 @@ export const verificationTokens = pgTable(
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
   })
 );
+
+// INTERCEPT — speaker profiles (one per user)
+export const speakerProfiles = pgTable("speaker_profile", {
+  userId: text("user_id").primaryKey(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  bio: text("bio"),
+  title: text("title"),
+  companyWebsite: text("company_website"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// INTERCEPT — Call for Papers submissions
+export const papers = pgTable("paper", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  number: serial("number"), // blind display id, e.g. "Paper #42"
+  userId: text("user_id").notNull(),
+  title: text("title").notNull(),
+  coreTopics: text("core_topics"),
+  keyTakeaways: text("key_takeaways"),
+  relevance: text("relevance"),
+  fileUrl: text("file_url"),
+  fileName: text("file_name"),
+  status: text("status")
+    .$type<"pending" | "under_review" | "accepted" | "rejected">()
+    .notNull()
+    .default("pending"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// INTERCEPT — blind reviews (one per paper × evaluator)
+export const paperReviews = pgTable(
+  "paper_review",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    paperId: uuid("paper_id").notNull().references(() => papers.id, { onDelete: "cascade" }),
+    evaluatorId: text("evaluator_id").notNull(),
+    scoreCore: integer("score_core"),
+    scoreTakeaways: integer("score_takeaways"),
+    scoreRelevance: integer("score_relevance"),
+    commentCore: text("comment_core"),
+    commentTakeaways: text("comment_takeaways"),
+    commentRelevance: text("comment_relevance"),
+    completed: boolean("completed").default(false),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => ({ uniq: unique("paper_review_unique").on(t.paperId, t.evaluatorId) })
+);
+
+export type SpeakerProfileRow = typeof speakerProfiles.$inferSelect;
+export type PaperRow = typeof papers.$inferSelect;
+export type PaperReviewRow = typeof paperReviews.$inferSelect;
 
 // INTERCEPT event — early-access signups (lives in the existing Neon DB).
 export const interceptSignups = pgTable("intercept_signup", {

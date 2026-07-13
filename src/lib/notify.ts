@@ -253,6 +253,63 @@ export async function notifyInterceptSignup(p: { to: string; name?: string; role
   }
 }
 
+function interceptShell(bodyHtml: string) {
+  const mono = "'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+  return `
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#000;margin:0;padding:24px 12px">
+    <tr><td align="center">
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:560px;max-width:100%;background:#0A0A0A;border:1px solid #1f1f1f">
+        <tr><td style="height:6px;background-image:repeating-linear-gradient(90deg,#FF7A00 0,#FF7A00 10px,#0A0A0A 10px,#0A0A0A 16px);line-height:6px;font-size:0">&nbsp;</td></tr>
+        <tr><td style="padding:32px 34px;font-family:${mono}">
+          <div style="font-size:32px;font-weight:800;letter-spacing:5px;color:#fff">INTERCEPT</div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:3px;color:#737373;margin-top:8px">Call for Papers</div>
+          <div style="height:1px;background:#1f1f1f;margin:22px 0"></div>
+          ${bodyHtml}
+          <p style="color:#525252;font-size:12px;margin:24px 0 0">&mdash; The AARM team &middot; <a href="https://aarm.dev/intercept" style="color:#FF7A00;text-decoration:none">aarm.dev/intercept</a></p>
+        </td></tr>
+        <tr><td style="height:6px;background-image:repeating-linear-gradient(90deg,#1f1f1f 0,#1f1f1f 10px,#0A0A0A 10px,#0A0A0A 16px);line-height:6px;font-size:0">&nbsp;</td></tr>
+      </table>
+    </td></tr>
+  </table>`;
+}
+
+/** CFP: confirmation to the author on submission. */
+export async function notifyPaperSubmitted(p: { to: string; talkTitle: string }) {
+  if (!p.to) return;
+  await sendEmail([p.to], "Your INTERCEPT paper is submitted", interceptShell(`
+    <p style="color:#e5e5e5;font-size:14px">Your paper has been submitted.</p>
+    <p style="color:#a3a3a3;font-size:14px;line-height:1.7">
+      &ldquo;<strong style="color:#fff">${esc(p.talkTitle)}</strong>&rdquo; is now
+      <span style="color:#FF7A00">PENDING</span> blind review. Track its status any time in your
+      INTERCEPT dashboard — we&rsquo;ll email you when the review completes.
+    </p>`));
+}
+
+/** CFP: someone was granted the evaluator role. */
+export async function notifyRoleGranted(p: { to: string; role: string }) {
+  if (!p.to) return;
+  await sendEmail([p.to], `You're an INTERCEPT ${p.role}`, interceptShell(`
+    <p style="color:#e5e5e5;font-size:14px">You&rsquo;ve been added as an <strong style="color:#fff">${esc(p.role)}</strong>.</p>
+    <p style="color:#a3a3a3;font-size:14px;line-height:1.7">Open the review console to score submitted papers (blind).</p>
+    <p style="margin:16px 0 0"><a href="https://aarm.dev/intercept/review" style="color:#2EFF7B;text-decoration:none">→ Open the review console</a></p>`));
+}
+
+/** CFP: a blind review was completed — notify evaluator + author. */
+export async function notifyReviewComplete(p: { evaluatorEmail?: string; authorEmail?: string; paperNumber: number; talkTitle: string }) {
+  if (p.evaluatorEmail) {
+    await sendEmail([p.evaluatorEmail], `Review recorded — Paper #${p.paperNumber}`, interceptShell(`
+      <p style="color:#e5e5e5;font-size:14px">Your review of <strong style="color:#fff">Paper #${p.paperNumber}</strong> is recorded. Thank you.</p>`));
+  }
+  if (p.authorEmail) {
+    await sendEmail([p.authorEmail], "Your INTERCEPT paper has been reviewed", interceptShell(`
+      <p style="color:#e5e5e5;font-size:14px">Your paper has completed a review round.</p>
+      <p style="color:#a3a3a3;font-size:14px;line-height:1.7">
+        &ldquo;<strong style="color:#fff">${esc(p.talkTitle)}</strong>&rdquo; has been evaluated. We&rsquo;ll
+        follow up with the final programme decision.
+      </p>`));
+  }
+}
+
 function esc(s: string) {
   return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
 }

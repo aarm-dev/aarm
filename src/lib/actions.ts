@@ -1,15 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { eq, and, ne } from "drizzle-orm";
 import { auth } from "@/auth";
 import { db, isDbConfigured } from "@/db";
-import { builders, claims, users, interceptSignups } from "@/db/schema";
+import { builders, claims, users, interceptSignups, speakerProfiles, papers, paperReviews } from "@/db/schema";
 import type {
   Category, Surface, Stage, ProductType, Audience, Deployment,
   InterceptionArchitecture, PolicyModel, AuthDecision,
 } from "@/db/taxonomy";
-import { notifyNewListing, notifyClaim, notifyListingDecision, notifyClaimDecision, notifyInterceptSignup } from "@/lib/notify";
+import {
+  notifyNewListing, notifyClaim, notifyListingDecision, notifyClaimDecision, notifyInterceptSignup,
+  notifyPaperSubmitted, notifyReviewComplete, notifyRoleGranted,
+} from "@/lib/notify";
 import { ACTIVATION_CODE } from "@/lib/conformance-config";
 
 function slugify(name: string) {
@@ -356,4 +359,178 @@ export async function submitInterceptSignup(input: {
   });
   await notifyInterceptSignup({ to: email, name: input.name, role: input.role || undefined });
   return { ok: true };
+}
+
+// ── INTERCEPT · Call for Papers + blind review ─────────────────────────────
+
+async function requireChairOrAdmin() {
+  const u = await requireUser();
+  if (!u.isAdmin && !(u as { isChair?: boolean }).isChair) throw new Error("Chair or admin only.");
+  return u;
+}
+async function requireEvaluator() {
+  const u = await requireUser();
+  const flags = u as { isAdmin?: boolean; isChair?: boolean; isEvaluator?: boolean };
+  if (!flags.isAdmin && !flags.isChair && !flags.isEvaluator) throw new Error("Evaluator access only.");
+  return u;
+}
+
+export async function getSpeakerProfile() {
+  const database = await requireDb();
+  const u = await requireUser();
+  const [p] = await database.select().from(speakerProfiles).where(eq(speakerProfiles.userId, u.id)).limit(1);
+  return p ?? null;
+}
+
+export async function getMyPaper() {
+  if (!isDbConfigured || !db) return null;
+  const session = await auth();
+  if (!session?.user?.id) return null;
+  const [p] = await db.select().from(papers).where(eq(papers.userId, session.user.id)).limit(1);
+  return p ?? null;
+}
+
+/** Save/refresh speaker profile + submit a paper. Emails a confirmation. */
+export async function submitPaper(input: {
+  firstName: string; lastName: string; bio: string; title: string; companyWebsite: string;
+  talkTitle: string; coreTopics: string; keyTakeaways: string; relevance: string;
+  fileUrl?: string; fileName?: string;
+}) {
+  const database = await requireDb();
+  const u = await requireUser();
+
+  if (!input.talkTitle.trim() || !input.coreTopics.trim() || !input.keyTakeaways.trim() || !input.relevance.trim()) {
+    throw new Error("Talk title and all three sections are required.");
+  }
+
+  await database
+    .insert(speakerProfiles)
+    .values({
+      userId: u.id, firstName: input.firstName, lastName: input.lastName,
+      bio: input.bio, title: input.title, companyWebsite: input.companyWebsite,
+    })
+    .onConflictDoUpdate({
+      target: speakerProfiles.userId,
+      set: {
+        firstName: input.firstName, lastName: input.lastName, bio: input.bio,
+        title: input.title, companyWebsite: input.companyWebsite, updatedAt: new Date(),
+      },
+    });
+
+  const existing = await getMyPaper();
+  if (existing) {
+    await database.update(papers).set({
+      title: input.talkTitle, coreTopics: input.coreTopics, keyTakeaways: input.keyTakeaways,
+      relevance: input.relevance, fileUrl: input.fileUrl ?? existing.fileUrl,
+      fileName: input.fileName ?? existing.fileName, updatedAt: new Date(),
+    }).where(eq(papers.id, existing.id));
+  } else {
+    await database.insert(papers).values({
+      userId: u.id, title: input.talkTitle, coreTopics: input.coreTopics,
+      keyTakeaways: input.keyTakeaways, relevance: input.relevance,
+      fileUrl: input.fileUrl, fileName: input.fileName, status: "pending",
+    });
+  }
+  await notifyPaperSubmitted({ to: u.email ?? "", talkTitle: input.talkTitle });
+  revalidatePath("/intercept/cfp");
+}
+
+// ── Chair/admin: people + roles ────────────────────────────────────────────
+
+export async function listPeople() {
+  const database = await requireDb();
+  await requireChairOrAdmin();
+  return database
+    .select({ id: users.id, name: users.name, email: users.email, isAdmin: users.isAdmin, isChair: users.isChair, isEvaluator: users.isEvaluator })
+    .from(users);
+}
+
+export async function setUserRole(userId: string, input: { isEvaluator?: boolean; isChair?: boolean }) {
+  const database = await requireDb();
+  const actor = await requireChairOrAdmin();
+  const [target] = await database.select().from(users).where(eq(users.id, userId)).limit(1);
+  await database.update(users).set({ isEvaluator: input.isEvaluator, isChair: input.isChair }).where(eq(users.id, userId));
+  if (input.isEvaluator && target?.email && !target.isEvaluator) {
+    await notifyRoleGranted({ to: target.email, role: "evaluator" });
+  }
+  revalidatePath("/admin/people");
+  void actor;
+}
+
+// ── Evaluator: blind review ────────────────────────────────────────────────
+
+/** Papers to review (not your own), with your review status + average. Blind. */
+export async function getReviewQueue() {
+  const database = await requireDb();
+  const u = await requireEvaluator();
+  const rows = await database
+    .select({ id: papers.id, number: papers.number, title: papers.title, status: papers.status })
+    .from(papers)
+    .where(ne(papers.userId, u.id))
+    .orderBy(papers.number);
+  const mine = await database.select().from(paperReviews).where(eq(paperReviews.evaluatorId, u.id));
+  const byPaper = new Map(mine.map((r) => [r.paperId, r]));
+  return rows.map((p) => {
+    const r = byPaper.get(p.id);
+    const scores = r ? [r.scoreCore, r.scoreTakeaways, r.scoreRelevance].filter((s): s is number => s != null) : [];
+    const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
+    return { ...p, reviewStatus: r?.completed ? "completed" : r ? "in_progress" : "not_started", avg };
+  });
+}
+
+/** A single paper for blind review — no author identity. */
+export async function getPaperForReview(paperId: string) {
+  const database = await requireDb();
+  const u = await requireEvaluator();
+  const [p] = await database
+    .select({ id: papers.id, number: papers.number, title: papers.title, coreTopics: papers.coreTopics, keyTakeaways: papers.keyTakeaways, relevance: papers.relevance, fileUrl: papers.fileUrl, fileName: papers.fileName })
+    .from(papers)
+    .where(eq(papers.id, paperId))
+    .limit(1);
+  if (!p) throw new Error("Paper not found.");
+  const [r] = await database
+    .select()
+    .from(paperReviews)
+    .where(and(eq(paperReviews.paperId, paperId), eq(paperReviews.evaluatorId, u.id)))
+    .limit(1);
+  return { paper: p, review: r ?? null };
+}
+
+export async function saveReviewScores(paperId: string, input: {
+  scoreCore?: number | null; commentCore?: string;
+  scoreTakeaways?: number | null; commentTakeaways?: string;
+  scoreRelevance?: number | null; commentRelevance?: string;
+}) {
+  const database = await requireDb();
+  const u = await requireEvaluator();
+  await database
+    .insert(paperReviews)
+    .values({ paperId, evaluatorId: u.id, ...input })
+    .onConflictDoUpdate({
+      target: [paperReviews.paperId, paperReviews.evaluatorId],
+      set: { ...input, updatedAt: new Date() },
+    });
+  revalidatePath("/intercept/review");
+}
+
+export async function completeReview(paperId: string) {
+  const database = await requireDb();
+  const u = await requireEvaluator();
+  const [r] = await database
+    .select()
+    .from(paperReviews)
+    .where(and(eq(paperReviews.paperId, paperId), eq(paperReviews.evaluatorId, u.id)))
+    .limit(1);
+  if (!r || r.scoreCore == null || r.scoreTakeaways == null || r.scoreRelevance == null) {
+    throw new Error("Score all three sections before completing the review.");
+  }
+  await database.update(paperReviews).set({ completed: true, completedAt: new Date() }).where(eq(paperReviews.id, r.id));
+  await database.update(papers).set({ status: "under_review", updatedAt: new Date() }).where(eq(papers.id, paperId));
+
+  const [p] = await database.select().from(papers).where(eq(papers.id, paperId)).limit(1);
+  if (p) {
+    const [author] = await database.select({ email: users.email }).from(users).where(eq(users.id, p.userId)).limit(1);
+    await notifyReviewComplete({ evaluatorEmail: u.email, authorEmail: author?.email ?? "", paperNumber: p.number, talkTitle: p.title });
+  }
+  revalidatePath("/intercept/review");
 }
