@@ -49,7 +49,7 @@ export default async function InterceptPage() {
             <InterceptAccountMenu name={u?.name} email={u?.email} image={u?.image} isChair={u?.isChair} isEvaluator={u?.isEvaluator} />
           ) : (
             <div className="flex items-center gap-4">
-              <a href="/intercept/cfp" className="font-mono text-[11px] uppercase tracking-widest text-neutral-400 transition-colors hover:text-white">Sign in</a>
+              <a href="/intercept/profile" className="font-mono text-[11px] uppercase tracking-widest text-neutral-400 transition-colors hover:text-white">Sign in</a>
               <a href="#signup" className="border border-[#FF7A00] px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-[#FF7A00] transition-colors hover:bg-[#FF7A00] hover:text-black">
                 [ Submit Interest ]
               </a>

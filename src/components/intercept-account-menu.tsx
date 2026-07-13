@@ -27,7 +27,7 @@ export function InterceptAccountMenu({ name, email, image, isChair, isEvaluator 
   const initial = (name || email || "?").trim()[0]?.toUpperCase() ?? "?";
 
   const items: { label: string; href: string; hint?: string }[] = [
-    { label: "My profile", href: "/intercept/cfp" },
+    { label: "My profile", href: "/intercept/profile" },
   ];
   if (isChair) {
     items.push({ label: "Conference", href: "/admin/intercept", hint: "Submissions of interest" });

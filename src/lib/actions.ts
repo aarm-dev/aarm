@@ -390,19 +390,15 @@ export async function getMyPaper() {
   return p ?? null;
 }
 
-/** Save/refresh speaker profile + submit a paper. Emails a confirmation. */
-export async function submitPaper(input: {
+/** Step 1: create/update the speaker profile. */
+export async function saveSpeakerProfile(input: {
   firstName: string; lastName: string; bio: string; title: string; companyWebsite: string;
-  talkTitle: string; coreTopics: string; keyTakeaways: string; relevance: string;
-  fileUrl?: string; fileName?: string;
 }) {
   const database = await requireDb();
   const u = await requireUser();
-
-  if (!input.talkTitle.trim() || !input.coreTopics.trim() || !input.keyTakeaways.trim() || !input.relevance.trim()) {
-    throw new Error("Talk title and all three sections are required.");
+  if (!input.firstName.trim() || !input.lastName.trim() || !input.bio.trim()) {
+    throw new Error("First name, surname, and bio are required.");
   }
-
   await database
     .insert(speakerProfiles)
     .values({
@@ -416,6 +412,23 @@ export async function submitPaper(input: {
         title: input.title, companyWebsite: input.companyWebsite, updatedAt: new Date(),
       },
     });
+  revalidatePath("/intercept/profile");
+}
+
+/** Step 2: submit (or update) a paper. Requires a speaker profile first. */
+export async function submitPaper(input: {
+  talkTitle: string; coreTopics: string; keyTakeaways: string; relevance: string;
+  fileUrl?: string; fileName?: string;
+}) {
+  const database = await requireDb();
+  const u = await requireUser();
+
+  const profile = await getSpeakerProfile();
+  if (!profile) throw new Error("Create your speaker profile first.");
+
+  if (!input.talkTitle.trim() || !input.coreTopics.trim() || !input.keyTakeaways.trim() || !input.relevance.trim()) {
+    throw new Error("Talk title and all three sections are required.");
+  }
 
   const existing = await getMyPaper();
   if (existing) {
