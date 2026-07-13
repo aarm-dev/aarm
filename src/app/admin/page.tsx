@@ -54,7 +54,23 @@ export default async function AdminPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-neutral-900">TWG Admin</h1>
-      <p className="mb-10 text-sm text-neutral-500">Review submissions and ownership claims.</p>
+      <p className="mb-6 text-sm text-neutral-500">Review submissions and ownership claims.</p>
+
+      {/* Quick links */}
+      <div className="mb-12 grid gap-3 sm:grid-cols-3">
+        <Link href="/admin/people" className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+          <div className="font-semibold text-neutral-900">People &amp; roles</div>
+          <div className="mt-0.5 text-xs text-neutral-500">See all users · make evaluators / chairs</div>
+        </Link>
+        <Link href="/admin/intercept" className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+          <div className="font-semibold text-neutral-900">INTERCEPT signups</div>
+          <div className="mt-0.5 text-xs text-neutral-500">Early-access interest list · export</div>
+        </Link>
+        <Link href="/builders" className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+          <div className="font-semibold text-neutral-900">Builder registry</div>
+          <div className="mt-0.5 text-xs text-neutral-500">Edit conformance per listing</div>
+        </Link>
+      </div>
 
       {/* Listing queue */}
       <section className="mb-14">

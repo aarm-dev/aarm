@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Press_Start_2P, JetBrains_Mono } from "next/font/google";
 import { InterceptSignup } from "@/components/intercept-signup";
-import { EVENT, EMCEE, SPEAKERS, PROGRAM } from "@/data/intercept";
+import { EVENT, EMCEE, SPEAKERS, PROGRAM, SPONSOR_TIERS } from "@/data/intercept";
 
 const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"], variable: "--font-pixel" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono-i" });
@@ -16,7 +16,7 @@ const GREEN = "#2EFF7B";
 const RED = "#FF3B30";
 
 const NAV = [
-  ["Program", "#program"], ["Speakers", "#speakers"], ["Call for Papers", "#cfp"],
+  ["Program", "#program"], ["Speakers", "#speakers"], ["Sponsors", "#sponsors"], ["Call for Papers", "#cfp"],
 ] as const;
 
 export default function InterceptPage() {
@@ -34,9 +34,12 @@ export default function InterceptPage() {
               <a key={href} href={href} className="font-mono text-xs uppercase tracking-widest text-neutral-400 transition-colors hover:text-white">{label}</a>
             ))}
           </nav>
-          <a href="#signup" className="border border-[#FF7A00] px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-[#FF7A00] transition-colors hover:bg-[#FF7A00] hover:text-black">
-            [ Submit Interest ]
-          </a>
+          <div className="flex items-center gap-4">
+            <a href="/login?next=/intercept/cfp" className="font-mono text-[11px] uppercase tracking-widest text-neutral-400 transition-colors hover:text-white">Sign in</a>
+            <a href="#signup" className="border border-[#FF7A00] px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-[#FF7A00] transition-colors hover:bg-[#FF7A00] hover:text-black">
+              [ Submit Interest ]
+            </a>
+          </div>
         </div>
       </header>
 
@@ -44,6 +47,8 @@ export default function InterceptPage() {
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-neutral-900">
           <div className="mx-auto max-w-6xl px-6 py-28 text-center sm:py-36">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo/light.svg" alt="AARM" className="mx-auto mb-5 h-5 w-auto opacity-90 sm:h-6" />
             <div className="mb-6 font-mono text-[11px] uppercase tracking-[0.4em] text-neutral-500">An AARM event</div>
             <h1 className="mx-auto leading-[1.15] text-white" style={{ fontFamily: "var(--font-pixel)", fontSize: "clamp(2.2rem, 9vw, 6rem)" }}>
               INTERCEPT
@@ -113,6 +118,25 @@ export default function InterceptPage() {
               <BadgeCard key={i} s={s} accent={s.track === "breakers" ? RED : s.track === "builders" ? GREEN : AMBER} />
             ))}
           </div>
+        </Section>
+
+        {/* Sponsors */}
+        <Section id="sponsors" kicker="Exhibitor expo" title="SPONSORS">
+          <div className="space-y-6">
+            {SPONSOR_TIERS.map((t) => (
+              <div key={t.tier}>
+                <div className="mb-3 font-mono text-xs uppercase tracking-widest" style={{ color: AMBER }}>{t.tier}</div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                  {Array.from({ length: t.slots }).map((_, i) => (
+                    <div key={i} className="flex h-20 items-center justify-center border border-dashed border-neutral-800 font-mono text-[11px] uppercase tracking-widest text-neutral-600">
+                      TBD
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 font-mono text-xs text-neutral-600">Tiers nod to AARM conformance levels. Sponsor + expo slots open — get in touch.</p>
         </Section>
 
         {/* Call for Papers */}
