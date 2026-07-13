@@ -27,9 +27,9 @@ export const EVENTS: AARMEvent[] = [
     id: "intercept-2026",
     name: "INTERCEPT 2026",
     url: "/intercept",
-    dateLabel: "November 12, 2026",
-    startISO: "2026-11-12",
-    endISO: "2026-11-12",
+    dateLabel: "October 14, 2026",
+    startISO: "2026-10-14",
+    endISO: "2026-10-14",
     location: "San Francisco, CA",
     description:
       "The inaugural INTERCEPT — a one-day event on intercepting and controlling AI agents at runtime. Talks are chosen through an open call for papers and blind peer review.",
