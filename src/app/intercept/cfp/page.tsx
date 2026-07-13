@@ -39,21 +39,24 @@ export default async function CfpPage() {
           <span className="mx-2 text-neutral-700">/</span>
           <Link href="/intercept/profile" className="hover:text-white">Profile</Link>
           <span className="mx-2 text-neutral-700">/</span>
-          <span className="text-neutral-300">Submit a paper</span>
+          <span className="text-neutral-300">{paper ? "Your submission" : "Submit a paper"}</span>
         </nav>
 
+        {/* Status above */}
         <div className="mb-6 flex flex-wrap items-center gap-3">
-          <h1 className="text-white" style={{ fontSize: "1.8rem", fontWeight: 800, letterSpacing: "2px" }}>SUBMIT A PAPER</h1>
+          <h1 className="text-white" style={{ fontSize: "1.8rem", fontWeight: 800, letterSpacing: "2px" }}>{paper ? "YOUR SUBMISSION" : "SUBMIT A PAPER"}</h1>
           {status && <span className={`border px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-widest ${status.cls}`}>{status.label}</span>}
         </div>
 
-        {/* Anonymize banner */}
-        <div className="mb-8 border-l-2 border-[#FF3B30] bg-[#FF3B30]/10 px-4 py-3">
-          <p className="font-mono text-sm text-[#FFB4AE]">
-            <span className="font-bold text-[#FF3B30]">Blind review:</span> do <strong>not</strong> include your
-            name or company name anywhere in the talk title or sections. Doing so will disqualify your submission.
-          </p>
-        </div>
+        {/* Anonymize banner — only while composing a new submission */}
+        {!paper && (
+          <div className="mb-8 border-l-2 border-[#FF3B30] bg-[#FF3B30]/10 px-4 py-3">
+            <p className="font-mono text-sm text-[#FFB4AE]">
+              <span className="font-bold text-[#FF3B30]">Blind review:</span> do <strong>not</strong> include your
+              name or company name anywhere in the talk title or sections. Doing so will disqualify your submission.
+            </p>
+          </div>
+        )}
 
         {/* No paper yet → submission form. Otherwise a locked, read-only view. */}
         {!paper ? (
