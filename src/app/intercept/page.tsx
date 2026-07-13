@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Press_Start_2P, JetBrains_Mono } from "next/font/google";
 import { InterceptSignup } from "@/components/intercept-signup";
+import { InterceptAccountMenu } from "@/components/intercept-account-menu";
+import { auth } from "@/auth";
 import { EVENT, EMCEE, SPEAKERS, PROGRAM, SPONSOR_TIERS } from "@/data/intercept";
 
 const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"], variable: "--font-pixel" });
@@ -19,7 +21,14 @@ const NAV = [
   ["Program", "#program"], ["Speakers", "#speakers"], ["Sponsors", "#sponsors"], ["Call for Papers", "#cfp"],
 ] as const;
 
-export default function InterceptPage() {
+export const dynamic = "force-dynamic";
+
+export default async function InterceptPage() {
+  const session = await auth();
+  const u = session?.user as
+    | { name?: string | null; email?: string | null; image?: string | null; isChair?: boolean; isEvaluator?: boolean }
+    | undefined;
+  const signedIn = !!session?.user;
   return (
     <div className={`${pixel.variable} ${mono.variable} min-h-screen bg-[#0A0A0A] text-neutral-200`} style={{ fontFamily: "var(--font-mono-i)" }}>
       {/* scanline overlay */}
@@ -34,12 +43,16 @@ export default function InterceptPage() {
               <a key={href} href={href} className="font-mono text-xs uppercase tracking-widest text-neutral-400 transition-colors hover:text-white">{label}</a>
             ))}
           </nav>
-          <div className="flex items-center gap-4">
-            <a href="/login?next=/intercept/cfp" className="font-mono text-[11px] uppercase tracking-widest text-neutral-400 transition-colors hover:text-white">Sign in</a>
-            <a href="#signup" className="border border-[#FF7A00] px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-[#FF7A00] transition-colors hover:bg-[#FF7A00] hover:text-black">
-              [ Submit Interest ]
-            </a>
-          </div>
+          {signedIn ? (
+            <InterceptAccountMenu name={u?.name} email={u?.email} image={u?.image} isChair={u?.isChair} isEvaluator={u?.isEvaluator} />
+          ) : (
+            <div className="flex items-center gap-4">
+              <a href="/login?next=/intercept/cfp" className="font-mono text-[11px] uppercase tracking-widest text-neutral-400 transition-colors hover:text-white">Sign in</a>
+              <a href="#signup" className="border border-[#FF7A00] px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-[#FF7A00] transition-colors hover:bg-[#FF7A00] hover:text-black">
+                [ Submit Interest ]
+              </a>
+            </div>
+          )}
         </div>
       </header>
 

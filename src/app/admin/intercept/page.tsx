@@ -15,8 +15,9 @@ export default async function InterceptSignupsPage() {
   }
   const session = await auth();
   if (!session?.user?.id) redirect("/login?next=/admin/intercept");
-  if (!(session.user as { isAdmin?: boolean }).isAdmin) {
-    return <div className="mx-auto max-w-3xl px-6 py-24 text-center text-neutral-500">Admin access only.</div>;
+  const u = session.user as { isAdmin?: boolean; isChair?: boolean };
+  if (!u.isAdmin && !u.isChair) {
+    return <div className="mx-auto max-w-3xl px-6 py-24 text-center text-neutral-500">Chair or admin access only.</div>;
   }
 
   const rows = await db.select().from(interceptSignups).orderBy(desc(interceptSignups.createdAt));
