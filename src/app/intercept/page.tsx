@@ -64,7 +64,7 @@ export default async function InterceptPage() {
           <div className="mx-auto max-w-6xl px-6 py-28 text-center sm:py-36">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo/light.svg" alt="AARM" className="mx-auto mb-5 h-5 w-auto opacity-90 sm:h-6" />
-            <div className="mb-6 font-mono text-[11px] uppercase tracking-[0.4em] text-neutral-500">An AARM event</div>
+            <div className="mb-6 font-mono text-[11px] uppercase tracking-[0.4em] text-neutral-500">The AARM Conference</div>
             <h1 className="mx-auto leading-[1.15] text-white" style={{ fontFamily: "var(--font-pixel)", fontSize: "clamp(2.2rem, 9vw, 6rem)" }}>
               INTERCEPT
             </h1>
