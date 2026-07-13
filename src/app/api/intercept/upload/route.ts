@@ -27,8 +27,10 @@ export async function POST(req: NextRequest) {
     }
 
     const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    // Store is private: papers stay gated behind auth and are served through
+    // /api/intercept/paper, never via a public URL.
     const blob = await put(`intercept-papers/${session.user.id}/${Date.now()}-${safe}`, file, {
-      access: "public",
+      access: "private",
       contentType: "application/pdf",
     });
     return NextResponse.json({ url: blob.url, name: file.name });

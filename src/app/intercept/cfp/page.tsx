@@ -87,7 +87,7 @@ export default async function CfpPage() {
               ))}
               {paper.fileName && (
                 <div className="font-mono text-xs text-neutral-500">
-                  Attached: {paper.fileUrl ? <a href={paper.fileUrl} target="_blank" rel="noopener noreferrer" className="text-[#2EFF7B] underline">{paper.fileName} ↗</a> : paper.fileName}
+                  Attached: {paper.fileUrl ? <a href={`/api/intercept/paper?id=${paper.id}`} target="_blank" rel="noopener noreferrer" className="text-[#2EFF7B] underline">{paper.fileName} ↗</a> : paper.fileName}
                 </div>
               )}
             </div>

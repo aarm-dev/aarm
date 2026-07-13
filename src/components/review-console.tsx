@@ -79,8 +79,6 @@ export function ReviewConsole({ queue: initialQueue, isChair = false }: { queue:
     });
   }
 
-  const isPdf = sel?.fileUrl && /\.pdf($|\?)/i.test(sel.fileUrl);
-
   return (
     <div className="grid gap-6 md:grid-cols-[280px_1fr]">
       {/* Left list */}
@@ -154,15 +152,14 @@ export function ReviewConsole({ queue: initialQueue, isChair = false }: { queue:
               </div>
             ))}
 
-            {/* File preview */}
+            {/* File preview — streamed through the gated proxy (private store) */}
             {sel.fileUrl && (
               <div className="border border-neutral-900 bg-neutral-950 p-5">
-                <div className="mb-3 font-mono text-[10px] uppercase tracking-widest text-neutral-500">Attached file — {sel.fileName || "file"}</div>
-                {isPdf ? (
-                  <iframe src={sel.fileUrl} className="h-96 w-full border border-neutral-800 bg-white" title="Paper file" />
-                ) : (
-                  <a href={sel.fileUrl} target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-[#2EFF7B] underline">Open file ↗</a>
-                )}
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-500">Attached paper — {sel.fileName || "paper.pdf"}</span>
+                  <a href={`/api/intercept/paper?id=${sel.id}`} target="_blank" rel="noopener noreferrer" className="font-mono text-xs text-[#2EFF7B] underline">Open ↗</a>
+                </div>
+                <iframe src={`/api/intercept/paper?id=${sel.id}`} className="h-96 w-full border border-neutral-800 bg-white" title="Paper file" />
               </div>
             )}
 
