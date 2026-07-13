@@ -38,7 +38,7 @@ export default async function ReviewPage() {
           Submissions are anonymized. Score each section 1&ndash;10 and leave a comment; mark the review
           completed once all three are scored.
         </p>
-        <ReviewConsole queue={queue} />
+        <ReviewConsole queue={queue} isChair={!!u.isAdmin || !!u.isChair} />
       </div>
     </div>
   );

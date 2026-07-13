@@ -312,6 +312,19 @@ export async function notifyReviewComplete(p: { evaluatorEmail?: string; authorE
   }
 }
 
+/** CFP: chair decision (accepted/rejected) to the author. */
+export async function notifyPaperDecision(p: { authorEmail: string; talkTitle: string; decision: "accepted" | "rejected" }) {
+  if (!p.authorEmail) return;
+  const accepted = p.decision === "accepted";
+  await sendEmail([p.authorEmail], accepted ? "Your INTERCEPT talk is accepted" : "Update on your INTERCEPT submission", interceptShell(`
+    <p style="color:#e5e5e5;font-size:14px">${accepted ? "Congratulations — your talk has been accepted." : "Thanks for your submission."}</p>
+    <p style="color:#a3a3a3;font-size:14px;line-height:1.7">
+      &ldquo;<strong style="color:#fff">${esc(p.talkTitle)}</strong>&rdquo; ${accepted
+        ? "was selected for INTERCEPT. We&rsquo;ll follow up shortly with speaker logistics."
+        : "was not selected for the programme this time. We&rsquo;d welcome a future submission."}
+    </p>`));
+}
+
 function esc(s: string) {
   return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
 }

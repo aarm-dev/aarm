@@ -15,6 +15,9 @@ export async function POST(req: NextRequest) {
   const form = await req.formData();
   const file = form.get("file");
   if (!(file instanceof File)) return NextResponse.json({ error: "No file." }, { status: 400 });
+  if (file.type !== "application/pdf" && !/\.pdf$/i.test(file.name)) {
+    return NextResponse.json({ error: "PDF files only." }, { status: 400 });
+  }
   if (file.size > 25 * 1024 * 1024) return NextResponse.json({ error: "Max 25MB." }, { status: 400 });
 
   const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");

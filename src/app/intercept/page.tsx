@@ -3,7 +3,8 @@ import { Press_Start_2P, JetBrains_Mono } from "next/font/google";
 import { InterceptSignup } from "@/components/intercept-signup";
 import { InterceptAccountMenu } from "@/components/intercept-account-menu";
 import { auth } from "@/auth";
-import { EVENT, EMCEE, SPEAKERS, PROGRAM, SPONSOR_TIERS } from "@/data/intercept";
+import { getEvaluators } from "@/lib/actions";
+import { EVENT, EMCEE, SPEAKERS, PROGRAM } from "@/data/intercept";
 
 const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"], variable: "--font-pixel" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono-i" });
@@ -29,6 +30,7 @@ export default async function InterceptPage() {
     | { name?: string | null; email?: string | null; image?: string | null; isChair?: boolean; isEvaluator?: boolean }
     | undefined;
   const signedIn = !!session?.user;
+  const evaluators = await getEvaluators();
   return (
     <div className={`${pixel.variable} ${mono.variable} min-h-screen bg-[#0A0A0A] text-neutral-200`} style={{ fontFamily: "var(--font-mono-i)" }}>
       {/* scanline overlay */}
@@ -47,7 +49,7 @@ export default async function InterceptPage() {
             <InterceptAccountMenu name={u?.name} email={u?.email} image={u?.image} isChair={u?.isChair} isEvaluator={u?.isEvaluator} />
           ) : (
             <div className="flex items-center gap-4">
-              <a href="/login?next=/intercept/cfp" className="font-mono text-[11px] uppercase tracking-widest text-neutral-400 transition-colors hover:text-white">Sign in</a>
+              <a href="/intercept/cfp" className="font-mono text-[11px] uppercase tracking-widest text-neutral-400 transition-colors hover:text-white">Sign in</a>
               <a href="#signup" className="border border-[#FF7A00] px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-[#FF7A00] transition-colors hover:bg-[#FF7A00] hover:text-black">
                 [ Submit Interest ]
               </a>
@@ -126,30 +128,35 @@ export default async function InterceptPage() {
 
         {/* Speakers */}
         <Section id="speakers" kicker="On stage" title="SPEAKERS">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {SPEAKERS.map((s, i) => (
-              <BadgeCard key={i} s={s} accent={s.track === "breakers" ? RED : s.track === "builders" ? GREEN : AMBER} />
-            ))}
-          </div>
+          <ComingSoon label="Speakers announced from the Call for Papers" />
+        </Section>
+
+        {/* Review panel / evaluators */}
+        <Section id="panel" kicker="Blind review panel" title="EVALUATORS">
+          {evaluators.length === 0 ? (
+            <ComingSoon label="Review panel announced soon" />
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {evaluators.map((e, i) => (
+                <div key={i} className="border border-neutral-800 bg-neutral-950 p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-[#FF7A00] font-mono text-sm font-bold text-[#FF7A00]">
+                      {(e.name || "?").split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-mono text-sm font-bold text-white">{e.name}</div>
+                      {e.title && <div className="mt-0.5 font-mono text-xs text-neutral-500">{e.title}</div>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </Section>
 
         {/* Sponsors */}
         <Section id="sponsors" kicker="Exhibitor expo" title="SPONSORS">
-          <div className="space-y-6">
-            {SPONSOR_TIERS.map((t) => (
-              <div key={t.tier}>
-                <div className="mb-3 font-mono text-xs uppercase tracking-widest" style={{ color: AMBER }}>{t.tier}</div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                  {Array.from({ length: t.slots }).map((_, i) => (
-                    <div key={i} className="flex h-20 items-center justify-center border border-dashed border-neutral-800 font-mono text-[11px] uppercase tracking-widest text-neutral-600">
-                      TBD
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="mt-4 font-mono text-xs text-neutral-600">Tiers nod to AARM conformance levels. Sponsor + expo slots open — get in touch.</p>
+          <ComingSoon label="Sponsor & exhibitor slots open — get in touch" />
         </Section>
 
         {/* Call for Papers */}
@@ -201,6 +208,15 @@ function Section({ id, kicker, title, children }: { id: string; kicker: string; 
         {children}
       </div>
     </section>
+  );
+}
+
+function ComingSoon({ label }: { label: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-2 border border-dashed border-neutral-800 py-16 text-center">
+      <div className="font-mono text-sm font-bold uppercase tracking-[0.3em] text-[#FF7A00]">Coming soon</div>
+      <div className="font-mono text-xs text-neutral-500">{label}</div>
+    </div>
   );
 }
 

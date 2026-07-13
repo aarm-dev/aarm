@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { getPaperForReview, saveReviewScores, completeReview } from "@/lib/actions";
+import { getPaperForReview, saveReviewScores, completeReview, getPaperReviews, setPaperDecision } from "@/lib/actions";
+
+type ChairReview = {
+  evaluatorName: string | null; evaluatorEmail: string | null;
+  scoreCore: number | null; scoreTakeaways: number | null; scoreRelevance: number | null;
+  commentCore: string | null; commentTakeaways: string | null; commentRelevance: string | null;
+  completed: boolean | null;
+};
 
 type QueueItem = { id: string; number: number; title: string; status: string; reviewStatus: string; avg: number | null };
 type Paper = { id: string; number: number; title: string; coreTopics: string | null; keyTakeaways: string | null; relevance: string | null; fileUrl: string | null; fileName: string | null };
@@ -12,7 +19,7 @@ const SECTIONS = [
   { key: "Relevance", label: "Why it matters & who it's for", field: "relevance" as const },
 ];
 
-export function ReviewConsole({ queue: initialQueue }: { queue: QueueItem[] }) {
+export function ReviewConsole({ queue: initialQueue, isChair = false }: { queue: QueueItem[]; isChair?: boolean }) {
   const [queue, setQueue] = useState(initialQueue);
   const [sel, setSel] = useState<Paper | null>(null);
   const [scores, setScores] = useState<Record<string, number | null>>({});
@@ -20,15 +27,26 @@ export function ReviewConsole({ queue: initialQueue }: { queue: QueueItem[] }) {
   const [pending, start] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
   const [completed, setCompleted] = useState(false);
+  const [chairReviews, setChairReviews] = useState<ChairReview[]>([]);
+  const [decision, setDecision] = useState<string | null>(null);
 
   function open(id: string) {
-    setMsg(null);
+    setMsg(null); setDecision(null); setChairReviews([]);
     start(async () => {
       const { paper, review } = await getPaperForReview(id);
       setSel(paper as Paper);
       setScores({ Core: review?.scoreCore ?? null, Takeaways: review?.scoreTakeaways ?? null, Relevance: review?.scoreRelevance ?? null });
       setComments({ Core: review?.commentCore ?? "", Takeaways: review?.commentTakeaways ?? "", Relevance: review?.commentRelevance ?? "" });
       setCompleted(!!review?.completed);
+      if (isChair) setChairReviews(await getPaperReviews(id));
+    });
+  }
+
+  function decide(d: "accepted" | "rejected") {
+    if (!sel) return;
+    start(async () => {
+      try { await setPaperDecision(sel.id, d); setDecision(d); }
+      catch (e) { setMsg(e instanceof Error ? e.message : "Could not set decision."); }
     });
   }
 
@@ -152,6 +170,46 @@ export function ReviewConsole({ queue: initialQueue }: { queue: QueueItem[] }) {
               <button onClick={save} disabled={pending} className="border border-neutral-700 px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-neutral-300 hover:border-neutral-500 disabled:opacity-40">
                 {pending ? "Saving…" : "Save progress"}
               </button>
+            )}
+
+            {/* Chair: all evaluator scores + decision */}
+            {isChair && (
+              <div className="mt-4 border-t border-neutral-800 pt-6">
+                <div className="mb-4 font-mono text-xs uppercase tracking-[0.25em] text-[#FF7A00]">Chair · all reviews ({chairReviews.length})</div>
+                {chairReviews.length === 0 ? (
+                  <p className="font-mono text-xs text-neutral-600">No reviews recorded yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {chairReviews.map((r, i) => {
+                      const nums = [r.scoreCore, r.scoreTakeaways, r.scoreRelevance].filter((s): s is number => s != null);
+                      const avg = nums.length ? (nums.reduce((a, b) => a + b, 0) / nums.length).toFixed(1) : "—";
+                      return (
+                        <div key={i} className="border border-neutral-900 bg-neutral-950 p-4">
+                          <div className="flex items-center justify-between font-mono text-xs">
+                            <span className="text-neutral-300">{r.evaluatorName || r.evaluatorEmail || "Evaluator"}</span>
+                            <span className={r.completed ? "text-[#2EFF7B]" : "text-[#FF7A00]"}>{r.completed ? "completed" : "in progress"} · avg {avg}</span>
+                          </div>
+                          <div className="mt-3 space-y-2">
+                            {[["Core topics", r.scoreCore, r.commentCore], ["Key takeaways", r.scoreTakeaways, r.commentTakeaways], ["Relevance", r.scoreRelevance, r.commentRelevance]].map(([lab, sc, cm], j) => (
+                              <div key={j} className="font-mono text-xs">
+                                <span className="text-neutral-500">{lab as string}: </span>
+                                <span className="text-white">{sc != null ? `${sc}/10` : "—"}</span>
+                                {cm ? <span className="text-neutral-400"> — {cm as string}</span> : null}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div className="mt-5 flex items-center gap-3">
+                  <button onClick={() => decide("accepted")} disabled={pending} className="border border-[#2EFF7B] px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-[#2EFF7B] hover:bg-[#2EFF7B] hover:text-black disabled:opacity-40">Approve</button>
+                  <button onClick={() => decide("rejected")} disabled={pending} className="border border-[#FF3B30] px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-[#FF3B30] hover:bg-[#FF3B30] hover:text-black disabled:opacity-40">Reject</button>
+                  {decision && <span className="font-mono text-xs text-neutral-400">Marked {decision}. Author emailed.</span>}
+                </div>
+              </div>
             )}
           </div>
         )}

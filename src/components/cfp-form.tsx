@@ -33,6 +33,11 @@ export function CfpForm({ profile, paper }: { profile: SpeakerProfileRow | null;
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
+    if (f.type !== "application/pdf" && !/\.pdf$/i.test(f.name)) {
+      setUploadNote("PDF files only.");
+      e.target.value = "";
+      return;
+    }
     setUploading(true); setUploadNote(null);
     try {
       const fd = new FormData();
@@ -73,8 +78,8 @@ export function CfpForm({ profile, paper }: { profile: SpeakerProfileRow | null;
         <div><label className={label}>Why it matters &amp; who it&apos;s for *</label><textarea rows={4} className={field} value={relevance} onChange={(e) => setRelevance(e.target.value)} /></div>
 
         <div>
-          <label className={label}>Supporting file (slides / paper — optional)</label>
-          <input type="file" onChange={onFile} className="block w-full font-mono text-xs text-neutral-400 file:mr-3 file:border file:border-neutral-700 file:bg-black file:px-3 file:py-1.5 file:font-mono file:text-xs file:uppercase file:tracking-widest file:text-[#FF7A00]" />
+          <label className={label}>Supporting paper (PDF only — optional)</label>
+          <input type="file" accept="application/pdf,.pdf" onChange={onFile} className="block w-full font-mono text-xs text-neutral-400 file:mr-3 file:border file:border-neutral-700 file:bg-black file:px-3 file:py-1.5 file:font-mono file:text-xs file:uppercase file:tracking-widest file:text-[#FF7A00]" />
           {uploading && <p className="mt-2 font-mono text-xs text-neutral-500">Uploading…</p>}
           {fileName && !uploading && <p className="mt-2 font-mono text-xs text-[#2EFF7B]">Attached: {fileName}</p>}
           {uploadNote && <p className="mt-2 font-mono text-xs text-neutral-500">{uploadNote} You can still submit without a file.</p>}

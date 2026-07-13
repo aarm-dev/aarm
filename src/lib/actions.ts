@@ -11,7 +11,7 @@ import type {
 } from "@/db/taxonomy";
 import {
   notifyNewListing, notifyClaim, notifyListingDecision, notifyClaimDecision, notifyInterceptSignup,
-  notifyPaperSubmitted, notifyReviewComplete, notifyRoleGranted,
+  notifyPaperSubmitted, notifyReviewComplete, notifyRoleGranted, notifyPaperDecision,
 } from "@/lib/notify";
 import { ACTIVATION_CODE } from "@/lib/conformance-config";
 
@@ -531,6 +531,51 @@ export async function completeReview(paperId: string) {
   if (p) {
     const [author] = await database.select({ email: users.email }).from(users).where(eq(users.id, p.userId)).limit(1);
     await notifyReviewComplete({ evaluatorEmail: u.email, authorEmail: author?.email ?? "", paperNumber: p.number, talkTitle: p.title });
+  }
+  revalidatePath("/intercept/review");
+}
+
+// ── INTERCEPT · evaluators list + chair decisions ──────────────────────────
+
+/** Public: explicitly-marked evaluators for the landing-page panel. */
+export async function getEvaluators() {
+  if (!isDbConfigured || !db) return [] as { name: string; title: string | null }[];
+  const rows = await db
+    .select({ name: users.name, first: speakerProfiles.firstName, last: speakerProfiles.lastName, title: speakerProfiles.title })
+    .from(users)
+    .leftJoin(speakerProfiles, eq(speakerProfiles.userId, users.id))
+    .where(eq(users.isEvaluator, true));
+  return rows.map((r) => ({
+    name: r.first && r.last ? `${r.first} ${r.last}` : r.name || "Evaluator",
+    title: r.title ?? null,
+  }));
+}
+
+/** Chair/admin: all reviews for a paper (evaluator + 3 scores + 3 comments). */
+export async function getPaperReviews(paperId: string) {
+  const database = await requireDb();
+  await requireChairOrAdmin();
+  return database
+    .select({
+      evaluatorName: users.name, evaluatorEmail: users.email,
+      scoreCore: paperReviews.scoreCore, scoreTakeaways: paperReviews.scoreTakeaways, scoreRelevance: paperReviews.scoreRelevance,
+      commentCore: paperReviews.commentCore, commentTakeaways: paperReviews.commentTakeaways, commentRelevance: paperReviews.commentRelevance,
+      completed: paperReviews.completed,
+    })
+    .from(paperReviews)
+    .leftJoin(users, eq(users.id, paperReviews.evaluatorId))
+    .where(eq(paperReviews.paperId, paperId));
+}
+
+/** Chair/admin: accept or reject a paper; emails the author the outcome. */
+export async function setPaperDecision(paperId: string, decision: "accepted" | "rejected") {
+  const database = await requireDb();
+  await requireChairOrAdmin();
+  await database.update(papers).set({ status: decision, updatedAt: new Date() }).where(eq(papers.id, paperId));
+  const [p] = await database.select().from(papers).where(eq(papers.id, paperId)).limit(1);
+  if (p) {
+    const [author] = await database.select({ email: users.email }).from(users).where(eq(users.id, p.userId)).limit(1);
+    await notifyPaperDecision({ authorEmail: author?.email ?? "", talkTitle: p.title, decision });
   }
   revalidatePath("/intercept/review");
 }
