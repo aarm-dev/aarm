@@ -321,7 +321,10 @@ export async function notifyPaperDecision(p: { authorEmail: string; talkTitle: s
     <p style="color:#a3a3a3;font-size:14px;line-height:1.7">
       &ldquo;<strong style="color:#fff">${esc(p.talkTitle)}</strong>&rdquo; ${accepted
         ? "was selected for INTERCEPT. We&rsquo;ll follow up shortly with speaker logistics."
-        : "was not selected for the programme this time. We&rsquo;d welcome a future submission."}
+        : "was not selected for the programme this time. You can read the reviewers&rsquo; feedback on your submission page."}
+    </p>
+    <p style="margin:20px 0 0">
+      <a href="${SITE()}/intercept/cfp" style="display:inline-block;border:2px solid #FF7A00;color:#FF7A00;text-decoration:none;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:12px 20px">Review your submission →</a>
     </p>`));
 }
 

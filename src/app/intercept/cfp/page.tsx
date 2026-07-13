@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { isDbConfigured } from "@/db";
-import { getSpeakerProfile, getMyPaper } from "@/lib/actions";
+import { getSpeakerProfile, getMyPaper, getMyPaperReviews } from "@/lib/actions";
 import { CfpForm } from "@/components/cfp-form";
 
 export const metadata: Metadata = { title: "Submit a paper — INTERCEPT" };
@@ -28,6 +28,8 @@ export default async function CfpPage() {
 
   const paper = await getMyPaper();
   const status = paper ? STATUS[paper.status] ?? STATUS.pending : null;
+  const decided = paper?.status === "accepted" || paper?.status === "rejected";
+  const { reviews } = decided ? await getMyPaperReviews() : { reviews: [] };
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-neutral-200" style={{ fontFamily: "ui-monospace,SFMono-Regular,Menlo,monospace" }}>
@@ -53,13 +55,42 @@ export default async function CfpPage() {
           </p>
         </div>
 
-        {paper && (
+        {paper && !decided && (
           <div className="mb-8 border border-neutral-800 bg-neutral-950 p-5 font-mono text-sm text-neutral-400">
             Submitted as <span className="text-white">Paper #{paper.number}</span>. You can update it below until review begins.
           </div>
         )}
 
-        <CfpForm paper={paper} />
+        {/* Reviewer feedback — shown once a decision is made (blind) */}
+        {decided && (
+          <div className="mb-10">
+            <div className="mb-4 border p-5 font-mono text-sm" style={{ borderColor: paper!.status === "accepted" ? "#2EFF7B" : "#FF3B30" }}>
+              <span className={paper!.status === "accepted" ? "text-[#2EFF7B]" : "text-[#FF3B30]"}>
+                {paper!.status === "accepted" ? "Accepted" : "Not selected"}
+              </span>
+              <span className="text-neutral-400"> — Paper #{paper!.number}. {reviews.length} blind review{reviews.length === 1 ? "" : "s"} below.</span>
+            </div>
+            <div className="space-y-4">
+              {reviews.map((r, i) => (
+                <div key={i} className="border border-neutral-800 bg-neutral-950 p-5">
+                  <div className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-[#FF7A00]">Evaluator {i + 1}</div>
+                  <div className="space-y-2 font-mono text-sm">
+                    {([["Core topics", r.scoreCore, r.commentCore], ["Key takeaways", r.scoreTakeaways, r.commentTakeaways], ["Why it matters", r.scoreRelevance, r.commentRelevance]] as const).map(([lab, sc, cm], j) => (
+                      <div key={j}>
+                        <span className="text-neutral-500">{lab}: </span>
+                        <span className="text-white">{sc != null ? `${sc}/10` : "—"}</span>
+                        {cm ? <div className="mt-0.5 text-neutral-400">{cm}</div> : null}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              {reviews.length === 0 && <p className="font-mono text-sm text-neutral-600">No written feedback was recorded.</p>}
+            </div>
+          </div>
+        )}
+
+        {!decided && <CfpForm paper={paper} />}
       </div>
     </div>
   );

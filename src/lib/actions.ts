@@ -448,6 +448,28 @@ export async function submitPaper(input: {
   revalidatePath("/intercept/cfp");
 }
 
+/**
+ * The author's own reviews — anonymized (Evaluator 1, 2, 3…) — exposed only
+ * once a decision has been made, so feedback doesn't leak mid-review.
+ */
+export async function getMyPaperReviews() {
+  const database = await requireDb();
+  const u = await requireUser();
+  const [p] = await database.select().from(papers).where(eq(papers.userId, u.id)).limit(1);
+  if (!p || (p.status !== "accepted" && p.status !== "rejected")) {
+    return { status: p?.status ?? null, reviews: [] as { scoreCore: number | null; scoreTakeaways: number | null; scoreRelevance: number | null; commentCore: string | null; commentTakeaways: string | null; commentRelevance: string | null }[] };
+  }
+  const rows = await database
+    .select({
+      scoreCore: paperReviews.scoreCore, scoreTakeaways: paperReviews.scoreTakeaways, scoreRelevance: paperReviews.scoreRelevance,
+      commentCore: paperReviews.commentCore, commentTakeaways: paperReviews.commentTakeaways, commentRelevance: paperReviews.commentRelevance,
+    })
+    .from(paperReviews)
+    .where(and(eq(paperReviews.paperId, p.id), eq(paperReviews.completed, true)))
+    .orderBy(paperReviews.createdAt);
+  return { status: p.status, reviews: rows };
+}
+
 // ── Chair/admin: people + roles ────────────────────────────────────────────
 
 export async function listPeople() {
