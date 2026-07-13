@@ -22,7 +22,7 @@ export default async function HomePage() {
       {/* Spotlight banner — automatically shows the soonest upcoming event (see src/data/events.ts) */}
       {spotlight && (
         <Link
-          href="/events"
+          href={spotlight.url?.startsWith("/") ? spotlight.url : "/events"}
           className="block border-b border-neutral-200 bg-neutral-900 px-6 py-2.5 transition-colors hover:bg-neutral-800"
         >
           <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center">
@@ -31,6 +31,7 @@ export default async function HomePage() {
             </span>
             <span className="text-sm text-white/90">
               {spotlight.name}
+              <span className="ml-1.5 text-white/50">· {spotlight.dateLabel}</span>
               {spotlight.location && (
                 <span className="ml-1.5 text-white/50">· {spotlight.location}</span>
               )}

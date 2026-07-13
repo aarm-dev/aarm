@@ -17,10 +17,25 @@ export type AARMEvent = {
   comingSoon?: boolean;
   /** Force into "Past" — for undated events that have already happened. */
   past?: boolean;
+  /** Promote ahead of other upcoming events — spotlight banner + top of the list. */
+  featured?: boolean;
   tag: EventTag;
 };
 
 export const EVENTS: AARMEvent[] = [
+  {
+    id: "intercept-2026",
+    name: "INTERCEPT 2026",
+    url: "/intercept",
+    dateLabel: "November 12, 2026",
+    startISO: "2026-11-12",
+    endISO: "2026-11-12",
+    location: "San Francisco, CA",
+    description:
+      "The inaugural INTERCEPT — a one-day event on intercepting and controlling AI agents at runtime. Talks are chosen through an open call for papers and blind peer review.",
+    tag: "Conference",
+    featured: true,
+  },
   {
     id: "aauth-night",
     name: "AAuth Night: Moving Beyond OAuth",
@@ -86,7 +101,10 @@ function startKey(e: AARMEvent): number {
 export function getEventsByStatus(now: Date = new Date()) {
   const sorted = [...EVENTS].sort((a, b) => startKey(a) - startKey(b));
   return {
-    upcoming: sorted.filter((e) => eventStatus(e, now) === "upcoming"),
+    // Featured events lead; otherwise soonest first (stable sort keeps date order).
+    upcoming: sorted
+      .filter((e) => eventStatus(e, now) === "upcoming")
+      .sort((a, b) => Number(!!b.featured) - Number(!!a.featured)),
     comingSoon: sorted.filter((e) => eventStatus(e, now) === "coming-soon"),
     // Past sorted most-recent first.
     past: sorted
@@ -95,7 +113,8 @@ export function getEventsByStatus(now: Date = new Date()) {
   };
 }
 
-/** The single event promoted to the homepage banner: the soonest upcoming event. */
+/** The single event promoted to the homepage banner: the featured event, else the soonest upcoming. */
 export function getSpotlightEvent(now: Date = new Date()): AARMEvent | null {
-  return getEventsByStatus(now).upcoming[0] ?? null;
+  const { upcoming } = getEventsByStatus(now);
+  return upcoming.find((e) => e.featured) ?? upcoming[0] ?? null;
 }

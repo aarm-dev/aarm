@@ -80,15 +80,25 @@ export default function EventsPage() {
                     )}
 
                     {event.url && (
-                      <a
-                        href={event.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-auto inline-flex items-center gap-1 text-sm font-semibold transition-opacity hover:opacity-70"
-                        style={{ color: "#1A6EB5" }}
-                      >
-                        Register / learn more ↗
-                      </a>
+                      event.url.startsWith("/") ? (
+                        <a
+                          href={event.url}
+                          className="mt-auto inline-flex items-center gap-1 text-sm font-semibold transition-opacity hover:opacity-70"
+                          style={{ color: "#1A6EB5" }}
+                        >
+                          View event &amp; call for papers →
+                        </a>
+                      ) : (
+                        <a
+                          href={event.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-auto inline-flex items-center gap-1 text-sm font-semibold transition-opacity hover:opacity-70"
+                          style={{ color: "#1A6EB5" }}
+                        >
+                          Register / learn more ↗
+                        </a>
+                      )
                     )}
                   </div>
                 );
