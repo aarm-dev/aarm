@@ -25,5 +25,7 @@ export async function GET() {
     fromSet: !!process.env.NOTIFY_FROM,
   };
 
-  return NextResponse.json({ dbConfigured: isDbConfigured, ok, builderCount, error, notify });
+  const blobConfigured = !!process.env.BLOB_READ_WRITE_TOKEN;
+
+  return NextResponse.json({ dbConfigured: isDbConfigured, ok, builderCount, error, notify, blobConfigured });
 }
