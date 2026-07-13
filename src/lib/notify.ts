@@ -162,26 +162,40 @@ export async function notifyClaimDecision(p: { to: string; builderName: string; 
 export async function notifyInterceptSignup(p: { to: string; name?: string; role?: string }) {
   if (!p.to) return;
   const name = (p.name && p.name.trim()) || "there";
+  const mono = "'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
   const html = `
-  <div style="background:#0A0A0A;padding:28px 16px">
-    <div style="max-width:520px;margin:0 auto;border:1px solid #262626;background:#0A0A0A;padding:32px;font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace">
-      <div style="font-size:26px;font-weight:800;letter-spacing:3px;color:#ffffff">INTERCEPT</div>
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:3px;color:#737373;margin-top:8px">Builders · Breakers · Defenders of Agentic Runtime Security</div>
-      <div style="height:2px;background:#FF7A00;margin:22px 0"></div>
-      <p style="color:#e5e5e5;font-size:14px">Dear ${esc(name)},</p>
-      <p style="color:#a3a3a3;font-size:14px;line-height:1.7">
-        Thanks for registering your interest in <strong style="color:#ffffff">INTERCEPT</strong>.
-        You&rsquo;re on the list — we&rsquo;ll notify you with updates as the program, speakers, and
-        venue come together.
-      </p>
-      <div style="border:1px solid #262626;padding:14px 16px;margin:22px 0">
-        <span style="color:#2EFF7B;font-weight:700;font-size:13px">ACCESS: PENDING</span>
-        <div style="color:#737373;font-size:12px;margin-top:6px">OCT 14 2026 // LOCATION TBA</div>
+  <div style="background:#000000;padding:0;margin:0">
+    <div style="max-width:560px;margin:0 auto;background:#0A0A0A;border:1px solid #1f1f1f">
+      <!-- top scanline bar -->
+      <div style="height:4px;background:repeating-linear-gradient(90deg,#FF7A00 0,#FF7A00 8px,#0A0A0A 8px,#0A0A0A 12px)"></div>
+      <div style="padding:36px 32px;font-family:${mono}">
+        <div style="font-size:11px;letter-spacing:4px;color:#FF7A00;text-transform:uppercase">▚ Access request received</div>
+        <div style="font-size:34px;font-weight:800;letter-spacing:4px;color:#ffffff;margin-top:14px">INTERCEPT</div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:3px;color:#737373;margin-top:8px">Builders · Breakers · Defenders of Agentic Runtime Security</div>
+
+        <div style="height:1px;background:#1f1f1f;margin:26px 0"></div>
+
+        <p style="color:#e5e5e5;font-size:14px;margin:0 0 14px">Dear ${esc(name)},</p>
+        <p style="color:#a3a3a3;font-size:14px;line-height:1.7;margin:0">
+          We&rsquo;ve got your request. Thanks for registering your interest in
+          <strong style="color:#ffffff">INTERCEPT</strong> — we&rsquo;ll email you with the details
+          as the program, speakers, and venue come together.
+        </p>
+
+        <div style="border:1px solid #1f1f1f;background:#000;padding:16px 18px;margin:26px 0">
+          <div style="color:#2EFF7B;font-weight:700;font-size:13px;letter-spacing:1px">STATUS: REGISTERED</div>
+          <div style="color:#737373;font-size:12px;margin-top:8px;letter-spacing:1px">OCT 14 2026 &nbsp;//&nbsp; LOCATION TBA</div>
+        </div>
+
+        <p style="color:#525252;font-size:12px;margin:0">
+          — The AARM team &nbsp;·&nbsp;
+          <a href="https://aarm.dev/intercept" style="color:#FF7A00;text-decoration:none">aarm.dev/intercept</a>
+        </p>
       </div>
-      <p style="color:#737373;font-size:12px">— The AARM team · <a href="https://aarm.dev" style="color:#FF7A00;text-decoration:none">aarm.dev</a></p>
+      <div style="height:4px;background:repeating-linear-gradient(90deg,#1f1f1f 0,#1f1f1f 8px,#0A0A0A 8px,#0A0A0A 12px)"></div>
     </div>
   </div>`;
-  await sendEmail([p.to], "You're on the list — INTERCEPT", html);
+  await sendEmail([p.to], "We've got your INTERCEPT request", html);
 
   const team = recipients();
   if (team.length) {
