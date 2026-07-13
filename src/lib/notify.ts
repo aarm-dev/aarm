@@ -162,39 +162,85 @@ export async function notifyClaimDecision(p: { to: string; builderName: string; 
 export async function notifyInterceptSignup(p: { to: string; name?: string; role?: string }) {
   if (!p.to) return;
   const name = (p.name && p.name.trim()) || "there";
+  const role = (p.role || "attendee").toUpperCase();
   const mono = "'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+  const AMBER = "#FF7A00", GREEN = "#2EFF7B", INK = "#0A0A0A", LINE = "#1f1f1f", MUTE = "#737373";
+
+  // Table-based layout for email-client compatibility. Reads like a
+  // tamper-evident access-pass receipt in the INTERCEPT arcade style.
   const html = `
-  <div style="background:#000000;padding:0;margin:0">
-    <div style="max-width:560px;margin:0 auto;background:#0A0A0A;border:1px solid #1f1f1f">
-      <!-- top scanline bar -->
-      <div style="height:4px;background:repeating-linear-gradient(90deg,#FF7A00 0,#FF7A00 8px,#0A0A0A 8px,#0A0A0A 12px)"></div>
-      <div style="padding:36px 32px;font-family:${mono}">
-        <div style="font-size:11px;letter-spacing:4px;color:#FF7A00;text-transform:uppercase">▚ Access request received</div>
-        <div style="font-size:34px;font-weight:800;letter-spacing:4px;color:#ffffff;margin-top:14px">INTERCEPT</div>
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:3px;color:#737373;margin-top:8px">Builders · Breakers · Defenders of Agentic Runtime Security</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#000000;margin:0;padding:24px 12px">
+    <tr><td align="center">
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:560px;max-width:100%;background:${INK};border:1px solid ${LINE}">
 
-        <div style="height:1px;background:#1f1f1f;margin:26px 0"></div>
+        <!-- perforated top edge -->
+        <tr><td style="height:6px;background-image:repeating-linear-gradient(90deg,${AMBER} 0,${AMBER} 10px,${INK} 10px,${INK} 16px);line-height:6px;font-size:0">&nbsp;</td></tr>
 
-        <p style="color:#e5e5e5;font-size:14px;margin:0 0 14px">Dear ${esc(name)},</p>
-        <p style="color:#a3a3a3;font-size:14px;line-height:1.7;margin:0">
-          We&rsquo;ve got your request. Thanks for registering your interest in
-          <strong style="color:#ffffff">INTERCEPT</strong> — we&rsquo;ll email you with the details
-          as the program, speakers, and venue come together.
-        </p>
+        <!-- header -->
+        <tr><td style="padding:34px 34px 0;font-family:${mono}">
+          <div style="font-size:10px;letter-spacing:5px;color:${AMBER};text-transform:uppercase">&#9698; Access request received</div>
+          <div style="font-size:40px;line-height:1;font-weight:800;letter-spacing:5px;color:#ffffff;margin-top:16px">INTERCEPT</div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:3px;color:${MUTE};margin-top:10px">Builders &middot; Breakers &middot; Defenders of Agentic Runtime Security</div>
+        </td></tr>
 
-        <div style="border:1px solid #1f1f1f;background:#000;padding:16px 18px;margin:26px 0">
-          <div style="color:#2EFF7B;font-weight:700;font-size:13px;letter-spacing:1px">STATUS: REGISTERED</div>
-          <div style="color:#737373;font-size:12px;margin-top:8px;letter-spacing:1px">OCT 14 2026 &nbsp;//&nbsp; LOCATION TBA</div>
-        </div>
+        <tr><td style="padding:26px 34px 0"><div style="height:1px;background:${LINE};font-size:0;line-height:0">&nbsp;</div></td></tr>
 
-        <p style="color:#525252;font-size:12px;margin:0">
-          — The AARM team &nbsp;·&nbsp;
-          <a href="https://aarm.dev/intercept" style="color:#FF7A00;text-decoration:none">aarm.dev/intercept</a>
-        </p>
-      </div>
-      <div style="height:4px;background:repeating-linear-gradient(90deg,#1f1f1f 0,#1f1f1f 8px,#0A0A0A 8px,#0A0A0A 12px)"></div>
-    </div>
-  </div>`;
+        <!-- message -->
+        <tr><td style="padding:22px 34px 0;font-family:${mono}">
+          <p style="color:#e5e5e5;font-size:14px;margin:0 0 12px">Dear ${esc(name)},</p>
+          <p style="color:#a3a3a3;font-size:14px;line-height:1.7;margin:0">
+            We&rsquo;ve got your request. Thanks for registering your interest in
+            <strong style="color:#ffffff">INTERCEPT</strong> — we&rsquo;ll email you with the
+            details as the program, speakers, and venue come together.
+          </p>
+        </td></tr>
+
+        <!-- access pass -->
+        <tr><td style="padding:24px 34px 0;font-family:${mono}">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#000;border:1px solid ${LINE}">
+            <tr><td style="padding:18px 20px">
+              <div style="color:${GREEN};font-weight:700;font-size:13px;letter-spacing:2px">&#9635; ACCESS PASS &nbsp; // &nbsp; STATUS: REGISTERED</div>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px">
+                <tr>
+                  <td style="width:50%;vertical-align:top">
+                    <div style="color:${MUTE};font-size:9px;letter-spacing:2px;text-transform:uppercase">Holder</div>
+                    <div style="color:#fff;font-size:14px;margin-top:4px">${esc(name)}</div>
+                  </td>
+                  <td style="width:50%;vertical-align:top">
+                    <div style="color:${MUTE};font-size:9px;letter-spacing:2px;text-transform:uppercase">Track</div>
+                    <div style="color:#fff;font-size:14px;margin-top:4px">${esc(role)}</div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-top:14px;vertical-align:top">
+                    <div style="color:${MUTE};font-size:9px;letter-spacing:2px;text-transform:uppercase">Date</div>
+                    <div style="color:#fff;font-size:14px;margin-top:4px">OCT 14 2026</div>
+                  </td>
+                  <td style="padding-top:14px;vertical-align:top">
+                    <div style="color:${MUTE};font-size:9px;letter-spacing:2px;text-transform:uppercase">Location</div>
+                    <div style="color:#fff;font-size:14px;margin-top:4px">TBA</div>
+                  </td>
+                </tr>
+              </table>
+            </td></tr>
+            <!-- fake barcode -->
+            <tr><td style="height:26px;background-image:repeating-linear-gradient(90deg,#3a3a3a 0,#3a3a3a 2px,#000 2px,#000 4px,#555 4px,#555 5px,#000 5px,#000 9px);line-height:26px;font-size:0">&nbsp;</td></tr>
+          </table>
+        </td></tr>
+
+        <!-- footer -->
+        <tr><td style="padding:22px 34px 30px;font-family:${mono}">
+          <p style="color:#525252;font-size:12px;margin:0">
+            &mdash; The AARM team &nbsp;&middot;&nbsp;
+            <a href="https://aarm.dev/intercept" style="color:${AMBER};text-decoration:none">aarm.dev/intercept</a>
+          </p>
+        </td></tr>
+
+        <!-- perforated bottom edge -->
+        <tr><td style="height:6px;background-image:repeating-linear-gradient(90deg,${LINE} 0,${LINE} 10px,${INK} 10px,${INK} 16px);line-height:6px;font-size:0">&nbsp;</td></tr>
+      </table>
+    </td></tr>
+  </table>`;
   await sendEmail([p.to], "We've got your INTERCEPT request", html);
 
   const team = recipients();
