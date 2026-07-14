@@ -45,7 +45,11 @@ export const BUILDER_DETAILS: BuilderDetail[] = [
     requirements: [
       { id: "R1", title: "Pre-execution interception", status: "pass" },
       { id: "R2", title: "Context accumulation", status: "pass" },
-      { id: "R3", title: "Policy evaluation with intent alignment", status: "pass" },
+      {
+        id: "R3",
+        title: "Policy evaluation with intent alignment",
+        status: "pass",
+      },
       { id: "R4", title: "Five authorization decisions", status: "pass" },
       { id: "R5", title: "Tamper-evident receipts", status: "pass" },
       { id: "R6", title: "Identity binding", status: "pass" },
@@ -58,11 +62,18 @@ export const BUILDER_DETAILS: BuilderDetail[] = [
       { label: "Funding", value: "$132M+ (Series B)" },
       { label: "Customers", value: "500+ enterprises including Fortune 500" },
       { label: "Team", value: "100+" },
-      { label: "Certifications", value: "SOC 2 Type II, ISO 27001, GDPR, HIPAA" },
+      {
+        label: "Certifications",
+        value: "SOC 2 Type II, ISO 27001, GDPR, HIPAA",
+      },
       { label: "Verified", value: "February 2025" },
     ],
     contact: [
-      { label: "Website", value: "noma.security", href: "https://noma.security" },
+      {
+        label: "Website",
+        value: "noma.security",
+        href: "https://noma.security",
+      },
     ],
   },
   {
@@ -90,7 +101,11 @@ export const BUILDER_DETAILS: BuilderDetail[] = [
     requirements: [
       { id: "R1", title: "Pre-execution interception", status: "pass" },
       { id: "R2", title: "Context accumulation", status: "pass" },
-      { id: "R3", title: "Policy evaluation with intent alignment", status: "pass" },
+      {
+        id: "R3",
+        title: "Policy evaluation with intent alignment",
+        status: "pass",
+      },
       { id: "R4", title: "Five authorization decisions", status: "pass" },
       { id: "R5", title: "Tamper-evident receipts", status: "pass" },
       { id: "R6", title: "Identity binding", status: "pass" },
@@ -101,21 +116,32 @@ export const BUILDER_DETAILS: BuilderDetail[] = [
     keyFacts: [
       { label: "Founded", value: "2025" },
       { label: "Funding", value: "$11M seed (Khosla Ventures, Felicis)" },
-      { label: "Customers", value: "Gusto, dbt Labs, Instacart, Opendoor + more" },
-      { label: "Leadership", value: "Andrew Berman (CEO), Tal Peretz, Vitor Balocco" },
+      {
+        label: "Customers",
+        value: "Gusto, dbt Labs, Instacart, Opendoor + more",
+      },
+      {
+        label: "Leadership",
+        value: "Andrew Berman (CEO), Tal Peretz, Vitor Balocco",
+      },
       { label: "Deployment", value: "Cloud or self-hosted (VPC)" },
       { label: "Verified", value: "April 2026" },
     ],
     contact: [
       { label: "Website", value: "runlayer.com", href: "https://runlayer.com" },
-      { label: "LinkedIn", value: "linkedin.com/company/runlayer", href: "https://www.linkedin.com/company/runlayer/" },
+      {
+        label: "LinkedIn",
+        value: "linkedin.com/company/runlayer",
+        href: "https://www.linkedin.com/company/runlayer/",
+      },
     ],
   },
   {
     slug: "formal",
     name: "Formal",
     url: "https://formal.ai",
-    tagline: "Protocol-aware reverse proxy for data, infrastructure, and AI agent traffic",
+    tagline:
+      "Protocol-aware reverse proxy for data, infrastructure, and AI agent traffic",
     conformanceLevel: "Core",
     verifiedDate: "April 2026",
     about:
@@ -133,7 +159,12 @@ export const BUILDER_DETAILS: BuilderDetail[] = [
     requirements: [
       { id: "R1", title: "Pre-execution interception", status: "pass" },
       { id: "R2", title: "Context accumulation", status: "pass" },
-      { id: "R3", title: "Policy evaluation with intent alignment", status: "pass", notes: "Deterministic; non intent-based" },
+      {
+        id: "R3",
+        title: "Policy evaluation with intent alignment",
+        status: "pass",
+        notes: "Deterministic; non intent-based",
+      },
       { id: "R4", title: "Five authorization decisions", status: "pass" },
       { id: "R5", title: "Tamper-evident receipts", status: "pass" },
       { id: "R6", title: "Identity binding", status: "pass" },
@@ -151,14 +182,19 @@ export const BUILDER_DETAILS: BuilderDetail[] = [
     ],
     contact: [
       { label: "Website", value: "formal.ai", href: "https://formal.ai" },
-      { label: "Docs", value: "docs.formal.ai", href: "https://docs.formal.ai" },
+      {
+        label: "Docs",
+        value: "docs.formal.ai",
+        href: "https://docs.formal.ai",
+      },
     ],
   },
   {
     slug: "operant",
     name: "Operant AI",
     url: "https://operant.ai",
-    tagline: "Runtime application protection for AI agents, MCP, and agentic workloads",
+    tagline:
+      "Runtime application protection for AI agents, MCP, and agentic workloads",
     conformanceLevel: "Extended",
     verifiedDate: "May 2026",
     about:
@@ -179,7 +215,11 @@ export const BUILDER_DETAILS: BuilderDetail[] = [
     requirements: [
       { id: "R1", title: "Pre-execution interception", status: "pass" },
       { id: "R2", title: "Context accumulation", status: "pass" },
-      { id: "R3", title: "Policy evaluation with intent alignment", status: "pass" },
+      {
+        id: "R3",
+        title: "Policy evaluation with intent alignment",
+        status: "pass",
+      },
       { id: "R4", title: "Five authorization decisions", status: "pass" },
       { id: "R5", title: "Tamper-evident receipts", status: "pass" },
       { id: "R6", title: "Identity binding", status: "pass" },
@@ -190,9 +230,15 @@ export const BUILDER_DETAILS: BuilderDetail[] = [
     keyFacts: [
       { label: "Headquarters", value: "San Francisco, USA" },
       { label: "Customers", value: "Chargebee + commercial customers" },
-      { label: "Leadership", value: "Vrajesh Bhavsar, Priyanka Tembey, Ashley Roof (Co-founders)" },
+      {
+        label: "Leadership",
+        value: "Vrajesh Bhavsar, Priyanka Tembey, Ashley Roof (Co-founders)",
+      },
       { label: "Compliance", value: "SOC 2 Type II (Advantage Partners)" },
-      { label: "Memberships", value: "CNCF, OWASP Foundation, Coalition for Secure AI" },
+      {
+        label: "Memberships",
+        value: "CNCF, OWASP Foundation, Coalition for Secure AI",
+      },
       { label: "Verified", value: "May 2026" },
     ],
     contact: [
@@ -221,7 +267,11 @@ export const BUILDER_DETAILS: BuilderDetail[] = [
     requirements: [
       { id: "R1", title: "Pre-execution interception", status: "pass" },
       { id: "R2", title: "Context accumulation", status: "pass" },
-      { id: "R3", title: "Policy evaluation with intent alignment", status: "pass" },
+      {
+        id: "R3",
+        title: "Policy evaluation with intent alignment",
+        status: "pass",
+      },
       { id: "R4", title: "Five authorization decisions", status: "pass" },
       { id: "R5", title: "Tamper-evident receipts", status: "pass" },
       { id: "R6", title: "Identity binding", status: "pass" },
@@ -235,6 +285,92 @@ export const BUILDER_DETAILS: BuilderDetail[] = [
     ],
     contact: [
       { label: "Website", value: "mintmcp.com", href: "https://mintmcp.com" },
+    ],
+  },
+  {
+    slug: "privatevault",
+    name: "PrivateVault",
+    url: "https://privatevault.ai",
+    tagline: "Pre-execution decision security runtime for autonomous AI agents",
+    conformanceLevel: "Core",
+    verifiedDate: "Pending review",
+    about:
+      "PrivateVault is a runtime that intercepts every proposed agent action before execution and evaluates it through a six-level deterministic precedence order -- enterprise constraints, behavioral invariants, capability grants, cost/ROI anomaly detection, and an advisory-only learned drift layer -- before a trusted-baseline allow. A deterministic BLOCK at any level is final and cannot be overridden by the learned layer or anything below it. Every decision, including every refusal, is sealed, hash-chained, and Ed25519-signed, and independently verifiable with a single standard-library Python script that has zero dependency on the producing codebase.",
+    capabilities: [
+      "Pre-execution HTTP interception (POST /v1/decide); HTTP status code carries the verdict (200/202/403)",
+      "Per-agent behavioral history tracked via a learned Markov transition model (session/task-thread context accumulation not yet a distinct mechanism)",
+      "Six-level deterministic precedence order, hash-pinned as a committed contract and verified against the actual code path by CI on every commit",
+      "Three authorization outcomes today (ALLOW, BLOCK, REQUIRE_APPROVAL); MODIFY, timeout-bound STEP_UP, and DEFER are a scoped, not-yet-shipped extension",
+      "SHA-256 hash-chained, Ed25519-signed decision and execution records; independent stdlib-only verifier detects field tampering, chain breaks, forged execution results, and enforcement divergence (a BLOCK verdict whose action executed anyway)",
+      "Every record cryptographically bound to an agent identity via a per-agent hash chain",
+    ],
+    architecture:
+      "The engine evaluates each proposed action through a strict, sequential precedence order with first-violation short-circuit: enterprise constraints (evidence-checked predicates against caller-supplied state) and behavioral invariants both terminate with a final BLOCK; capability grants (with expiry, revocation, and budget) and a cost/ROI anomaly check both escalate to REQUIRE_APPROVAL; a learned behavioral-drift layer is the only probabilistic component and can escalate but never override a deterministic decision. Fail-closed at both the decision-engine and HTTP layers: any internal fault produces a deterministic BLOCK rather than a silent pass or an unhandled error. The service survives being killed and restarted mid-stream -- hash-chain state is rebuilt from persistent storage rather than held only in memory. The wire format underlying the audit trail is published separately as an open specification (DRP) with canonical test vectors and the same independent verifier, so the evidence format is not locked to this implementation.",
+    requirements: [
+      {
+        id: "R1",
+        title: "Pre-execution interception",
+        status: "pass",
+        notes:
+          "POST /v1/decide intercepts every action before execution; HTTP status code IS the verdict.",
+      },
+      {
+        id: "R2",
+        title: "Context accumulation",
+        status: "na",
+        notes:
+          "Per-agent behavioral history is tracked; persistent session/task-thread context accumulation as a distinct mechanism is not yet implemented.",
+      },
+      {
+        id: "R3",
+        title: "Policy evaluation with intent alignment",
+        status: "pass",
+        notes:
+          "Canonical-target alignment checked across user request, planner, and tool call before execution.",
+      },
+      {
+        id: "R4",
+        title: "Five authorization decisions",
+        status: "fail",
+        notes:
+          "Three outcomes shipped today (ALLOW, BLOCK, REQUIRE_APPROVAL). MODIFY, distinct timeout-bound STEP_UP, and DEFER are a scoped extension, not yet built.",
+      },
+      {
+        id: "R5",
+        title: "Tamper-evident receipts",
+        status: "pass",
+        notes:
+          "Hash-chained, Ed25519-signed; independent stdlib-only verifier, zero dependency on this codebase.",
+      },
+      {
+        id: "R6",
+        title: "Identity binding",
+        status: "pass",
+        notes: "Every record bound to agent_id in a per-agent hash chain.",
+      },
+      { id: "R7", title: "Semantic distance tracking", status: "na" },
+      { id: "R8", title: "Telemetry export", status: "na" },
+      { id: "R9", title: "Least privilege enforcement", status: "na" },
+    ],
+    keyFacts: [
+      { label: "Headquarters", value: "Mumbai, India" },
+      { label: "Team", value: "Solo founder" },
+      {
+        label: "Certifications",
+        value: "None yet -- not started, no near-term claim",
+      },
+      {
+        label: "Open specification",
+        value: "DRP wire format published separately (Apache-2.0 / CC-BY-4.0)",
+      },
+      { label: "Verified", value: "Pending TWG review" },
+    ],
+    contact: [
+      {
+        label: "Website",
+        value: "privatevault.ai",
+        href: "https://privatevault.ai",
+      },
     ],
   },
 ];
