@@ -9,7 +9,7 @@ import { SEED_BUILDERS } from "../src/data/seed-builders";
 // a one-time reconcile list, for rows that can only be corrected via this script
 // (e.g. a claimed row whose conformance was set out of band). Remove slugs from
 // RECONCILE once they're managed in the admin editor.
-const RECONCILE = new Set<string>(["agent-governance-toolkit-microsoft", "noma"]);
+const RECONCILE = new Set<string>(["agent-governance-toolkit-microsoft", "noma", "airia"]);
 
 async function main() {
   const url =
