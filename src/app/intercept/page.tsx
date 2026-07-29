@@ -196,12 +196,15 @@ export default async function InterceptPage() {
             <p className="mt-3 font-mono text-xs text-neutral-600">✛ Some papers may be selected on a rolling basis before October 31.</p>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
             <a
               href="/intercept/cfp"
               className="inline-block border-2 border-[#FF7A00] bg-[#FF7A00] px-8 py-4 font-mono text-sm font-bold uppercase tracking-[0.2em] text-black transition-colors hover:bg-transparent hover:text-[#FF7A00]"
             >
               [ Submit a Paper ]
+            </a>
+            <a href="/intercept/call-for-papers" className="font-mono text-sm uppercase tracking-widest text-neutral-400 underline transition-colors hover:text-white">
+              Read the full call →
             </a>
           </div>
         </Section>
