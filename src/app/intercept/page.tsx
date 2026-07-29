@@ -11,7 +11,7 @@ const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono-i" });
 
 export const metadata: Metadata = {
   title: "INTERCEPT — Builders & Breakers of Agentic Runtime Security",
-  description: "INTERCEPT · Oct 14 2026. The conference for builders and breakers of agentic runtime security. An AARM event.",
+  description: "INTERCEPT · Feb 2027. The conference for builders and breakers of agentic runtime security. An AARM event.",
 };
 
 const AMBER = "#FF7A00";
