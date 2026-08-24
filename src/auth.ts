@@ -22,8 +22,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       })
     : undefined,
   providers: [
-    Google({ allowDangerousEmailAccountLinking: true }),
-    GitHub({ allowDangerousEmailAccountLinking: true }),
+    Google({ allowDangerousEmailAccountLinking: false }),
+    GitHub({ allowDangerousEmailAccountLinking: false }),
   ],
   session: { strategy: "database" },
   callbacks: {
