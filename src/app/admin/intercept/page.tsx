@@ -9,6 +9,14 @@ import { interceptSignups } from "@/db/schema";
 export const metadata: Metadata = { title: "INTERCEPT signups — Admin" };
 export const dynamic = "force-dynamic";
 
+function sanitizeCsvCell(value: unknown) {
+  const s = String(value ?? "");
+  // Neutralize spreadsheet formula injection (Excel/Sheets) for cells that begin with special characters.
+  // https://owasp.org/www-community/attacks/CSV_Injection
+  if (/^[=+\-@]/.test(s)) return `'${s}`;
+  return s;
+}
+
 export default async function InterceptSignupsPage() {
   if (!isDbConfigured || !db) {
     return <div className="mx-auto max-w-3xl px-6 py-24 text-center text-neutral-500">Database not configured.</div>;
@@ -24,10 +32,18 @@ export default async function InterceptSignupsPage() {
   const csv =
     "data:text/csv;charset=utf-8," +
     encodeURIComponent(
-      ["email,name,company,role,created_at", ...rows.map((r) =>
-        [r.email, r.name ?? "", r.company ?? "", r.role ?? "", new Date(r.createdAt).toISOString()]
-          .map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")
-      )].join("\n")
+      [
+        "email,name,company,role,created_at",
+        ...rows.map((r) => {
+          const values = [r.email, r.name ?? "", r.company ?? "", r.role ?? "", new Date(r.createdAt).toISOString()];
+          return values
+            .map((v) => {
+              const cell = sanitizeCsvCell(v);
+              return `"${cell.replace(/"/g, '""')}"`;
+            })
+            .join(",");
+        }),
+      ].join("\n")
     );
 
   return (
